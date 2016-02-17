@@ -1,3 +1,4 @@
+package Support;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,7 +16,6 @@ import java.util.Scanner;
 import FileManagement.DirectoryCRC;
 import FileManagement.FileWithProperties;
 import FileManagement.Reader;
-import FileManagement.Utilities;
 
 /**
  * 

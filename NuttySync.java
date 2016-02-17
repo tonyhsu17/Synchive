@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.IOException;
 
+import Support.Differ;
+
 /** Created by Tony Hsu. Free to use with credit.
  * Overview: Used as a backup tool, NuttySync will sync one directory (source or master) and sub folders to
  * another directory (destination or copy). Any files not in destination but in source will be moved to a dump
