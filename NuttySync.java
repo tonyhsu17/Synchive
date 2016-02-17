@@ -9,24 +9,24 @@ import java.io.IOException;
  */
 public class NuttySync
 {
-	public static void main(String[] args)
-	{
-		if(args.length != 2)
-			return;
-		// String curDir = "E:\\Tony Hsu\\Apps";
-		// String backupDir = "E:\\Tony Hsu\\TEST";
-		// System.out.println("YAY: " + Arrays.toString(args));
-		// String curDir = "E:\\Videos\\New Videos\\2015 Winter";
-		// String backupDir = "E:\\BACKUP TEST";
-		// @SuppressWarnings("unused")
-		// String str = "ō"; //force file into UTF-8 encoding to change runtime environment encoding
-		// String curDir = "E:\\SOUCE";
-		// String backupDir = "E:\\DESTINATION";
-		// Differ diff = new Differ(new File(curDir), new File(backupDir));
-		Differ diff = new Differ(new File(args[0]), new File(args[1]));
-		diff.syncLocations();
+   public static void main(String[] args)
+   {
+      if(args.length != 2)
+         return;
+      // String curDir = "E:\\Tony Hsu\\Apps";
+      // String backupDir = "E:\\Tony Hsu\\TEST";
+      // System.out.println("YAY: " + Arrays.toString(args));
+      // String curDir = "E:\\Videos\\New Videos\\2015 Winter";
+      // String backupDir = "E:\\BACKUP TEST";
+      // @SuppressWarnings("unused")
+      // String str = "ō"; //force file into UTF-8 encoding to change runtime environment encoding
+      // String curDir = "E:\\SOUCE";
+      // String backupDir = "E:\\DESTINATION";
+      // Differ diff = new Differ(new File(curDir), new File(backupDir));
+      Differ diff = new Differ(new File(args[0]), new File(args[1]));
+      diff.syncLocations();
 
-		return;
-	}
+      return;
+   }
 
 }
