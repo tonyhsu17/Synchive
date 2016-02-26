@@ -47,3 +47,4 @@ Temporary Items
 .apdisk
 *.class
 *.prefs
+/NuttySync.class
