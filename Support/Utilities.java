@@ -10,18 +10,17 @@ import java.util.zip.CheckedInputStream;
 /** Static Methods Class */
 public class Utilities
 {
-    public static final String CRC_FILE_NAME   = "~listOfFilesInCRC.txt";
+    public static final String CRC_FILE_NAME = "~listOfFilesInCRC.txt";
     public static final String AUDIT_FILE_NAME = "~auditTrail.txt";
-    public static final int    SOURCE          = 5;
-    public static final int    DESTINATION     = 10;
+    public static final int SOURCE = 5;
+    public static final int DESTINATION = 10;
 
     public static final String convertToCRCFile(String fileName, String CRC32)
     {
         return CRC32 + " \"" + fileName + "\"";
     }
 
-    public static final String convertToDirectoryLvl(String filePath, int level,
-            String rootPath)
+    public static final String convertToDirectoryLvl(String filePath, int level, String rootPath)
     {
         return "~" + level + ": " + filePath.substring(rootPath.length());
     }
@@ -42,8 +41,7 @@ public class Utilities
         }
         catch (IOException e)
         {
-            System.out.println("Unable to determine crc32 value for file: "
-                    + file.getName());
+            System.out.println("Unable to determine crc32 value for file: " + file.getName());
             return "";
         }
         return hex;

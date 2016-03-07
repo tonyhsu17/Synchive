@@ -14,7 +14,7 @@ import java.io.File;
 public class FileWithProperties extends File
 {
     private String crc32ValueName;
-    private int    level;                   // 0 = root, 1+ directory in root
+    private int level; // 0 = root, 1+ directory in root
 
     public FileWithProperties(File file)
     {

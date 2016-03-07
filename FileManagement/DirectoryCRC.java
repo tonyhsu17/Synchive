@@ -12,21 +12,16 @@ import java.util.Hashtable;
  *           is modified to FILE_EXIST. */
 public class DirectoryCRC
 {
-    // FileFlag is used to determine if FILE_EXIST then no need to copy file
-    // over, otherwise if FILE_NOT_EXIST,
-    // then the file will need to be copied over.
+    // FileFlag is used to determine if FILE_EXIST then no need to copy file over, otherwise if
+    // FILE_NOT_EXIST, then the file will need to be copied over.
     public static enum FileFlag
     {
         FILE_EXIST, FILE_NOT_EXIST
     }
 
-    private Hashtable<String, FileFlag> files;                   // <FileName,
-                                                                 // FILE_TYPE>
-    private String                      folderName;         // name of folder
-                                                            // including
-                                                            // relative
-                                                            // path
-    private String                      realFolderName; // name of folder
+    private Hashtable<String, FileFlag> files; // <FileName, FILE_TYPE>
+    private String folderName; // name of folder including relative path
+    private String realFolderName; // name of folder
 
     public DirectoryCRC(String folderName)
     {

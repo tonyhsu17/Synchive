@@ -19,43 +19,33 @@ import FileManagement.FileWithProperties;
 import FileManagement.Reader;
 
 
-/** @Category: Processing Class: Main grunt of the NuttySync
- * @Structure:
- * @Process: Reads in uid for source and if desCRC does not exist. After reading
- *           in every file, scans through array */
+/**
+ * @Category: Processing Class: Main grunt of the NuttySync
+ * @Process: Reads in uid for source and if desCRC does not exist generate file as well as reading uid for des.
+ *           After reading in every file, scan through source and for each file in src, mark if found in des, otherwise
+ *           copy into des. Afterwards, if file in des has not been marked, "delete" aka move to a separate location.
+ */
 public class Differ
 {
-    private final String                    FOLDER_PREFIX   = "~";
-    private final String                    LEFTOVER_FOLDER = "~leftovers";
+    private final String FOLDER_PREFIX = "~";
+    private final String LEFTOVER_FOLDER = "~leftovers";
     // srcLoc = source directory, desLoc = destination directory
     // crcFile = source crc file, desAudit = audit file
-    private File                            srcLoc, desLoc, crcFile, desAudit;
-    private BufferedWriter                  desAuditWriter;
-    private Hashtable<String, DirectoryCRC> folders;                                                     // Level
-                                                                                                         // +
-                                                                                                         // Directory
-                                                                                                         // to
-                                                                                                         // DirectoryWithFiles
-    private ArrayList<FileWithProperties>   sourceCRCFiles;                                       // list
-                                                                                                  // of
-                                                                                                  // all
-                                                                                                  // files
-                                                                                                  // in
-                                                                                                  // scr
-                                                                                                  // location
+    private File srcLoc, desLoc, crcFile, desAudit;
+    private BufferedWriter desAuditWriter;
+    private Hashtable<String, DirectoryCRC> folders; // Level + Directory to DirectoryWithFiles
+    private ArrayList<FileWithProperties> sourceCRCFiles; // list of all files in scr location
 
     public Differ(File curDir, File backupDir)
     {
         this.srcLoc = curDir;
         this.desLoc = backupDir;
-        desAudit = new File(desLoc.getPath() + "\\"
-                + Utilities.AUDIT_FILE_NAME);
+        desAudit = new File(desLoc.getPath() + "\\" + Utilities.AUDIT_FILE_NAME);
 
         try
         {
             desAuditWriter = new BufferedWriter(new FileWriter(desAudit));
-            crcFile = new File(backupDir.getPath() + "\\"
-                    + Utilities.CRC_FILE_NAME);
+            crcFile = new File(backupDir.getPath() + "\\" + Utilities.CRC_FILE_NAME);
             folders = new Hashtable<String, DirectoryCRC>();
             desAuditWriter.write("Audit Start");
             desAuditWriter.newLine();
@@ -66,8 +56,7 @@ public class Differ
             System.exit(1);
         }
 
-        if(!crcFile.exists()) // Case: First Time - If generation of crcFile of
-                              // des doesn't exist
+        if(!crcFile.exists()) // Case: First Time - If generation of crcFile of des doesn't exist
         {
             System.out.println("Generating Des CRCFile...");
             generateCRCFile();
@@ -81,11 +70,13 @@ public class Differ
         try
         {
             Reader rd = new Reader(desLoc, Utilities.DESTINATION);
-            rd.readinDirectory();
+            rd.readinDirectory(); // writes uid to file
         }
         catch (IOException e)
         {
             e.printStackTrace();
+            System.out.println("ERROR - Unable to create file");
+            System.exit(1);
         }
     }
 
@@ -96,10 +87,7 @@ public class Differ
             Scanner sc = new Scanner(crcFile);
             String str = sc.nextLine();
 
-            while(sc.hasNextLine() && str.startsWith(FOLDER_PREFIX)) // not
-                                                                     // finished
-                                                                     // and is a
-                                                                     // folder
+            while(sc.hasNextLine() && str.startsWith(FOLDER_PREFIX)) // not finished and is a folder
             {
                 DirectoryCRC dir = new DirectoryCRC(str);
                 String[] splitStr = str.split(" ");
@@ -139,11 +127,10 @@ public class Differ
             {
                 boolean isRoot = false;
                 // get file to search and search in hashTable of directories
-                FileWithProperties temp = sourceCRCFiles.get(i); // file to
-                                                                 // parse throgh
-                DirectoryCRC dir = folders.get(Utilities.convertToDirectoryLvl(temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath()));
-                if(temp.getParent().equals(srcLoc.getPath())) // if file is in
-                                                              // root dir
+                FileWithProperties temp = sourceCRCFiles.get(i); // file to parse throgh
+                DirectoryCRC dir =
+                    folders.get(Utilities.convertToDirectoryLvl(temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath()));
+                if(temp.getParent().equals(srcLoc.getPath())) // if file is in root dir
                     isRoot = true;
                 if(dir != null && dir.getFiles().size() > 0)
                 {
@@ -152,22 +139,15 @@ public class Differ
                     boolean flag = dir.doesFileExist(temp.getCRC32Value());
                     if(!flag) // file not exist
                     {
-                        dir.addFile(temp.getCRC32Value(), DirectoryCRC.FileFlag.FILE_EXIST); // add
-                                                                                             // to
-                                                                                             // hashTable
-                        copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy
-                                                                             // file
-                                                                             // over
+                        dir.addFile(temp.getCRC32Value(), DirectoryCRC.FileFlag.FILE_EXIST); // add to hashTable
+                        copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
                         if(isRoot)
                         {
-                            writeToAudit(desLoc, "Added \"" + temp.getName()
-                                    + "\" to \"root\"");
+                            writeToAudit(desLoc, "Added \"" + temp.getName() + "\" to \"root\"");
                         }
                         else
                         {
-                            writeToAudit(desLoc, "Added \"" + temp.getName()
-                                    + "\" to \"" + dir.getRealFolderName()
-                                    + "\"");
+                            writeToAudit(desLoc, "Added \"" + temp.getName() + "\" to \"" + dir.getRealFolderName() + "\"");
                         }
                     }
                 }
@@ -176,41 +156,29 @@ public class Differ
                     // make new directory
                     String relativeDir = temp.getParentFile().getName();
                     String relativeDirFromRoot = temp.getParent().substring(srcLoc.getPath().length());
-                    String destinationDir = desLoc.getPath()
-                            + relativeDirFromRoot;
+                    String destinationDir = desLoc.getPath() + relativeDirFromRoot;
                     if(isRoot)
                         relativeDir = "\\";
 
                     File fd = new File(destinationDir);
                     if(!isRoot)
                         createDirectory(fd);
-                    DirectoryCRC newDir = (isRoot)
-                            ? new DirectoryCRC(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
+                    DirectoryCRC newDir =
+                        (isRoot) ? new DirectoryCRC(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
                             : new DirectoryCRC(Utilities.convertToDirectoryLvl(fd.getPath(), temp.getLevel(), desLoc.getPath()));
 
                     newDir.setRealFolderName(relativeDir);
-                    newDir.addFile(temp.getCRC32Value(), DirectoryCRC.FileFlag.FILE_EXIST); // add
-                                                                                            // file
-                                                                                            // to
-                                                                                            // new
-                                                                                            // folder
-                    folders.put(newDir.getFolderName(), newDir); // add newDir
-                                                                 // to
-                                                                 // folderHashTable
+                    newDir.addFile(temp.getCRC32Value(), DirectoryCRC.FileFlag.FILE_EXIST); // add file to new folder
+                    folders.put(newDir.getFolderName(), newDir); // add newDir to folderHashTable
 
-                    copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy
-                                                                         // file
-                                                                         // over
+                    copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
                     if(isRoot)
                     {
-                        writeToAudit(desLoc, "Added \"" + temp.getName()
-                                + "\" to \"root\"");
+                        writeToAudit(desLoc, "Added \"" + temp.getName() + "\" to \"root\"");
                     }
                     else
                     {
-                        writeToAudit(desLoc, "Added \"" + temp.getName()
-                                + "\" to \"" + newDir.getRealFolderName()
-                                + "\"");
+                        writeToAudit(desLoc, "Added \"" + temp.getName() + "\" to \"" + newDir.getRealFolderName() + "\"");
                     }
                 }
             }
@@ -253,8 +221,7 @@ public class Differ
         {
             createDirectory(location.getParentFile());
         }
-        writeToAudit(desLoc, "Directory \"" + location.getName()
-                + "\" Created");
+        writeToAudit(desLoc, "Directory \"" + location.getName() + "\" Created");
         location.mkdir();
     }
 
@@ -262,8 +229,7 @@ public class Differ
     private void copyFile(File file, StandardCopyOption op) throws IOException
     {
         String relativePath = file.getParent().substring(srcLoc.getPath().length());
-        String destinationPath = desLoc.getPath() + relativePath + "\\"
-                + file.getName();
+        String destinationPath = desLoc.getPath() + relativePath + "\\" + file.getName();
         try
         {
             Files.copy(Paths.get(file.getPath()), Paths.get(destinationPath), op);
@@ -273,12 +239,10 @@ public class Differ
             System.out.println("Unable to copy file " + file.getName());
         }
         // CRC32 Check
-        // unoptimized, should grab src crcVal from file
-        // if failed... delete file and try again?
+        // unoptimized, should grab src crcVal from file if failed... delete file and try again?
         if(!Utilities.calculateCRC32(file).equals(Utilities.calculateCRC32(new File(destinationPath))))
         {
-            System.out.println("@@@@@@@@@@@ Copy Error! " + file.getName()
-                    + " @@@@@@@@@@@@");
+            System.out.println("@@@@@@@@@@@ Copy Error! " + file.getName() + " @@@@@@@@@@@@");
         }
     }
 
@@ -286,29 +250,25 @@ public class Differ
     private void cutFile(File file, StandardCopyOption op) throws IOException
     {
         String relativePath = file.getParent().substring(desLoc.getPath().length());
-        String destinationPath = desLoc.getPath() + "\\" + LEFTOVER_FOLDER
-                + relativePath + "\\" + file.getName();
+        String destinationPath = desLoc.getPath() + "\\" + LEFTOVER_FOLDER + relativePath + "\\" + file.getName();
 
         try
         {
             Files.copy(Paths.get(file.getPath()), Paths.get(destinationPath), op);
             if(!Utilities.calculateCRC32(file).equals(Utilities.calculateCRC32(new File(destinationPath))))
             {
-                System.out.println("@@@@@@@@@@@ Copy Error! " + file.getName()
-                        + " @@@@@@@@@@@@");
+                System.out.println("@@@@@@@@@@@ Copy Error! " + file.getName() + " @@@@@@@@@@@@");
             }
             file.delete();
-            writeToAudit(desLoc, "File \"" + file.getName() + "\" in \""
-                    + relativePath + "\" not found in source. Moved to \""
-                    + LEFTOVER_FOLDER + "\"");
+            writeToAudit(desLoc,
+                "File \"" + file.getName() + "\" in \"" + relativePath + "\" not found in source. Moved to \"" + LEFTOVER_FOLDER + "\"");
         }
         catch (IOException e)
         {
             System.out.println("Unable to cut file " + file.getName());
         }
         // CRC32 Check
-        // unoptimized, should grab src crcVal from file
-        // if failed... delete file and try again?
+        // unoptimized, should grab src crcVal from file if failed... delete file and try again?
 
     }
 
@@ -349,10 +309,7 @@ public class Differ
                     DirectoryCRC.FileFlag val = dir.getValueForKey(fileCRC);
                     if(val != null)
                     {
-                        if(val == DirectoryCRC.FileFlag.FILE_EXIST) // only
-                                                                    // write
-                                                                    // matching
-                                                                    // files
+                        if(val == DirectoryCRC.FileFlag.FILE_EXIST) // only write matching files
                         {
                             output.write(fileCRC);
                             output.newLine();
@@ -360,8 +317,7 @@ public class Differ
                         else if(val == DirectoryCRC.FileFlag.FILE_NOT_EXIST)
                         {
                             // make leftover folder for not found ones
-                            File leftoversFolder = new File(desLoc.getPath()
-                                    + "\\" + LEFTOVER_FOLDER);
+                            File leftoversFolder = new File(desLoc.getPath() + "\\" + LEFTOVER_FOLDER);
                             if(!Files.exists(leftoversFolder.toPath()))
                                 createDirectory(leftoversFolder);
 
@@ -377,9 +333,7 @@ public class Differ
                             removeEmptyDirectories(toRemove.getParentFile());
                         }
                     }
-
                 }
-
             }
             output.close();
         }
@@ -391,13 +345,11 @@ public class Differ
 
     private String getLeftOverPath(File file)
     {
-        String retVal = desLoc.getPath() + "\\" + LEFTOVER_FOLDER
-                + file.getPath().substring(desLoc.getPath().length());
+        String retVal = desLoc.getPath() + "\\" + LEFTOVER_FOLDER + file.getPath().substring(desLoc.getPath().length());
         return retVal;
     }
 
-    private String getFilePathFromFileCRC(File desLoc, DirectoryCRC fileDir,
-            String fileName)
+    private String getFilePathFromFileCRC(File desLoc, DirectoryCRC fileDir, String fileName)
     {
         String[] splitDir = fileDir.getFolderName().split(": ");
         String[] splitFile = fileName.split("\"");
