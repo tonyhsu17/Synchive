@@ -2,14 +2,15 @@ import java.awt.EventQueue;
 
 import javax.swing.UIManager;
 
-
 public class SummaryController implements SummaryView.SummaryViewDelegate
 {
-    private SummaryView view;
+    private SummaryView summaryView;
+    private TabbedController tabController;
 
     SummaryController()
     {
-        view = new SummaryView(this);
+        summaryView = new SummaryView(this);
+        tabController = new TabbedController(this);
     }
 
     public void run()
@@ -21,10 +22,8 @@ public class SummaryController implements SummaryView.SummaryViewDelegate
                 try
                 {
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-
-                    System.out.println("Look and feel: " + UIManager.getSystemLookAndFeelClassName());
-                    
-                    view.setVisible(true);
+                    summaryView.getFrame().getContentPane().add(tabController.getView());
+                    summaryView.setVisible(true);
                 }
                 catch (Exception e)
                 {
@@ -32,6 +31,11 @@ public class SummaryController implements SummaryView.SummaryViewDelegate
                 }
             }
         });
+    }
+    
+    public void runNuttySync()
+    {
+        System.out.println("RUN");
     }
 
     @Override
