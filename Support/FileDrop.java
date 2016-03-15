@@ -1,4 +1,4 @@
-package Support;
+package support;
 
 import java.awt.datatransfer.DataFlavor;
 import java.io.BufferedReader;

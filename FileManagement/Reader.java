@@ -1,4 +1,4 @@
-package FileManagement;
+package fileManagement;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 
-import Support.Utilities;
+import support.Utilities;
 
 
 /** @Category: Processing Class: To generate a list of crc values for each file in the directory

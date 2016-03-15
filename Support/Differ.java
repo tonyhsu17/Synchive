@@ -1,4 +1,4 @@
-package Support;
+package support;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,9 +14,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Scanner;
 
-import FileManagement.DirectoryCRC;
-import FileManagement.FileWithProperties;
-import FileManagement.Reader;
+import fileManagement.DirectoryCRC;
+import fileManagement.FileWithProperties;
+import fileManagement.Reader;
 
 
 /**

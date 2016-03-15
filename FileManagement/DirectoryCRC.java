@@ -1,4 +1,4 @@
-package FileManagement;
+package fileManagement;
 
 import java.util.Hashtable;
 
