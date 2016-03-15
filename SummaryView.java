@@ -2,7 +2,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
@@ -14,7 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -22,66 +20,41 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import Support.FileDrop;
-
-
-public class MainUI
+public class SummaryView
 {
-
-    private JFrame frmNuttysync;
-    private JTextField sourceTextField;
-    private JTextField destinationTextField;
-    private JTextField crcDelimiterTextField;
-    private JTextField crcDelimiterLeadingTextField;
-    private JTextField crcDelimiterTrailingTextField;
-
-    /**
-     * Launch the application.
-     */
-    public static void main(String[] args)
-    {
-        EventQueue.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                try
-                {
-                    MainUI window = new MainUI();
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    
-                    System.out.println("Look and feel: " + UIManager.getSystemLookAndFeelClassName());
-                    
-                    window.frmNuttysync.setVisible(true);
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        });
+    public interface SummaryViewDelegate {
+        public void setTest(int i);
+        
+        public static void testMethod() {
+            System.out.println("");
+        }
     }
-
+    
+    private SummaryController vc;
+    private SummaryViewDelegate delegate;
+    private JFrame nuttySyncFrame;
     /**
      * Create the application.
      */
-    public MainUI()
+    public SummaryView(SummaryViewDelegate delegate)
     {
+        this.delegate = delegate;
         initialize();
     }
-
+    
     /**
      * Initialize the contents of the frame.
      */
     private void initialize()
     {
-        frmNuttysync = new JFrame();
-        frmNuttysync.setTitle("NuttySync");
-        frmNuttysync.setBounds(100, 100, 526, 320);
-        frmNuttysync.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        nuttySyncFrame = new JFrame();
+        nuttySyncFrame.setTitle("NuttySync");
+        nuttySyncFrame.setBounds(100, 100, 526, 320);
+        nuttySyncFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         JLabel sourceLabel = new JLabel("Source:");
         sourceLabel.setPreferredSize(new Dimension(57, 14));
@@ -91,7 +64,7 @@ public class MainUI
         sourceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         sourceLabel.setFont(new Font("Arial", Font.BOLD, 11));
         
-        sourceTextField = new JTextField();
+        JTextField sourceTextField = new JTextField();
         sourceTextField.setBounds(93, 7, 352, 22);
         sourceTextField.setMinimumSize(new Dimension(50, 20));
         sourceTextField.setToolTipText("");
@@ -105,23 +78,35 @@ public class MainUI
         sourceMoreButton.setDefaultCapable(false);
         sourceMoreButton.setFocusPainted(false);
         
-        JLabel destinationLabel = new JLabel("Destination:");
-        destinationLabel.setBounds(7, 33, 67, 22);
-        destinationLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        destinationLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        
-        destinationTextField = new JTextField();
-        destinationTextField.setBounds(93, 33, 352, 22);
-        destinationTextField.setMinimumSize(new Dimension(50, 20));
-        destinationTextField.setColumns(10);
-        
         new FileDrop(sourceTextField, new FileDrop.Listener()
         {
             @Override
             public void filesDropped(File[] files)
             {
                 System.out.println(files[0].getPath());
-                // TODO Auto-generated method stub
+                sourceTextField.setText(files[0].getPath());
+                delegate.setTest(1);
+                
+            } // end filesDropped
+        }); // end FileDrop.Listener
+        
+        JLabel destinationLabel = new JLabel("Destination:");
+        destinationLabel.setBounds(7, 33, 67, 22);
+        destinationLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        destinationLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        
+        JTextField destinationTextField = new JTextField();
+        destinationTextField.setBounds(93, 33, 352, 22);
+        destinationTextField.setMinimumSize(new Dimension(50, 20));
+        destinationTextField.setColumns(10);
+        
+        new FileDrop(destinationTextField, new FileDrop.Listener()
+        {
+            @Override
+            public void filesDropped(File[] files)
+            {
+                System.out.println(files[0].getPath());
+                destinationTextField.setText(files[0].getPath());
                 
             } // end filesDropped
         }); // end FileDrop.Listener
@@ -144,10 +129,17 @@ public class MainUI
         flagPanel.setLayout(null);
         
         JRadioButton auditTrailButton = new JRadioButton("Enable Audit Trail");
+        auditTrailButton.setFocusPainted(false);
+        auditTrailButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent arg0) {
+            }
+        });
         auditTrailButton.setBounds(7, 7, 231, 23);
         flagPanel.add(auditTrailButton);
         
         JRadioButton crcCheckButton = new JRadioButton("Enable CRC Check");
+        crcCheckButton.setFocusPainted(false);
         crcCheckButton.setBounds(7, 34, 231, 23);
         flagPanel.add(crcCheckButton);
         
@@ -161,16 +153,24 @@ public class MainUI
         flagPanel.add(afterCompletionLabel);
         
         JRadioButton doNothingButton = new JRadioButton("Do nothing");
+        doNothingButton.setFocusPainted(false);
         doNothingButton.setBounds(7, 95, 109, 23);
         flagPanel.add(doNothingButton);
         
         JRadioButton standbyButton = new JRadioButton("Standby");
+        standbyButton.setFocusPainted(false);
         standbyButton.setBounds(191, 95, 109, 23);
         flagPanel.add(standbyButton);
         
         JRadioButton shutdownButton = new JRadioButton("Shutdown");
+        shutdownButton.setFocusPainted(false);
         shutdownButton.setBounds(341, 95, 109, 23);
         flagPanel.add(shutdownButton);
+        
+        JButton btnRun = new JButton("Run");
+        btnRun.setFocusPainted(false);
+        btnRun.setBounds(244, 7, 240, 50);
+        flagPanel.add(btnRun);
         
         JPanel crcOptionPanel = new JPanel();
         crcOptionPanel.setPreferredSize(new Dimension(10, 150));
@@ -186,7 +186,7 @@ public class MainUI
         crcDelimiterLabel.setBounds(7, 29, 83, 14);
         crcOptionPanel.add(crcDelimiterLabel);
         
-        crcDelimiterTextField = new JTextField();
+        JTextField crcDelimiterTextField = new JTextField();
         crcDelimiterTextField.setBounds(100, 25, 202, 22);
         crcDelimiterTextField.setMargin(new Insets(1, 2, 3, 2));
         crcDelimiterTextField.setPreferredSize(new Dimension(50, 20));
@@ -219,7 +219,7 @@ public class MainUI
         crcDelimiterLeadingLabel.setBounds(7, 112, 143, 14);
         crcOptionPanel.add(crcDelimiterLeadingLabel);
         
-        crcDelimiterLeadingTextField = new JTextField();
+        JTextField crcDelimiterLeadingTextField = new JTextField();
         crcDelimiterLeadingTextField.setBounds(155, 109, 70, 21);
         crcOptionPanel.add(crcDelimiterLeadingTextField);
         crcDelimiterLeadingTextField.setColumns(10);
@@ -228,7 +228,7 @@ public class MainUI
         crcDelimiterTrailingLabel.setBounds(268, 112, 131, 14);
         crcOptionPanel.add(crcDelimiterTrailingLabel);
         
-        crcDelimiterTrailingTextField = new JTextField();
+        JTextField crcDelimiterTrailingTextField = new JTextField();
         crcDelimiterTrailingTextField.setBounds(413, 109, 70, 21);
         crcOptionPanel.add(crcDelimiterTrailingTextField);
         crcDelimiterTrailingTextField.setColumns(10);
@@ -252,14 +252,14 @@ public class MainUI
         auditTextPane.setWrapStyleWord(true);
         auditTextPane.setLineWrap(true);
         auditTextPane.setText("This is a very long text that might occur when we have very long audit log and or long directory nagmes\r\n2\r\n3\r\n4\r\n5\r\n6\r\n7\r\n8\r\n9\r\n0\r\n-");
-        frmNuttysync.getContentPane().setLayout(null);
-        frmNuttysync.getContentPane().add(sourceLabel);
-        frmNuttysync.getContentPane().add(sourceTextField);
-        frmNuttysync.getContentPane().add(sourceMoreButton);
-        frmNuttysync.getContentPane().add(destinationLabel);
-        frmNuttysync.getContentPane().add(destinationTextField);
-        frmNuttysync.getContentPane().add(destinationMoreButton);
-        frmNuttysync.getContentPane().add(tabbedPane);
+        nuttySyncFrame.getContentPane().setLayout(null);
+        nuttySyncFrame.getContentPane().add(sourceLabel);
+        nuttySyncFrame.getContentPane().add(sourceTextField);
+        nuttySyncFrame.getContentPane().add(sourceMoreButton);
+        nuttySyncFrame.getContentPane().add(destinationLabel);
+        nuttySyncFrame.getContentPane().add(destinationTextField);
+        nuttySyncFrame.getContentPane().add(destinationMoreButton);
+        nuttySyncFrame.getContentPane().add(tabbedPane);
         
         JPanel errorLogsPanel = new JPanel();
         tabbedPane.addTab("Error Logs", null, errorLogsPanel, null);
@@ -279,36 +279,23 @@ public class MainUI
         
         JLabel sizeReadLabel = new JLabel("Read: ");
         sizeReadLabel.setBounds(7, 238, 99, 14);
-        frmNuttysync.getContentPane().add(sizeReadLabel);
+        nuttySyncFrame.getContentPane().add(sizeReadLabel);
         
         JLabel sizeReadSpeedLabel = new JLabel("Read Speed:");
         sizeReadSpeedLabel.setBounds(116, 238, 154, 14);
-        frmNuttysync.getContentPane().add(sizeReadSpeedLabel);
+        nuttySyncFrame.getContentPane().add(sizeReadSpeedLabel);
         
         JLabel totalRunningTimeLabel = new JLabel("Running Time:");
         totalRunningTimeLabel.setBounds(280, 238, 223, 14);
-        frmNuttysync.getContentPane().add(totalRunningTimeLabel);
+        nuttySyncFrame.getContentPane().add(totalRunningTimeLabel);
         
         JProgressBar processingFileProgressBar = new JProgressBar();
         processingFileProgressBar.setBounds(7, 256, 496, 14);
-        frmNuttysync.getContentPane().add(processingFileProgressBar);
+        nuttySyncFrame.getContentPane().add(processingFileProgressBar);
         
     }
-    private static void addPopup(Component component, final JPopupMenu popup) {
-        component.addMouseListener(new MouseAdapter() {
-        	public void mousePressed(MouseEvent e) {
-        		if (e.isPopupTrigger()) {
-        			showMenu(e);
-        		}
-        	}
-        	public void mouseReleased(MouseEvent e) {
-        		if (e.isPopupTrigger()) {
-        			showMenu(e);
-        		}
-        	}
-        	private void showMenu(MouseEvent e) {
-        		popup.show(e.getComponent(), e.getX(), e.getY());
-        	}
-        });
+    
+    public void setVisible(Boolean flag) {
+        nuttySyncFrame.setVisible(flag);
     }
 }

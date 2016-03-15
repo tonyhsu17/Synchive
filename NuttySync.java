@@ -1,8 +1,3 @@
-import java.io.File;
-
-import Support.Differ;
-
-
 /** Created by Tony Hsu. Free to use with credit. Overview: Used as a backup
  * tool, NuttySync will sync one directory (source or master) and sub folders to
  * another directory (destination or backup). Any files not in destination but
@@ -12,6 +7,15 @@ import Support.Differ;
  * item in destination. */
 public class NuttySync
 {
+    /**
+     * Launch the application.
+     */
+    public static void main(String[] args)
+    {
+        SummaryController controller = new SummaryController();
+        controller.run();
+    }
+    /*
     public static void main(String[] args)
     {
         if(args.length != 2)
@@ -32,5 +36,5 @@ public class NuttySync
 
         return;
     }
-
+*/
 }
