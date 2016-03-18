@@ -9,6 +9,7 @@ import javax.swing.JTabbedPane;
 import tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import tabbedPanels.FlagPanel.FlagPanelDelegate;
 
+@SuppressWarnings("serial")
 public class TabbedContainerPaneView extends JTabbedPane
 {    
     private JPanel flagPanel, crcOptionPanel, auditPanel, errorLogsPanel;

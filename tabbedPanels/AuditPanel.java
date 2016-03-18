@@ -20,8 +20,6 @@ public class AuditPanel extends JPanel
     {
         setLayout(null);
         
-        setLayout(null);
-        
         JScrollPane scrollPane_1 = new JScrollPane();
         scrollPane_1.setBackground(Color.WHITE);
         scrollPane_1.setBorder(new EmptyBorder(0, 3, 0, 3));

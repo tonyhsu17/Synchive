@@ -1,11 +1,15 @@
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.event.ItemEvent;
 
-import tabbedPanels.TabbedContainerPaneView;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
 import tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import tabbedPanels.FlagPanel.CompletionOptions;
 import tabbedPanels.FlagPanel.FlagPanelDelegate;
+import tabbedPanels.TabbedContainerPaneView;
 
 public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDelegate
 {
@@ -26,38 +30,54 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     }
 
     @Override
-    public void auditTrailButtonStateChange(int state)
+    public void crcDelimiterFinished(JTextField field, String str)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void crcLeadingDelimiterFinished(JTextField field, String str)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void crcTrailingDelimiterFinished(JTextField field, String str)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void noDelimiterStateChange(JRadioButton button, ItemEvent state)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void auditTrailStateChange(JRadioButton button, int state)
     {
         auditTrailFlag = state;
     }
 
     @Override
-    public void crcCheckButtonStateChange(int state)
+    public void crcCheckStateChange(JRadioButton button, int state)
     {
         crcCheckFlag = state;
+        
     }
 
     @Override
-    public void afterCompletionOptionChange(CompletionOptions option)
+    public void afterCompletionOptionChange(JRadioButton button, CompletionOptions option)
     {
         afterCompletion = option;
-        // TODO Auto-generated method stub
-        /*
-        switch (option)
-        {
-            case doNothing:
-                break;
-            case standBy:
-                break;
-            case shutdown:
-                break;
-            default:
-                break;
-        }*/
     }
 
     @Override
-    public void runNuttySync()
+    public void runNuttySync(JRadioButton button, int state)
     {
         summaryVC.runNuttySync();
     }

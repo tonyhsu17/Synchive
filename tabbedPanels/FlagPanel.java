@@ -15,15 +15,16 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.LineBorder;
 
+@SuppressWarnings("serial")
 public class FlagPanel extends JPanel
 {
     public enum CompletionOptions { doNothing, standBy, shutdown }
     
     public interface FlagPanelDelegate {
-        public void auditTrailButtonStateChange(int state);
-        public void crcCheckButtonStateChange(int state);
-        public void afterCompletionOptionChange(CompletionOptions option);
-        public void runNuttySync();
+        public void auditTrailStateChange(JRadioButton button, int state);
+        public void crcCheckStateChange(JRadioButton button, int state);
+        public void afterCompletionOptionChange(JRadioButton button, CompletionOptions option);
+        public void runNuttySync(JButton button);
     }
     
     JRadioButton previousOptionButton;
@@ -43,22 +44,18 @@ public class FlagPanel extends JPanel
         JRadioButton auditTrailButton = new JRadioButton("Enable Audit Trail");
         auditTrailButton.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent arg0) {
-                delegate.auditTrailButtonStateChange(arg0.getStateChange());
+                delegate.auditTrailStateChange(auditTrailButton, arg0.getStateChange());
             }
         });
         
         auditTrailButton.setFocusPainted(false);
-        auditTrailButton.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent arg0) {
-            }
-        });
         auditTrailButton.setBounds(7, 7, 231, 23);
         add(auditTrailButton);
         
         JRadioButton crcCheckButton = new JRadioButton("Enable CRC Check");
         crcCheckButton.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent arg0) {
+                delegate.crcCheckStateChange(crcCheckButton, arg0.getStateChange());
             }
         });
         crcCheckButton.setFocusPainted(false);
@@ -106,15 +103,15 @@ public class FlagPanel extends JPanel
         shutdownButton.setBounds(341, 95, 109, 23);
         add(shutdownButton);
         
-        JButton btnRun = new JButton("Run");
-        btnRun.addActionListener(new ActionListener() {
+        JButton runButton = new JButton("Run");
+        runButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                delegate.runNuttySync();
+                delegate.runNuttySync(runButton);
             }
         });
-        btnRun.setFocusPainted(false);
-        btnRun.setBounds(244, 7, 240, 50);
-        add(btnRun);
+        runButton.setFocusPainted(false);
+        runButton.setBounds(244, 7, 240, 50);
+        add(runButton);
     }
     
     private void afterCompletionDidChange(MouseEvent item, CompletionOptions option)
@@ -128,7 +125,7 @@ public class FlagPanel extends JPanel
         {
             previousOptionButton.setSelected(false);
             previousOptionButton = selectedButton;
-            delegate.afterCompletionOptionChange(option);
+            delegate.afterCompletionOptionChange(selectedButton, option);
         }
     }
 }
