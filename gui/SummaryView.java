@@ -1,3 +1,4 @@
+package gui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -9,13 +10,15 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import support.FileDrop;
 public class SummaryView
 {
     public interface SummaryViewDelegate {
-        public void setTest(int i);
-        
+        public void sourceLabelChanged(JTextField label, String text);
+        public void destinationLabelChanged(JTextField label, String text);
 //        public static void testMethod() {
 //            System.out.println("");
 //        }
@@ -40,7 +43,7 @@ public class SummaryView
     {
         nuttySyncFrame = new JFrame();
         nuttySyncFrame.setTitle("NuttySync");
-        nuttySyncFrame.setBounds(100, 100, 526, 320);
+        nuttySyncFrame.setBounds(100, 100, 526, 340);
         nuttySyncFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         JLabel sourceLabel = new JLabel("Source:");
@@ -56,6 +59,34 @@ public class SummaryView
         sourceTextField.setMinimumSize(new Dimension(50, 20));
         sourceTextField.setToolTipText("");
         sourceTextField.setColumns(10);
+        sourceTextField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                delegate.sourceLabelChanged(sourceTextField, sourceTextField.getText());
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                delegate.sourceLabelChanged(sourceTextField, sourceTextField.getText());
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+        });
+        
+        new FileDrop(sourceTextField, new FileDrop.Listener()
+        {
+            @Override
+            public void filesDropped(File[] files)
+            {
+                sourceTextField.setText(files[0].getPath());
+            } // end filesDropped
+        }); // end FileDrop.Listener
         
         JButton sourceMoreButton = new JButton("...");
         sourceMoreButton.setBounds(463, 7, 40, 22);
@@ -64,18 +95,6 @@ public class SummaryView
         sourceMoreButton.setMaximumSize(new Dimension(45, 22));
         sourceMoreButton.setDefaultCapable(false);
         sourceMoreButton.setFocusPainted(false);
-        
-        new FileDrop(sourceTextField, new FileDrop.Listener()
-        {
-            @Override
-            public void filesDropped(File[] files)
-            {
-                System.out.println(files[0].getPath());
-                sourceTextField.setText(files[0].getPath());
-                delegate.setTest(1);
-                
-            } // end filesDropped
-        }); // end FileDrop.Listener
         
         JLabel destinationLabel = new JLabel("Destination:");
         destinationLabel.setBounds(7, 33, 67, 22);
@@ -86,15 +105,32 @@ public class SummaryView
         destinationTextField.setBounds(93, 33, 352, 22);
         destinationTextField.setMinimumSize(new Dimension(50, 20));
         destinationTextField.setColumns(10);
+        destinationTextField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                delegate.destinationLabelChanged(destinationTextField, destinationTextField.getText());
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                delegate.destinationLabelChanged(destinationTextField, destinationTextField.getText());
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+        });
         
         new FileDrop(destinationTextField, new FileDrop.Listener()
         {
             @Override
             public void filesDropped(File[] files)
             {
-                System.out.println(files[0].getPath());
                 destinationTextField.setText(files[0].getPath());
-                
             } // end filesDropped
         }); // end FileDrop.Listener
         
@@ -108,19 +144,19 @@ public class SummaryView
         destinationMoreButton.setFocusPainted(false);
         
         JLabel sizeReadLabel = new JLabel("Read: ");
-        sizeReadLabel.setBounds(7, 238, 99, 14);
+        sizeReadLabel.setBounds(7, 258, 99, 14);
         nuttySyncFrame.getContentPane().add(sizeReadLabel);
         
         JLabel sizeReadSpeedLabel = new JLabel("Read Speed:");
-        sizeReadSpeedLabel.setBounds(116, 238, 154, 14);
+        sizeReadSpeedLabel.setBounds(116, 258, 154, 14);
         nuttySyncFrame.getContentPane().add(sizeReadSpeedLabel);
         
         JLabel totalRunningTimeLabel = new JLabel("Running Time:");
-        totalRunningTimeLabel.setBounds(280, 238, 223, 14);
+        totalRunningTimeLabel.setBounds(280, 258, 223, 14);
         nuttySyncFrame.getContentPane().add(totalRunningTimeLabel);
         
         JProgressBar processingFileProgressBar = new JProgressBar();
-        processingFileProgressBar.setBounds(7, 256, 496, 14);
+        processingFileProgressBar.setBounds(7, 276, 496, 14);
         nuttySyncFrame.getContentPane().add(processingFileProgressBar);
         
         nuttySyncFrame.getContentPane().setLayout(null);

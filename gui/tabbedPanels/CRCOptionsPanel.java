@@ -1,4 +1,4 @@
-package tabbedPanels;
+package gui.tabbedPanels;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -26,6 +26,7 @@ public class CRCOptionsPanel extends JPanel
     }
     
     CRCOptionsPanelDelegate delegate;
+    private JTextField textField;
     
     public CRCOptionsPanel(CRCOptionsPanelDelegate delegate)
     {
@@ -89,8 +90,17 @@ public class CRCOptionsPanel extends JPanel
         addCrcFilenameButton.setToolTipText("Add CRC to both source and destination if CRC not in file name");
         add(addCrcFilenameButton);
         
+        JLabel lblFileType = new JLabel("File Type");
+        lblFileType.setBounds(7, 111, 83, 14);
+        add(lblFileType);
+        
+        textField = new JTextField();
+        textField.setBounds(100, 108, 340, 20);
+        add(textField);
+        textField.setColumns(10);
+        
         JLabel crcDelimiterLeadingLabel = new JLabel("CRC Delimiter - Leading");
-        crcDelimiterLeadingLabel.setBounds(7, 112, 143, 14);
+        crcDelimiterLeadingLabel.setBounds(7, 139, 143, 14);
         add(crcDelimiterLeadingLabel);
         
         JTextField crcDelimiterLeadingTextField = new JTextField();
@@ -99,12 +109,12 @@ public class CRCOptionsPanel extends JPanel
             public void focusLost(FocusEvent e) {
             }
         });
-        crcDelimiterLeadingTextField.setBounds(155, 109, 70, 21);
+        crcDelimiterLeadingTextField.setBounds(155, 136, 70, 21);
         add(crcDelimiterLeadingTextField);
         crcDelimiterLeadingTextField.setColumns(10);
         
         JLabel crcDelimiterTrailingLabel = new JLabel("CRC Delimiter - Trailing");
-        crcDelimiterTrailingLabel.setBounds(268, 112, 131, 14);
+        crcDelimiterTrailingLabel.setBounds(268, 139, 131, 14);
         add(crcDelimiterTrailingLabel);
         
         JTextField crcDelimiterTrailingTextField = new JTextField();
@@ -113,7 +123,7 @@ public class CRCOptionsPanel extends JPanel
             public void focusLost(FocusEvent e) {
             }
         });
-        crcDelimiterTrailingTextField.setBounds(413, 109, 70, 21);
+        crcDelimiterTrailingTextField.setBounds(413, 136, 70, 21);
         add(crcDelimiterTrailingTextField);
         crcDelimiterTrailingTextField.setColumns(10);
     }

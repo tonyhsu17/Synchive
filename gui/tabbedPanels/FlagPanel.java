@@ -1,4 +1,4 @@
-package tabbedPanels;
+package gui.tabbedPanels;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;

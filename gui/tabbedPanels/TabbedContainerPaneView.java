@@ -1,4 +1,4 @@
-package tabbedPanels;
+package gui.tabbedPanels;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -6,8 +6,8 @@ import java.awt.Rectangle;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
-import tabbedPanels.FlagPanel.FlagPanelDelegate;
+import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
+import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
 
 @SuppressWarnings("serial")
 public class TabbedContainerPaneView extends JTabbedPane

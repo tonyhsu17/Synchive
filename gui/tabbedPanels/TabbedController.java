@@ -1,15 +1,17 @@
+package gui.tabbedPanels;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ItemEvent;
 
+import javax.swing.JButton;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
-import tabbedPanels.FlagPanel.CompletionOptions;
-import tabbedPanels.FlagPanel.FlagPanelDelegate;
-import tabbedPanels.TabbedContainerPaneView;
+import gui.SummaryController;
+import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
+import gui.tabbedPanels.FlagPanel.CompletionOptions;
+import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
 
 public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDelegate
 {
@@ -21,7 +23,7 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     public TabbedController(SummaryController sumVC) 
     {
         summaryVC = sumVC;
-        tabView = new TabbedContainerPaneView(new Rectangle(7, 58, 498, 169), new Dimension(5, 150), this);
+        tabView = new TabbedContainerPaneView(new Rectangle(7, 58, 498, 195), new Dimension(5, 150), this);
     }
     
     public TabbedContainerPaneView getView()
@@ -75,9 +77,9 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     {
         afterCompletion = option;
     }
-
+    
     @Override
-    public void runNuttySync(JRadioButton button, int state)
+    public void runNuttySync(JButton button)
     {
         summaryVC.runNuttySync();
     }

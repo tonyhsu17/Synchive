@@ -1,16 +1,28 @@
-import java.awt.EventQueue;
+package gui;
 
+import java.awt.EventQueue;
+import java.io.File;
+
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 
-public class SummaryController implements SummaryView.SummaryViewDelegate
+import gui.SummaryView.SummaryViewDelegate;
+import gui.tabbedPanels.TabbedController;
+import support.Differ;
+
+public class SummaryController implements SummaryViewDelegate
 {
     private SummaryView summaryView;
     private TabbedController tabController;
+    private String sourcePath;
+    private String destinationPath;
 
-    SummaryController()
+    public SummaryController()
     {
         summaryView = new SummaryView(this);
         tabController = new TabbedController(this);
+        sourcePath = "";
+        destinationPath = "";
     }
 
     public void run()
@@ -35,15 +47,20 @@ public class SummaryController implements SummaryView.SummaryViewDelegate
     
     public void runNuttySync()
     {
-        System.out.println("RUN");
+        Differ diff = new Differ(new File(sourcePath), new File(destinationPath));
+        diff.syncLocations();
+    }
+    
+    @Override
+    public void sourceLabelChanged(JTextField label, String text)
+    {
+        sourcePath = text;
     }
 
     @Override
-    public void setTest(int i)
+    public void destinationLabelChanged(JTextField label, String text)
     {
-        System.out.println("YAY");
-        // TODO Auto-generated method stub
-
+        destinationPath = text; 
     }
 
 }

@@ -1,3 +1,6 @@
+package synchive;
+import gui.SummaryController;
+
 /** Created by Tony Hsu. Free to use with credit. Overview: Used as a backup
  * tool, NuttySync will sync one directory (source or master) and sub folders to
  * another directory (destination or backup). Any files not in destination but
@@ -5,7 +8,7 @@
  * performance in subsequent runs, a file will be generated that lists all items
  * in the directory. This file will be used as an alternative to reading in each
  * item in destination. */
-public class NuttySync
+public class Synchive
 {
     /**
      * Launch the application.
