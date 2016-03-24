@@ -1,4 +1,4 @@
-package FileManagement;
+package fileManagement;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;
 
-import Support.Utilities;
+import support.Utilities;
 
 
 /** @Category: Processing Class: To generate a list of crc values for each file in the directory
@@ -22,9 +22,9 @@ import Support.Utilities;
 public class Reader
 {
     File folder, crcFile;
-    Stack<FileWithProperties> directories;
+    Stack<SynchiveFile> directories;
     BufferedWriter output;
-    ArrayList<FileWithProperties> files;
+    ArrayList<SynchiveFile> files;
     int location;
 
     // folder = folder location
@@ -37,15 +37,15 @@ public class Reader
         else
             throw new Error("ERROR - Not a Directory");
 
-        files = new ArrayList<FileWithProperties>(); // list of all files
-        directories = new Stack<FileWithProperties>(); // used to recurse through all folders
+        files = new ArrayList<SynchiveFile>(); // list of all files
+        directories = new Stack<SynchiveFile>(); // used to recurse through all folders
 
         crcFile = new File(folder.getPath() + "\\" + Utilities.CRC_FILE_NAME);
         output = new BufferedWriter(new FileWriter(crcFile));
     }
 
     // returns all files with unique id
-    public ArrayList<FileWithProperties> getCRCValues() throws IOException
+    public ArrayList<SynchiveFile> getCRCValues() throws IOException
     {
         readinDirectory();
         if(location == Utilities.SOURCE) // delete source crc file as new one will be generated
@@ -56,11 +56,11 @@ public class Reader
     // scans through directory and calls helper method to calculate crc value
     public void readinDirectory() throws IOException
     {
-        directories.add(new FileWithProperties(folder)); // adds root dir
+        directories.add(new SynchiveFile(folder)); // adds root dir
 
         while(!directories.isEmpty()) // repeat until all folders are read
         {
-            FileWithProperties f = directories.pop();
+            SynchiveFile f = directories.pop();
             output.write(Utilities.convertToDirectoryLvl(f.getPath(), f.getLevel(), folder.getPath()));
             output.newLine();
             readinFilesInDirectory(f); // read the files in the folder
@@ -69,18 +69,18 @@ public class Reader
     }
 
     // helper method for readinDirectory()
-    private void readinFilesInDirectory(FileWithProperties f) throws IOException
+    private void readinFilesInDirectory(SynchiveFile f) throws IOException
     {
         for(File fileEntry : f.listFiles())
         {
             if(fileEntry.isDirectory()) // add child folders to read as well
             {
-                directories.push(new FileWithProperties(fileEntry, f.getLevel() + 1));
+                directories.push(new SynchiveFile(fileEntry, f.getLevel() + 1));
             }
             else
             {
                 System.out.println("Reading file... " + fileEntry.getName());
-                FileWithProperties temp = new FileWithProperties(fileEntry, f.getLevel());
+                SynchiveFile temp = new SynchiveFile(fileEntry, f.getLevel());
 
                 if(!temp.getName().equals(Utilities.CRC_FILE_NAME) // skip over generated files
                 && !temp.getName().equals(Utilities.AUDIT_FILE_NAME))

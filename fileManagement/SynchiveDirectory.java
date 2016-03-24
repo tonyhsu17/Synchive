@@ -1,4 +1,4 @@
-package FileManagement;
+package fileManagement;
 
 import java.util.Hashtable;
 
@@ -10,7 +10,7 @@ import java.util.Hashtable;
  * @Process: Items are stored initially stored as FILE_NOT_EXIST. Once
  *           doesFileExist() is called, if the file is found, then the FileFlag
  *           is modified to FILE_EXIST. */
-public class DirectoryCRC
+public class SynchiveDirectory
 {
     // FileFlag is used to determine if FILE_EXIST then no need to copy file over, otherwise if
     // FILE_NOT_EXIST, then the file will need to be copied over.
@@ -23,7 +23,7 @@ public class DirectoryCRC
     private String folderName; // name of folder including relative path
     private String realFolderName; // name of folder
 
-    public DirectoryCRC(String folderName)
+    public SynchiveDirectory(String folderName)
     {
         this.setFolderName(folderName);
         files = new Hashtable<String, FileFlag>();

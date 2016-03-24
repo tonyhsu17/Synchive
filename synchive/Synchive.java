@@ -1,7 +1,5 @@
-import java.io.File;
-
-import Support.Differ;
-
+package synchive;
+import gui.SummaryController;
 
 /** Created by Tony Hsu. Free to use with credit. Overview: Used as a backup
  * tool, NuttySync will sync one directory (source or master) and sub folders to
@@ -10,8 +8,17 @@ import Support.Differ;
  * performance in subsequent runs, a file will be generated that lists all items
  * in the directory. This file will be used as an alternative to reading in each
  * item in destination. */
-public class NuttySync
+public class Synchive
 {
+    /**
+     * Launch the application.
+     */
+    public static void main(String[] args)
+    {
+        SummaryController controller = new SummaryController();
+        controller.run();
+    }
+    /*
     public static void main(String[] args)
     {
         if(args.length != 2)
@@ -32,5 +39,5 @@ public class NuttySync
 
         return;
     }
-
+*/
 }

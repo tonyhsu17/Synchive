@@ -1,4 +1,4 @@
-package FileManagement;
+package fileManagement;
 
 import java.io.File;
 
@@ -11,24 +11,24 @@ import java.io.File;
  *           doesFileExist() is called, if the file is found, then the FileFlag
  *           is modified to FILE_EXIST. */
 @SuppressWarnings("serial")
-public class FileWithProperties extends File
+public class SynchiveFile extends File
 {
     private String crc32ValueName;
     private int level; // 0 = root, 1+ directory in root
 
-    public FileWithProperties(File file)
+    public SynchiveFile(File file)
     {
         super(file.getPath());
         this.level = 0;
     }
 
-    public FileWithProperties(File file, int level)
+    public SynchiveFile(File file, int level)
     {
         super(file.getPath());
         this.level = level;
     }
 
-    public FileWithProperties(String pathname)
+    public SynchiveFile(String pathname)
     {
         super(pathname);
         level = 0;

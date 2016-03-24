@@ -1,4 +1,4 @@
-package Support;
+package support;
 
 import java.io.File;
 import java.io.FileInputStream;

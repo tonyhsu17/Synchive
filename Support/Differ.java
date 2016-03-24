@@ -1,4 +1,4 @@
-package Support;
+package support;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,9 +14,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Scanner;
 
-import FileManagement.DirectoryCRC;
-import FileManagement.FileWithProperties;
-import FileManagement.Reader;
+import fileManagement.SynchiveDirectory;
+import fileManagement.SynchiveFile;
+import fileManagement.Reader;
 
 
 /**
@@ -33,8 +33,8 @@ public class Differ
     // crcFile = source crc file, desAudit = audit file
     private File srcLoc, desLoc, crcFile, desAudit;
     private BufferedWriter desAuditWriter;
-    private Hashtable<String, DirectoryCRC> folders; // Level + Directory to DirectoryWithFiles
-    private ArrayList<FileWithProperties> sourceCRCFiles; // list of all files in scr location
+    private Hashtable<String, SynchiveDirectory> folders; // Level + Directory to DirectoryWithFiles
+    private ArrayList<SynchiveFile> sourceCRCFiles; // list of all files in scr location
 
     public Differ(File curDir, File backupDir)
     {
@@ -46,7 +46,7 @@ public class Differ
         {
             desAuditWriter = new BufferedWriter(new FileWriter(desAudit));
             crcFile = new File(backupDir.getPath() + "\\" + Utilities.CRC_FILE_NAME);
-            folders = new Hashtable<String, DirectoryCRC>();
+            folders = new Hashtable<String, SynchiveDirectory>();
             desAuditWriter.write("Audit Start");
             desAuditWriter.newLine();
         }
@@ -89,7 +89,7 @@ public class Differ
 
             while(sc.hasNextLine() && str.startsWith(FOLDER_PREFIX)) // not finished and is a folder
             {
-                DirectoryCRC dir = new DirectoryCRC(str);
+                SynchiveDirectory dir = new SynchiveDirectory(str);
                 String[] splitStr = str.split(" ");
                 dir.setRealFolderName(str.substring(splitStr[0].length() + 1));
                 folders.put(str, dir); // store folder in hashtable
@@ -97,7 +97,7 @@ public class Differ
                 str = sc.nextLine();
                 while(!str.startsWith(FOLDER_PREFIX)) // store files in folder
                 {
-                    dir.addFile(str, DirectoryCRC.FileFlag.FILE_NOT_EXIST);
+                    dir.addFile(str, SynchiveDirectory.FileFlag.FILE_NOT_EXIST);
                     if(sc.hasNextLine())
                         str = sc.nextLine();
                     else
@@ -127,8 +127,8 @@ public class Differ
             {
                 boolean isRoot = false;
                 // get file to search and search in hashTable of directories
-                FileWithProperties temp = sourceCRCFiles.get(i); // file to parse throgh
-                DirectoryCRC dir =
+                SynchiveFile temp = sourceCRCFiles.get(i); // file to parse throgh
+                SynchiveDirectory dir =
                     folders.get(Utilities.convertToDirectoryLvl(temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath()));
                 if(temp.getParent().equals(srcLoc.getPath())) // if file is in root dir
                     isRoot = true;
@@ -139,7 +139,7 @@ public class Differ
                     boolean flag = dir.doesFileExist(temp.getCRC32Value());
                     if(!flag) // file not exist
                     {
-                        dir.addFile(temp.getCRC32Value(), DirectoryCRC.FileFlag.FILE_EXIST); // add to hashTable
+                        dir.addFile(temp.getCRC32Value(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
                         copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
                         if(isRoot)
                         {
@@ -163,12 +163,12 @@ public class Differ
                     File fd = new File(destinationDir);
                     if(!isRoot)
                         createDirectory(fd);
-                    DirectoryCRC newDir =
-                        (isRoot) ? new DirectoryCRC(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
-                            : new DirectoryCRC(Utilities.convertToDirectoryLvl(fd.getPath(), temp.getLevel(), desLoc.getPath()));
+                    SynchiveDirectory newDir =
+                        (isRoot) ? new SynchiveDirectory(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
+                            : new SynchiveDirectory(Utilities.convertToDirectoryLvl(fd.getPath(), temp.getLevel(), desLoc.getPath()));
 
                     newDir.setRealFolderName(relativeDir);
-                    newDir.addFile(temp.getCRC32Value(), DirectoryCRC.FileFlag.FILE_EXIST); // add file to new folder
+                    newDir.addFile(temp.getCRC32Value(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
                     folders.put(newDir.getFolderName(), newDir); // add newDir to folderHashTable
 
                     copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
@@ -301,20 +301,20 @@ public class Differ
                 output.write(folderName);
                 output.newLine();
                 // go through files in folder
-                DirectoryCRC dir = folders.get(folderName);
+                SynchiveDirectory dir = folders.get(folderName);
                 Enumeration<String> enuFiles = dir.getFiles().keys();
                 while(enuFiles.hasMoreElements())
                 {
                     String fileCRC = enuFiles.nextElement();
-                    DirectoryCRC.FileFlag val = dir.getValueForKey(fileCRC);
+                    SynchiveDirectory.FileFlag val = dir.getValueForKey(fileCRC);
                     if(val != null)
                     {
-                        if(val == DirectoryCRC.FileFlag.FILE_EXIST) // only write matching files
+                        if(val == SynchiveDirectory.FileFlag.FILE_EXIST) // only write matching files
                         {
                             output.write(fileCRC);
                             output.newLine();
                         }
-                        else if(val == DirectoryCRC.FileFlag.FILE_NOT_EXIST)
+                        else if(val == SynchiveDirectory.FileFlag.FILE_NOT_EXIST)
                         {
                             // make leftover folder for not found ones
                             File leftoversFolder = new File(desLoc.getPath() + "\\" + LEFTOVER_FOLDER);
@@ -349,7 +349,7 @@ public class Differ
         return retVal;
     }
 
-    private String getFilePathFromFileCRC(File desLoc, DirectoryCRC fileDir, String fileName)
+    private String getFilePathFromFileCRC(File desLoc, SynchiveDirectory fileDir, String fileName)
     {
         String[] splitDir = fileDir.getFolderName().split(": ");
         String[] splitFile = fileName.split("\"");

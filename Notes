@@ -1,0 +1,19 @@
+MVC
+
+Model --> Controller <-- View (Inheritence)
+
+Model - Controller
+
+NotificationCenter <-- Controller
+Model <-- NotificationCenter
+Model posts events to notificationCenter who calls Controller's method
+
+Controller subscribes to notifications
+Whenever model does something, notify notification center where it will push callbacks to subscribers
+
+
+
+Controller - View
+
+Controller has direct control over view
+View uses delegates to notify controller
