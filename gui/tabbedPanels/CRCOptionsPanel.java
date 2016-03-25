@@ -48,12 +48,6 @@ public class CRCOptionsPanel extends JPanel
         add(crcDelimiterLabel);
         
         JTextField crcDelimiterTextField = new JTextField();
-        crcDelimiterTextField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent arg0) {
-                System.out.println(((JTextField)arg0.getSource()).getText());
-            }
-        });
         crcDelimiterTextField.setBounds(100, 25, 202, 22);
         crcDelimiterTextField.setMargin(new Insets(1, 2, 3, 2));
         crcDelimiterTextField.setPreferredSize(new Dimension(50, 20));
@@ -104,11 +98,6 @@ public class CRCOptionsPanel extends JPanel
         add(crcDelimiterLeadingLabel);
         
         JTextField crcDelimiterLeadingTextField = new JTextField();
-        crcDelimiterLeadingTextField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-            }
-        });
         crcDelimiterLeadingTextField.setBounds(155, 136, 70, 21);
         add(crcDelimiterLeadingTextField);
         crcDelimiterLeadingTextField.setColumns(10);
