@@ -40,4 +40,14 @@ public class TabbedContainerPaneView extends JTabbedPane
         errorLogsPanel = new ErrorPanel();
         addTab("Error Logs", null, errorLogsPanel, null);
     }
+    
+    public JPanel getAuditPanel()
+    {
+        return auditPanel;
+    }
+    
+    public JPanel getErrorLogsPanel()
+    {
+        return errorLogsPanel;
+    }
 }

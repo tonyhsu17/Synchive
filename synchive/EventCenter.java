@@ -10,8 +10,8 @@ public class EventCenter
         public void postEvent(Object obj); // generic function for function pass-in
     }
     public enum Events { // list of possible events
-        something1, // comment
-        something2, // comment
+        ProcessingFile, // comment
+        ErrorOccurred, // comment
         something3, // comment
     }; 
 

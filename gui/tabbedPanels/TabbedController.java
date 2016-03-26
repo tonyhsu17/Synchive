@@ -12,6 +12,9 @@ import gui.SummaryController;
 import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import gui.tabbedPanels.FlagPanel.CompletionOptions;
 import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
+import synchive.EventCenter;
+import synchive.EventCenter.EventFunction;
+import synchive.EventCenter.Events;
 
 public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDelegate
 {
@@ -19,41 +22,60 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     private CompletionOptions afterCompletion;
     private int auditTrailFlag, crcCheckFlag;
     private SummaryController summaryVC;
+    private int id;
     
     public TabbedController(SummaryController sumVC) 
     {
         summaryVC = sumVC;
+        id = this.hashCode();
         tabView = new TabbedContainerPaneView(new Rectangle(7, 58, 498, 195), new Dimension(5, 150), this);
+        subscribeToNotifications();
     }
     
     public TabbedContainerPaneView getView()
     {
         return tabView;
     }
+    
+    private void subscribeToNotifications()
+    {
+        EventCenter.getInstance().subscribeEvent(Events.ProcessingFile, id, (text) -> {
+            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
+        });
+        EventCenter.getInstance().subscribeEvent(Events.ErrorOccurred, id, (text) -> {
+            ((ErrorPanel)tabView.getErrorLogsPanel()).print((String)text);
+        });
+    }
+    
+    @Override
+    public void runNuttySync(JButton button)
+    {
+        summaryVC.runNuttySync();
+    }
 
     @Override
-    public void crcDelimiterFinished(JTextField field, String str)
+    public void crcDelimiterTextChanged(JTextField field, String str)
     {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void crcLeadingDelimiterFinished(JTextField field, String str)
+    public void crcLeadingDelimiterTextChanged(JTextField field, String str)
     {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void crcTrailingDelimiterFinished(JTextField field, String str)
+    public void crcTrailingDelimiterTextChanged(JTextField field, String str)
     {
         // TODO Auto-generated method stub
         
     }
-
+    
     @Override
-    public void noDelimiterStateChange(JRadioButton button, ItemEvent state)
+    public void checkWithoutDelimStateChange(JRadioButton button, int state)
     {
         // TODO Auto-generated method stub
         
@@ -62,26 +84,50 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     @Override
     public void auditTrailStateChange(JRadioButton button, int state)
     {
-        auditTrailFlag = state;
+        // TODO Auto-generated method stub
+        
     }
 
     @Override
     public void crcCheckStateChange(JRadioButton button, int state)
     {
-        crcCheckFlag = state;
+        // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void afterCompletionOptionChange(JRadioButton button, CompletionOptions option)
+    public void afterCompletionOptionChanged(JRadioButton button, CompletionOptions option)
     {
-        afterCompletion = option;
+        // TODO Auto-generated method stub
+        
     }
-    
+
     @Override
-    public void runNuttySync(JButton button)
+    public void skipFolderTextChanged(JTextField textField, String str)
     {
-        summaryVC.runNuttySync();
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void skipExtensionTextChanged(JTextField textField, String str)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void addCrcToFileNameStateChanged(JRadioButton button, int state)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void crcForExtensionTypeTextChanged(JTextField field, String str)
+    {
+        // TODO Auto-generated method stub
+        
     }
     
 }

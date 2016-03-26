@@ -17,8 +17,8 @@ import support.FileDrop;
 public class SummaryView
 {
     public interface SummaryViewDelegate {
-        public void sourceLabelChanged(JTextField label, String text);
-        public void destinationLabelChanged(JTextField label, String text);
+        public void sourceTextChanged(JTextField label, String text);
+        public void destinationTextChanged(JTextField label, String text);
 //        public static void testMethod() {
 //            System.out.println("");
 //        }
@@ -64,13 +64,13 @@ public class SummaryView
             @Override
             public void removeUpdate(DocumentEvent e)
             {
-                delegate.sourceLabelChanged(sourceTextField, sourceTextField.getText());
+                delegate.sourceTextChanged(sourceTextField, sourceTextField.getText());
             }
             
             @Override
             public void insertUpdate(DocumentEvent e)
             {
-                delegate.sourceLabelChanged(sourceTextField, sourceTextField.getText());
+                delegate.sourceTextChanged(sourceTextField, sourceTextField.getText());
             }
             
             @Override
@@ -110,13 +110,13 @@ public class SummaryView
             @Override
             public void removeUpdate(DocumentEvent e)
             {
-                delegate.destinationLabelChanged(destinationTextField, destinationTextField.getText());
+                delegate.destinationTextChanged(destinationTextField, destinationTextField.getText());
             }
             
             @Override
             public void insertUpdate(DocumentEvent e)
             {
-                delegate.destinationLabelChanged(destinationTextField, destinationTextField.getText());
+                delegate.destinationTextChanged(destinationTextField, destinationTextField.getText());
             }
             
             @Override

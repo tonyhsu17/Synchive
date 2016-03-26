@@ -52,13 +52,13 @@ public class SummaryController implements SummaryViewDelegate
     }
     
     @Override
-    public void sourceLabelChanged(JTextField label, String text)
+    public void sourceTextChanged(JTextField label, String text)
     {
         sourcePath = text;
     }
 
     @Override
-    public void destinationLabelChanged(JTextField label, String text)
+    public void destinationTextChanged(JTextField label, String text)
     {
         destinationPath = text; 
     }

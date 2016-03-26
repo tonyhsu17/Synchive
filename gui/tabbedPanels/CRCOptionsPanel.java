@@ -7,6 +7,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
@@ -14,19 +15,25 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import synchive.Settings;
 
 @SuppressWarnings("serial")
 public class CRCOptionsPanel extends JPanel
 {
     public interface CRCOptionsPanelDelegate {
-        public void crcDelimiterFinished(JTextField field, String str);
-        public void crcLeadingDelimiterFinished(JTextField field, String str);
-        public void crcTrailingDelimiterFinished(JTextField field, String str);
-        public void noDelimiterStateChange(JRadioButton button, ItemEvent state);
+        public void crcDelimiterTextChanged(JTextField field, String str);
+        public void checkWithoutDelimStateChange(JRadioButton button, int state);
+        
+        public void addCrcToFileNameStateChanged(JRadioButton button, int state);
+        public void crcForExtensionTypeTextChanged(JTextField field, String str);
+        public void crcLeadingDelimiterTextChanged(JTextField field, String str);
+        public void crcTrailingDelimiterTextChanged(JTextField field, String str);
     }
     
-    CRCOptionsPanelDelegate delegate;
-    private JTextField textField;
+    private CRCOptionsPanelDelegate delegate;
     
     public CRCOptionsPanel(CRCOptionsPanelDelegate delegate)
     {
@@ -61,13 +68,15 @@ public class CRCOptionsPanel extends JPanel
         add(crcDelimiterExampleLabel);
         
         JRadioButton checkWithoutDelimiterButton = new JRadioButton("Check without delimiters");
-        checkWithoutDelimiterButton.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent arg0) {
-            }
-        });
         checkWithoutDelimiterButton.setBounds(7, 50, 186, 22);
         checkWithoutDelimiterButton.setFocusPainted(false);
+        checkWithoutDelimiterButton.setSelected(Settings.getInstance().getScanWithoutDelimFlag());
         add(checkWithoutDelimiterButton);
+        checkWithoutDelimiterButton.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent arg0) {
+                delegate.checkWithoutDelimStateChange(checkWithoutDelimiterButton, arg0.getStateChange());
+            }
+        });
         
         Box horizontalBox = Box.createHorizontalBox();
         horizontalBox.setBounds(7, 76, 479, 2);
@@ -75,23 +84,45 @@ public class CRCOptionsPanel extends JPanel
         add(horizontalBox);
         
         JRadioButton addCrcFilenameButton = new JRadioButton("Add CRC to filename");
-        addCrcFilenameButton.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            }
-        });
         addCrcFilenameButton.setBounds(7, 82, 143, 22);
         addCrcFilenameButton.setFocusPainted(false);
         addCrcFilenameButton.setToolTipText("Add CRC to both source and destination if CRC not in file name");
+        addCrcFilenameButton.setSelected(Settings.getInstance().getCrcInFilenameFlag());
         add(addCrcFilenameButton);
+        addCrcFilenameButton.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent arg0) {
+                delegate.addCrcToFileNameStateChanged(addCrcFilenameButton, arg0.getStateChange());
+            }
+        });
         
-        JLabel lblFileType = new JLabel("File Type");
-        lblFileType.setBounds(7, 111, 83, 14);
-        add(lblFileType);
+        JLabel extensionTypeLabel = new JLabel("Extension Type");
+        extensionTypeLabel.setBounds(7, 111, 131, 14);
+        add(extensionTypeLabel);
         
-        textField = new JTextField();
-        textField.setBounds(100, 108, 340, 20);
-        add(textField);
-        textField.setColumns(10);
+        JTextField extensionTypeTextField = new JTextField();
+        extensionTypeTextField.setBounds(155, 108, 328, 20);
+        extensionTypeTextField.setText(Settings.getInstance().getAddCrcToExtensionTypeText());
+        add(extensionTypeTextField);
+        extensionTypeTextField.setColumns(10);
+        extensionTypeTextField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                delegate.crcForExtensionTypeTextChanged(extensionTypeTextField, extensionTypeTextField.getText());
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                delegate.crcForExtensionTypeTextChanged(extensionTypeTextField, extensionTypeTextField.getText());
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+        });
         
         JLabel crcDelimiterLeadingLabel = new JLabel("CRC Delimiter - Leading");
         crcDelimiterLeadingLabel.setBounds(7, 139, 143, 14);
@@ -99,21 +130,56 @@ public class CRCOptionsPanel extends JPanel
         
         JTextField crcDelimiterLeadingTextField = new JTextField();
         crcDelimiterLeadingTextField.setBounds(155, 136, 70, 21);
+        crcDelimiterLeadingTextField.setText(Settings.getInstance().getCrcDelimLeadingText());
         add(crcDelimiterLeadingTextField);
         crcDelimiterLeadingTextField.setColumns(10);
+        crcDelimiterLeadingTextField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                delegate.crcLeadingDelimiterTextChanged(crcDelimiterLeadingTextField, crcDelimiterLeadingTextField.getText());
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                delegate.crcLeadingDelimiterTextChanged(crcDelimiterLeadingTextField, crcDelimiterLeadingTextField.getText());
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+        });
         
         JLabel crcDelimiterTrailingLabel = new JLabel("CRC Delimiter - Trailing");
         crcDelimiterTrailingLabel.setBounds(268, 139, 131, 14);
         add(crcDelimiterTrailingLabel);
         
         JTextField crcDelimiterTrailingTextField = new JTextField();
-        crcDelimiterTrailingTextField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusLost(FocusEvent e) {
-            }
-        });
         crcDelimiterTrailingTextField.setBounds(413, 136, 70, 21);
+        crcDelimiterTrailingTextField.setText(Settings.getInstance().getCrcDelimTrailingText());
         add(crcDelimiterTrailingTextField);
         crcDelimiterTrailingTextField.setColumns(10);
+        crcDelimiterTrailingTextField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                delegate.crcTrailingDelimiterTextChanged(crcDelimiterTrailingTextField, crcDelimiterTrailingTextField.getText());
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                delegate.crcTrailingDelimiterTextChanged(crcDelimiterTrailingTextField, crcDelimiterTrailingTextField.getText());
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+        });
     }
 }
