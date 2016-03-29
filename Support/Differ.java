@@ -16,7 +16,9 @@ import java.util.Scanner;
 
 import fileManagement.SynchiveDirectory;
 import fileManagement.SynchiveFile;
-import fileManagement.Reader;
+import synchive.EventCenter;
+import synchive.EventCenter.Events;
+import fileManagement.FileProcessor;
 
 
 /**
@@ -27,13 +29,12 @@ import fileManagement.Reader;
  */
 public class Differ
 {
-    private final String FOLDER_PREFIX = "~";
-    private final String LEFTOVER_FOLDER = "~leftovers";
+    private String LEFTOVER_FOLDER = FileProcessor.LEFTOVER_FOLDER;
     // srcLoc = source directory, desLoc = destination directory
     // crcFile = source crc file, desAudit = audit file
     private File srcLoc, desLoc, crcFile, desAudit;
     private BufferedWriter desAuditWriter;
-    private Hashtable<String, SynchiveDirectory> folders; // Level + Directory to DirectoryWithFiles
+    private Hashtable<String, SynchiveDirectory> destinationList; // Level + Directory to DirectoryWithFiles
     private ArrayList<SynchiveFile> sourceCRCFiles; // list of all files in scr location
 
     public Differ(File curDir, File backupDir)
@@ -46,7 +47,8 @@ public class Differ
         {
             desAuditWriter = new BufferedWriter(new FileWriter(desAudit));
             crcFile = new File(backupDir.getPath() + "\\" + Utilities.CRC_FILE_NAME);
-            folders = new Hashtable<String, SynchiveDirectory>();
+            FileProcessor desReader = new FileProcessor(backupDir, Utilities.DESTINATION);
+            destinationList = desReader.getDirectoryList();
             desAuditWriter.write("Audit Start");
             desAuditWriter.newLine();
         }
@@ -55,121 +57,58 @@ public class Differ
             e.printStackTrace();
             System.exit(1);
         }
-
-        if(!crcFile.exists()) // Case: First Time - If generation of crcFile of des doesn't exist
-        {
-            System.out.println("Generating Des CRCFile...");
-            generateCRCFile();
-            System.out.println("Finished Generating Des CRCFile");
-        }
-        readinCRCFile();
     }
 
-    private void generateCRCFile()
-    {
-        try
-        {
-            Reader rd = new Reader(desLoc, Utilities.DESTINATION);
-            rd.readinDirectory(); // writes uid to file
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            System.out.println("ERROR - Unable to create file");
-            System.exit(1);
-        }
-    }
-
-    private void readinCRCFile()
-    {
-        try
-        {
-            Scanner sc = new Scanner(crcFile);
-            String str = sc.nextLine();
-
-            while(sc.hasNextLine() && str.startsWith(FOLDER_PREFIX)) // not finished and is a folder
-            {
-                SynchiveDirectory dir = new SynchiveDirectory(str);
-                String[] splitStr = str.split(" ");
-                dir.setRealFolderName(str.substring(splitStr[0].length() + 1));
-                folders.put(str, dir); // store folder in hashtable
-                System.out.println("Folder... " + str);
-                str = sc.nextLine();
-                while(!str.startsWith(FOLDER_PREFIX)) // store files in folder
-                {
-                    dir.addFile(str, SynchiveDirectory.FileFlag.FILE_NOT_EXIST);
-                    if(sc.hasNextLine())
-                        str = sc.nextLine();
-                    else
-                        break;
-                }
-            }
-            sc.close();
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-    }
+   
 
     public void syncLocations()
     {
-        Reader rd;
+        FileProcessor rd;
         try
         {
-            rd = new Reader(srcLoc, Utilities.SOURCE);
-            System.out.println("Generating Source CRCFile...");
-            sourceCRCFiles = rd.getCRCValues();
-            System.out.println("Finished Generating Source CRCFile");
-
-            System.out.println("Comparing Differences...");
+            rd = new FileProcessor(srcLoc, Utilities.SOURCE);
+            sourceCRCFiles = rd.getCRCFileList();
+            
+            postEvent(Events.Status, "Comparing Differences...");
             for(int i = 0; i < sourceCRCFiles.size(); i++)
             {
-                boolean isRoot = false;
                 // get file to search and search in hashTable of directories
-                SynchiveFile temp = sourceCRCFiles.get(i); // file to parse throgh
+                SynchiveFile temp = sourceCRCFiles.get(i); // file to parse through
                 SynchiveDirectory dir =
-                    folders.get(Utilities.convertToDirectoryLvl(temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath()));
-                if(temp.getParent().equals(srcLoc.getPath())) // if file is in root dir
-                    isRoot = true;
+                    destinationList.get(Utilities.convertToDirectoryLvl(
+                        temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath()));
+                boolean isRoot = temp.getParent().equals(srcLoc.getPath()) ? true : false; // if file is in root dir
+
                 if(dir != null && dir.getFiles().size() > 0)
                 {
-
                     // if directory exist find file in director
-                    boolean flag = dir.doesFileExist(temp.getCRC32Value());
+                    boolean flag = dir.doesFileExist(temp.getUniqueID());
                     if(!flag) // file not exist
                     {
-                        dir.addFile(temp.getCRC32Value(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
+                        dir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
                         copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
-                        if(isRoot)
-                        {
-                            writeToAudit(desLoc, "Added \"" + temp.getName() + "\" to \"root\"");
-                        }
-                        else
-                        {
-                            writeToAudit(desLoc, "Added \"" + temp.getName() + "\" to \"" + dir.getRealFolderName() + "\"");
-                        }
+                        postEvent(Events.ProcessingFile, isRoot ? "Added \"" + temp.getName() + "\" to \"root\"" : 
+                            "Added \"" + temp.getName() + "\" to \"" + dir.getRealFolderName() + "\"");
                     }
                 }
                 else
                 {
                     // make new directory
-                    String relativeDir = temp.getParentFile().getName();
+                    String relativeDir = isRoot ? "\\" : temp.getParentFile().getName();
                     String relativeDirFromRoot = temp.getParent().substring(srcLoc.getPath().length());
                     String destinationDir = desLoc.getPath() + relativeDirFromRoot;
-                    if(isRoot)
-                        relativeDir = "\\";
-
                     File fd = new File(destinationDir);
+                    
                     if(!isRoot)
                         createDirectory(fd);
+                    
                     SynchiveDirectory newDir =
-                        (isRoot) ? new SynchiveDirectory(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
+                        isRoot ? new SynchiveDirectory(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
                             : new SynchiveDirectory(Utilities.convertToDirectoryLvl(fd.getPath(), temp.getLevel(), desLoc.getPath()));
 
                     newDir.setRealFolderName(relativeDir);
-                    newDir.addFile(temp.getCRC32Value(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
-                    folders.put(newDir.getFolderName(), newDir); // add newDir to folderHashTable
+                    newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
+                    destinationList.put(newDir.getFolderName(), newDir); // add newDir to folderHashTable
 
                     copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
                     if(isRoot)
@@ -185,9 +124,7 @@ public class Differ
 
             // clean up stuff
             insertToFile(); // write newly added files to crcFile
-            // srcAuditWriter.write("Audit Done");
             desAuditWriter.write("Audit Done");
-            // srcAuditWriter.close();
             desAuditWriter.close();
             System.out.println("Operation Completed");
         }
@@ -294,14 +231,14 @@ public class Differ
         {
             crcFile.delete();
             BufferedWriter output = new BufferedWriter(new FileWriter(crcFile));
-            Enumeration<String> enu = folders.keys();
+            Enumeration<String> enu = destinationList.keys();
             while(enu.hasMoreElements()) // go through folders
             {
                 String folderName = enu.nextElement();
                 output.write(folderName);
                 output.newLine();
                 // go through files in folder
-                SynchiveDirectory dir = folders.get(folderName);
+                SynchiveDirectory dir = destinationList.get(folderName);
                 Enumeration<String> enuFiles = dir.getFiles().keys();
                 while(enuFiles.hasMoreElements())
                 {
@@ -355,5 +292,10 @@ public class Differ
         String[] splitFile = fileName.split("\"");
         String retVal = desLoc.getPath() + splitDir[1] + "\\" + splitFile[1];
         return retVal;
+    }
+    
+    private void postEvent(Events e, String str)
+    {
+        EventCenter.getInstance().postEvent(e, str);
     }
 }

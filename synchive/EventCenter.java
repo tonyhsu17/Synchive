@@ -9,10 +9,10 @@ public class EventCenter
     public interface EventFunction {
         public void postEvent(Object obj); // generic function for function pass-in
     }
-    public enum Events { // list of possible events
+    public static enum Events { // list of possible events
         ProcessingFile, // comment
         ErrorOccurred, // comment
-        something3, // comment
+        Status, // comment
     }; 
 
     private static EventCenter self = new EventCenter();

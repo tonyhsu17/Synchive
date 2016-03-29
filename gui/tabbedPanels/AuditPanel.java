@@ -36,14 +36,13 @@ public class AuditPanel extends JPanel
         scrollPane_1.setViewportView(auditTextArea);
         auditTextArea.setWrapStyleWord(true);
         auditTextArea.setLineWrap(true);
-        auditTextArea.setText("This is a very long text that might occur when we have very long audit log and or long directory nagmes\r\n2\r\n3\r\n4\r\n5\r\n6\r\n7\r\n8\r\n9\r\n0\r\n-");
        
     }
     
     public void print(String str)
     {
         String text = auditTextArea.getText();
-        text += "\n" + str;
+        text += str + "\n";
         auditTextArea.setText(text);
     }
 }

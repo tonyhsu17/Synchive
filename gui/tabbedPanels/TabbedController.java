@@ -42,6 +42,10 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
         EventCenter.getInstance().subscribeEvent(Events.ProcessingFile, id, (text) -> {
             ((AuditPanel)tabView.getAuditPanel()).print((String)text);
         });
+        EventCenter.getInstance().subscribeEvent(Events.Status, id, (text) -> {
+            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
+        });
+        
         EventCenter.getInstance().subscribeEvent(Events.ErrorOccurred, id, (text) -> {
             ((ErrorPanel)tabView.getErrorLogsPanel()).print((String)text);
         });

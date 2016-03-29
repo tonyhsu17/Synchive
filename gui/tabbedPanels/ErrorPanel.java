@@ -39,7 +39,7 @@ public class ErrorPanel extends JPanel
     public void print(String str)
     {
         String text = errorTextArea.getText();
-        text += "\n" + str;
+        text += str + "\n";
         errorTextArea.setText(text);
     }
 }

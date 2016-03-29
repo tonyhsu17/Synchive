@@ -95,7 +95,7 @@ public class CRCOptionsPanel extends JPanel
             }
         });
         
-        JLabel extensionTypeLabel = new JLabel("Extension Type");
+        JLabel extensionTypeLabel = new JLabel("Add to Extension Type");
         extensionTypeLabel.setBounds(7, 111, 131, 14);
         add(extensionTypeLabel);
         

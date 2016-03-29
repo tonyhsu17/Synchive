@@ -27,6 +27,9 @@ public class SynchiveDirectory
     {
         this.setFolderName(folderName);
         files = new Hashtable<String, FileFlag>();
+        
+        String[] splitStr = folderName.split(" "); // [level, path]
+        realFolderName = splitStr[1]; //TODO catch out of bounds and throw corrupted file
     }
 
     public void addFile(String fileName, FileFlag FILE_FLAG)
