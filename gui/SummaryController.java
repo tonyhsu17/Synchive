@@ -8,7 +8,7 @@ import javax.swing.UIManager;
 
 import gui.SummaryView.SummaryViewDelegate;
 import gui.tabbedPanels.TabbedController;
-import support.Differ;
+import synchive.SynchiveDiff;
 
 public class SummaryController implements SummaryViewDelegate
 {
@@ -47,7 +47,8 @@ public class SummaryController implements SummaryViewDelegate
     
     public void runNuttySync()
     {
-        Differ diff = new Differ(new File(sourcePath), new File(destinationPath));
+        SynchiveDiff diff = new SynchiveDiff(new File("E:\\TestA"), new File("E:\\TestB"));
+        //SynchiveDiff diff = new SynchiveDiff(new File(sourcePath), new File(destinationPath));
         diff.syncLocations();
     }
     

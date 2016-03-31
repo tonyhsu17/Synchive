@@ -30,6 +30,7 @@ public class ErrorPanel extends JPanel
         add(scrollPane);
         
         errorTextArea = new JTextArea();
+        errorTextArea.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
         errorTextArea.setEditable(false);
         errorTextArea.setLineWrap(true);
         errorTextArea.setWrapStyleWord(true);

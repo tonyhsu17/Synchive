@@ -13,6 +13,7 @@ import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import gui.tabbedPanels.FlagPanel.CompletionOptions;
 import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
 import synchive.EventCenter;
+import synchive.Settings;
 import synchive.EventCenter.EventFunction;
 import synchive.EventCenter.Events;
 
@@ -29,7 +30,9 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
         summaryVC = sumVC;
         id = this.hashCode();
         tabView = new TabbedContainerPaneView(new Rectangle(7, 58, 498, 195), new Dimension(5, 150), this);
-        subscribeToNotifications();
+        
+        //if(Settings.getInstance().getAuditTrailFlag())
+            subscribeToNotifications();
     }
     
     public TabbedContainerPaneView getView()

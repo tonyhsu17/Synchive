@@ -1,4 +1,4 @@
-package support;
+package synchive;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 import fileManagement.SynchiveDirectory;
 import fileManagement.SynchiveFile;
-import synchive.EventCenter;
+import support.Utilities;
 import synchive.EventCenter.Events;
 import fileManagement.FileProcessor;
 
@@ -27,30 +27,26 @@ import fileManagement.FileProcessor;
  *           After reading in every file, scan through source and for each file in src, mark if found in des, otherwise
  *           copy into des. Afterwards, if file in des has not been marked, "delete" aka move to a separate location.
  */
-public class Differ
+public class SynchiveDiff
 {
     private String LEFTOVER_FOLDER = FileProcessor.LEFTOVER_FOLDER;
     // srcLoc = source directory, desLoc = destination directory
-    // crcFile = source crc file, desAudit = audit file
-    private File srcLoc, desLoc, crcFile, desAudit;
-    private BufferedWriter desAuditWriter;
-    private Hashtable<String, SynchiveDirectory> destinationList; // Level + Directory to DirectoryWithFiles
-    private ArrayList<SynchiveFile> sourceCRCFiles; // list of all files in scr location
+    private File srcLoc, desLoc;
+    // crcFile = source crc file
+    private File crcFile;
+    private Hashtable<String, SynchiveDirectory> destinationList; // Mapping of each file in directory
+    private ArrayList<SynchiveFile> sourceCRCFiles; // list of all files in source location
 
-    public Differ(File curDir, File backupDir)
+    public SynchiveDiff(File curDir, File backupDir)
     {
         this.srcLoc = curDir;
         this.desLoc = backupDir;
-        desAudit = new File(desLoc.getPath() + "\\" + Utilities.AUDIT_FILE_NAME);
 
         try
         {
-            desAuditWriter = new BufferedWriter(new FileWriter(desAudit));
             crcFile = new File(backupDir.getPath() + "\\" + Utilities.CRC_FILE_NAME);
             FileProcessor desReader = new FileProcessor(backupDir, Utilities.DESTINATION);
             destinationList = desReader.getDirectoryList();
-            desAuditWriter.write("Audit Start");
-            desAuditWriter.newLine();
         }
         catch (IOException e)
         {
@@ -58,8 +54,6 @@ public class Differ
             System.exit(1);
         }
     }
-
-   
 
     public void syncLocations()
     {
@@ -81,7 +75,7 @@ public class Differ
 
                 if(dir != null && dir.getFiles().size() > 0)
                 {
-                    // if directory exist find file in director
+                    // if directory exist find file in directory
                     boolean flag = dir.doesFileExist(temp.getUniqueID());
                     if(!flag) // file not exist
                     {
@@ -101,7 +95,8 @@ public class Differ
                     
                     if(!isRoot)
                         createDirectory(fd);
-                    
+                    System.out.println("@" + Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()));
+                    System.out.println("@" + Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()));
                     SynchiveDirectory newDir =
                         isRoot ? new SynchiveDirectory(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
                             : new SynchiveDirectory(Utilities.convertToDirectoryLvl(fd.getPath(), temp.getLevel(), desLoc.getPath()));
@@ -111,22 +106,16 @@ public class Differ
                     destinationList.put(newDir.getFolderName(), newDir); // add newDir to folderHashTable
 
                     copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
-                    if(isRoot)
-                    {
-                        writeToAudit(desLoc, "Added \"" + temp.getName() + "\" to \"root\"");
-                    }
-                    else
-                    {
-                        writeToAudit(desLoc, "Added \"" + temp.getName() + "\" to \"" + newDir.getRealFolderName() + "\"");
-                    }
+                    
+                    postEvent(Events.ProcessingFile, isRoot ? 
+                        "Added \"" + temp.getName() + "\" to \"root\"" :
+                        "Added \"" + temp.getName() + "\" to \"" + newDir.getRealFolderName() + "\"");
                 }
             }
 
             // clean up stuff
             insertToFile(); // write newly added files to crcFile
-            desAuditWriter.write("Audit Done");
-            desAuditWriter.close();
-            System.out.println("Operation Completed");
+            postEvent(Events.Status, "Operation Completed");
         }
         catch (IOException e)
         {
@@ -134,20 +123,6 @@ public class Differ
             System.exit(1);
         }
 
-    }
-
-    private void writeToAudit(File location, String msg) throws IOException
-    {
-        System.out.println("Audit Writing: " + msg);
-        if(location == srcLoc)
-        {
-            System.out.println("Src Audit Writing Failed");
-        }
-        else if(location == desLoc)
-        {
-            desAuditWriter.write(msg);
-            desAuditWriter.newLine();
-        }
     }
 
     private void createDirectory(File location) throws IOException
@@ -158,7 +133,7 @@ public class Differ
         {
             createDirectory(location.getParentFile());
         }
-        writeToAudit(desLoc, "Directory \"" + location.getName() + "\" Created");
+        postEvent(Events.ProcessingFile, "Directory \"" + location.getName() + "\" Created");
         location.mkdir();
     }
 
@@ -173,13 +148,13 @@ public class Differ
         }
         catch (IOException e)
         {
-            System.out.println("Unable to copy file " + file.getName());
+            postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
         }
         // CRC32 Check
         // unoptimized, should grab src crcVal from file if failed... delete file and try again?
         if(!Utilities.calculateCRC32(file).equals(Utilities.calculateCRC32(new File(destinationPath))))
         {
-            System.out.println("@@@@@@@@@@@ Copy Error! " + file.getName() + " @@@@@@@@@@@@");
+            postEvent(Events.ErrorOccurred, "CRC MISMATCH for file: " + file.getName());
         }
     }
 
@@ -192,21 +167,21 @@ public class Differ
         try
         {
             Files.copy(Paths.get(file.getPath()), Paths.get(destinationPath), op);
+            // CRC32 Check
+            // unoptimized, should grab src crcVal from file if failed... delete file and try again?
             if(!Utilities.calculateCRC32(file).equals(Utilities.calculateCRC32(new File(destinationPath))))
             {
-                System.out.println("@@@@@@@@@@@ Copy Error! " + file.getName() + " @@@@@@@@@@@@");
+                postEvent(Events.ErrorOccurred, "CRC MISMATCH for file: " + file.getName());
             }
             file.delete();
-            writeToAudit(desLoc,
-                "File \"" + file.getName() + "\" in \"" + relativePath + "\" not found in source. Moved to \"" + LEFTOVER_FOLDER + "\"");
+            postEvent(Events.ProcessingFile, 
+                "File \"" + file.getName() + "\" in \"" + relativePath + 
+                "\" not found in source. Moved to \"" + LEFTOVER_FOLDER + "\"");
         }
         catch (IOException e)
         {
-            System.out.println("Unable to cut file " + file.getName());
+            postEvent(Events.ErrorOccurred, "Unable to copy file: " + file.getName());
         }
-        // CRC32 Check
-        // unoptimized, should grab src crcVal from file if failed... delete file and try again?
-
     }
 
     private void removeEmptyDirectories(File file) throws IOException
@@ -215,7 +190,7 @@ public class Differ
         {
             File parent = file.getParentFile(); // get parent directory
             file.delete(); // delete current directory
-            writeToAudit(desLoc, "Deleted empty directory \"" + file.getName());
+            postEvent(Events.ProcessingFile, "Deleted empty directory \"" + file.getName());
 
             if(parent.getPath().equals(desLoc.getPath())) // safety check
                 return;
@@ -290,7 +265,7 @@ public class Differ
     {
         String[] splitDir = fileDir.getFolderName().split(": ");
         String[] splitFile = fileName.split("\"");
-        String retVal = desLoc.getPath() + splitDir[1] + "\\" + splitFile[1];
+        String retVal = desLoc.getPath() + (splitDir.length == 2 ? splitDir[1] : "") + "\\" + splitFile[1];
         return retVal;
     }
     

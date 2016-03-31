@@ -1,4 +1,11 @@
 package synchive;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Formatter;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import gui.SummaryController;
 
 /** Created by Tony Hsu. Free to use with credit. Overview: Used as a backup
@@ -18,26 +25,7 @@ public class Synchive
         SummaryController controller = new SummaryController();
         controller.run();
     }
-    /*
-    public static void main(String[] args)
-    {
-        if(args.length != 2)
-            return;
-        // String curDir = "E:\\Tony Hsu\\Apps";
-        // String backupDir = "E:\\Tony Hsu\\TEST";
-        // System.out.println("YAY: " + Arrays.toString(args));
-        // String curDir = "E:\\Videos\\New Videos\\2015 Winter";
-        // String backupDir = "E:\\BACKUP TEST";
-        // @SuppressWarnings("unused")
-        // String str = "ō"; //force file into UTF-8 encoding to change runtime
-        // environment encoding
-        // String curDir = "E:\\SOUCE";
-        // String backupDir = "E:\\DESTINATION";
-        // Differ diff = new Differ(new File(curDir), new File(backupDir));
-        Differ diff = new Differ(new File(args[0]), new File(args[1]));
-        diff.syncLocations();
-
-        return;
-    }
-*/
+    
+    // String str = "ō"; //force file into UTF-8 encoding to change runtime
+    // environment encoding
 }
