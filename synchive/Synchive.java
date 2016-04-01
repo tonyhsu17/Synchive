@@ -25,7 +25,6 @@ public class Synchive
         SummaryController controller = new SummaryController();
         controller.run();
     }
-    
     // String str = "ō"; //force file into UTF-8 encoding to change runtime
     // environment encoding
 }

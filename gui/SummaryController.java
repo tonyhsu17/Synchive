@@ -8,21 +8,20 @@ import javax.swing.UIManager;
 
 import gui.SummaryView.SummaryViewDelegate;
 import gui.tabbedPanels.TabbedController;
+import synchive.Settings;
 import synchive.SynchiveDiff;
 
 public class SummaryController implements SummaryViewDelegate
 {
     private SummaryView summaryView;
     private TabbedController tabController;
-    private String sourcePath;
-    private String destinationPath;
 
     public SummaryController()
     {
         summaryView = new SummaryView(this);
         tabController = new TabbedController(this);
-        sourcePath = "";
-        destinationPath = "";
+        summaryView.loadSettings(
+            Settings.getInstance().getSourcePath(), Settings.getInstance().getDestinationPath());
     }
 
     public void run()
@@ -47,21 +46,22 @@ public class SummaryController implements SummaryViewDelegate
     
     public void runNuttySync()
     {
-        SynchiveDiff diff = new SynchiveDiff(new File("E:\\TestA"), new File("E:\\TestB"));
-        //SynchiveDiff diff = new SynchiveDiff(new File(sourcePath), new File(destinationPath));
+//        SynchiveDiff diff = new SynchiveDiff(new File("E:\\TestA"), new File("E:\\TestB"));
+        SynchiveDiff diff = new SynchiveDiff(
+            new File(Settings.getInstance().getSourcePath()), new File(Settings.getInstance().getDestinationPath()));
         diff.syncLocations();
     }
     
     @Override
     public void sourceTextChanged(JTextField label, String text)
     {
-        sourcePath = text;
+        Settings.getInstance().setSourcePath(text);
     }
 
     @Override
     public void destinationTextChanged(JTextField label, String text)
     {
-        destinationPath = text; 
+        Settings.getInstance().setDestinationPath(text);
     }
 
 }

@@ -52,11 +52,17 @@ public class SynchiveFile extends File
         return copyAllowed;
     }
     
-    public String[] determineCopyingAllowed(String delimiter) throws ChecksumException
+    //determines if copying is allowed by finding CRC value in fileName.
+    //if it cannot find CRC in fileName, assume none exist and dont check
+    //else scan through possibleCRC and return if matching crc otherwise throw an exception
+    public void determineCopyingAllowed(String delimiter) throws ChecksumException
     {
         String[] possibleCRC = findCRCInFileName(delimiter);
-        //find crc from fileName
-        if(possibleCRC.length > 0)
+        if(possibleCRC.length == 0) //no crc found
+        {
+            return;
+        }
+        else
         {
             copyAllowed = false;
             for(String possible: possibleCRC) // only set copyAllowed if matching crc
@@ -64,11 +70,13 @@ public class SynchiveFile extends File
                 if(crc.compareToIgnoreCase(possible) == 0)
                 {
                     copyAllowed = true;
-                    return null;
+                    return;
                 }
             }
+            System.out.println("Bad crc:" + Arrays.toString(possibleCRC));
+            //cannot find matching CRC, throw exception
+            throw new ChecksumException(Arrays.toString(possibleCRC));
         }
-        throw new ChecksumException(Arrays.toString(possibleCRC));
     }
     
     private String[] findCRCInFileName(String delimiter)
@@ -102,12 +110,13 @@ public class SynchiveFile extends File
                 Formatter regx = new Formatter(
                     new StringBuilder(sanitizedLeading + "[a-fA-F0-9]{" + numOfCharInCRC + "}+" + sanitizedTrailing));
                 Pattern p = Pattern.compile(regx.toString());
-                Matcher m = p.matcher(delimiter);
+                Matcher m = p.matcher(getName());
                 
                 // go through matcher and to list all possible CRC values
                 while(m.find())
                 {
                     String str = m.group(0);
+                    System.out.println(str);
                     possibleCRC.add(str.substring(leading.length(), str.length() - trailing.length()));
                 }
                 regx.close();
@@ -117,7 +126,7 @@ public class SynchiveFile extends File
         {
             System.out.println(s);
         }
-        return (String[])possibleCRC.toArray();
+        return (String[])possibleCRC.toArray(new String[0]);
     }
         
     //checks if character is in pattern

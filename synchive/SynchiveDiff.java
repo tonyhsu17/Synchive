@@ -68,49 +68,56 @@ public class SynchiveDiff
             {
                 // get file to search and search in hashTable of directories
                 SynchiveFile temp = sourceCRCFiles.get(i); // file to parse through
-                SynchiveDirectory dir =
-                    destinationList.get(Utilities.convertToDirectoryLvl(
-                        temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath()));
-                boolean isRoot = temp.getParent().equals(srcLoc.getPath()) ? true : false; // if file is in root dir
-
-                if(dir != null && dir.getFiles().size() > 0)
+                if(temp.copyAllowed())
                 {
-                    // if directory exist find file in directory
-                    boolean flag = dir.doesFileExist(temp.getUniqueID());
-                    if(!flag) // file not exist
+                    SynchiveDirectory dir =
+                        destinationList.get(Utilities.convertToDirectoryLvl(
+                            temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath()));
+                    boolean isRoot = temp.getParent().equals(srcLoc.getPath()) ? true : false; // if file is in root dir
+
+                    if(dir != null && dir.getFiles().size() > 0)
                     {
-                        dir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
-                        copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
-                        postEvent(Events.ProcessingFile, isRoot ? "Added \"" + temp.getName() + "\" to \"root\"" : 
-                            "Added \"" + temp.getName() + "\" to \"" + dir.getRealFolderName() + "\"");
+                        // if directory exist find file in directory
+                        boolean flag = dir.doesFileExist(temp.getUniqueID());
+                        if(!flag) // file not exist
+                        {
+                            dir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
+                            copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
+                            postEvent(Events.ProcessingFile, isRoot ? "Added \"" + temp.getName() + "\" to \"root\"" : 
+                                "Added \"" + temp.getName() + "\" to \"" + dir.getRealFolderName() + "\"");
+                        }
+                    }
+                    else
+                    {
+                        // make new directory
+                        String relativeDir = isRoot ? "\\" : temp.getParentFile().getName();
+                        String relativeDirFromRoot = temp.getParent().substring(srcLoc.getPath().length());
+                        String destinationDir = desLoc.getPath() + relativeDirFromRoot;
+                        File fd = new File(destinationDir);
+                        
+                        if(!isRoot)
+                            createDirectory(fd);
+                        
+                        SynchiveDirectory newDir =
+                            isRoot ? new SynchiveDirectory(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
+                                : new SynchiveDirectory(Utilities.convertToDirectoryLvl(fd.getPath(), temp.getLevel(), desLoc.getPath()));
+
+                        newDir.setRealFolderName(relativeDir);
+                        newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
+                        destinationList.put(newDir.getFolderName(), newDir); // add newDir to folderHashTable
+
+                        copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
+                        
+                        postEvent(Events.ProcessingFile, isRoot ? 
+                            "Added \"" + temp.getName() + "\" to \"root\"" :
+                            "Added \"" + temp.getName() + "\" to \"" + newDir.getRealFolderName() + "\"");
                     }
                 }
                 else
                 {
-                    // make new directory
-                    String relativeDir = isRoot ? "\\" : temp.getParentFile().getName();
-                    String relativeDirFromRoot = temp.getParent().substring(srcLoc.getPath().length());
-                    String destinationDir = desLoc.getPath() + relativeDirFromRoot;
-                    File fd = new File(destinationDir);
-                    
-                    if(!isRoot)
-                        createDirectory(fd);
-                    System.out.println("@" + Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()));
-                    System.out.println("@" + Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()));
-                    SynchiveDirectory newDir =
-                        isRoot ? new SynchiveDirectory(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
-                            : new SynchiveDirectory(Utilities.convertToDirectoryLvl(fd.getPath(), temp.getLevel(), desLoc.getPath()));
-
-                    newDir.setRealFolderName(relativeDir);
-                    newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
-                    destinationList.put(newDir.getFolderName(), newDir); // add newDir to folderHashTable
-
-                    copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
-                    
-                    postEvent(Events.ProcessingFile, isRoot ? 
-                        "Added \"" + temp.getName() + "\" to \"root\"" :
-                        "Added \"" + temp.getName() + "\" to \"" + newDir.getRealFolderName() + "\"");
+                    postEvent(Events.ErrorOccurred, "Did not copy \"" + temp.getName() + "\" due to CRC mismatch.");
                 }
+                
             }
 
             // clean up stuff
