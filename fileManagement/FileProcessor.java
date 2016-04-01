@@ -12,9 +12,11 @@ import java.util.Stack;
 
 import javax.rmi.CORBA.Util;
 
+import fileManagement.SynchiveFile.ChecksumException;
 import support.Utilities;
 import synchive.EventCenter;
 import synchive.EventCenter.Events;
+import synchive.Settings;
 
 
 /**
@@ -147,6 +149,10 @@ public class FileProcessor
     // helper method for readinDirectory()
     private void readinFilesInDirectory(SynchiveFile f, boolean writeOut) throws IOException
     {
+        if(f.getName() == LEFTOVER_FOLDER)
+        {
+            return;
+        }
         for(File fileEntry : f.listFiles()) // go through each file in directory
         {
             if(fileEntry.isDirectory()) // add child folders to read as well
@@ -164,13 +170,34 @@ public class FileProcessor
                     postEvent(Events.ProcessingFile, "Reading file... " + fileEntry.getName());
                     String val = Utilities.calculateCRC32(fileEntry); // get crc value
                     temp.setCRC(val);
+                    
+                    // do a checksum check if flag enabled
+                    if(Settings.getInstance().getCrcCheckFlag())
+                    {
+                        try
+                        {
+                            // either scan without delimiters or with delimiters based on flag
+                            temp.determineCopyingAllowed(Settings.getInstance().getScanWithoutDelimFlag() ? 
+                                "" : Settings.getInstance().getCrcDelimiterText());
+                        }
+                        catch (ChecksumException e) // catch file checksum mismatch
+                        {
+                            postEvent(Events.ErrorOccurred, 
+                                "Checksum mismatch for: \"" + temp.getName() + "\"\n  - Calculated: [" + temp.getCRC() + "] Found: " + e.getMessage());
+                        }
+                    }
 
-                    fileList.add(temp); // adds to file list
+                    
 
                     if(writeOut) // only write to file if destination
                     {
                         output.write(temp.generateUniqueID()); // wrtie uid to file
                         output.newLine();
+                    }
+                    else
+                    {
+                        // add  to source mapping
+                        fileList.add(temp); // adds to file list
                     }
                 }
             }

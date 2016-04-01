@@ -35,8 +35,10 @@ public class FlagPanel extends JPanel
         public void skipExtensionTextChanged(JTextField textField, String str);
     }
     
-    JRadioButton previousOptionButton;
-    FlagPanelDelegate delegate;
+    private JRadioButton previousOptionButton, auditTrailButton, crcCheckButton, 
+        doNothingButton, standbyButton, shutdownButton;
+    private FlagPanelDelegate delegate;
+    private JTextField skipFolderTextField, skipExtensionTextField;
 
     public FlagPanel(FlagPanelDelegate del)
     {
@@ -49,7 +51,7 @@ public class FlagPanel extends JPanel
     {
         setLayout(null);
         
-        JRadioButton auditTrailButton = new JRadioButton("Enable Audit Trail");
+        auditTrailButton = new JRadioButton("Enable Audit Trail");
         auditTrailButton.setFocusPainted(false);
         auditTrailButton.setBounds(7, 7, 231, 23);
         auditTrailButton.setSelected(Settings.getInstance().getAuditTrailFlag());
@@ -60,7 +62,7 @@ public class FlagPanel extends JPanel
             }
         });
         
-        JRadioButton crcCheckButton = new JRadioButton("Enable CRC Check");
+        crcCheckButton = new JRadioButton("Enable CRC Check");
         crcCheckButton.setFocusPainted(false);
         crcCheckButton.setBounds(7, 34, 231, 23);
         crcCheckButton.setSelected(Settings.getInstance().getCrcCheckFlag());
@@ -86,7 +88,7 @@ public class FlagPanel extends JPanel
         skipFolderLabel.setBounds(7, 67, 90, 14);
         add(skipFolderLabel);
         
-        JTextField skipFolderTextField = new JTextField();
+        skipFolderTextField = new JTextField();
         skipFolderTextField.setToolTipText("Example: \"Folder One\", \"Folder Two\"");
         skipFolderTextField.setBounds(144, 64, 340, 20);
         skipFolderTextField.setText(Settings.getInstance().getSkipFoldersName());
@@ -116,7 +118,7 @@ public class FlagPanel extends JPanel
         skipExtensionLabel.setBounds(7, 92, 129, 14);
         add(skipExtensionLabel);
         
-        JTextField skipExtensionTextField = new JTextField();
+        skipExtensionTextField = new JTextField();
         skipExtensionTextField.setToolTipText("Example: .abc, .xyz,.nmo");
         skipExtensionTextField.setBounds(144, 89, 340, 20);
         skipExtensionTextField.setText(Settings.getInstance().getSkipExtensionTypesText());
@@ -152,7 +154,7 @@ public class FlagPanel extends JPanel
         add(afterCompletionLabel);
         
         // After Completion //
-        JRadioButton doNothingButton = new JRadioButton("Do nothing");
+        doNothingButton = new JRadioButton("Do nothing", false);
         doNothingButton.setFocusPainted(false);
         doNothingButton.setBounds(7, 137, 109, 23);
         previousOptionButton = doNothingButton; //used to keep selection highlighted if same clicked
@@ -163,7 +165,7 @@ public class FlagPanel extends JPanel
             }
         });
         
-        JRadioButton standbyButton = new JRadioButton("Standby");
+        standbyButton = new JRadioButton("Standby", false);
         standbyButton.setFocusPainted(false);
         standbyButton.setBounds(191, 137, 109, 23);
         add(standbyButton);
@@ -173,7 +175,7 @@ public class FlagPanel extends JPanel
             }
         });
         
-        JRadioButton shutdownButton = new JRadioButton("Shutdown");
+        shutdownButton = new JRadioButton("Shutdown", false);
         shutdownButton.setFocusPainted(false);
         shutdownButton.setBounds(341, 137, 109, 23);
         add(shutdownButton);
@@ -182,23 +184,6 @@ public class FlagPanel extends JPanel
                 afterCompletionDidChange(arg0, CompletionOptions.shutdown);
             }
         });
-        
-        CompletionOptions selectedButton = Settings.getInstance().getCompletionFlag();
-        switch (selectedButton)
-        {
-            case doNothing:
-                doNothingButton.setSelected(true);
-                previousOptionButton = doNothingButton;
-                break;
-            case standBy:
-                standbyButton.setSelected(true);
-                previousOptionButton = standbyButton;
-                break;
-            case shutdown:
-                shutdownButton.setSelected(true);
-                previousOptionButton = shutdownButton;
-                break;
-        }
     }
     
     private void afterCompletionDidChange(MouseEvent item, CompletionOptions option)
@@ -213,6 +198,31 @@ public class FlagPanel extends JPanel
             previousOptionButton.setSelected(false);
             previousOptionButton = selectedButton;
             delegate.afterCompletionOptionChanged(selectedButton, option);
+        }
+    }
+    
+    public void loadSettings(boolean auditTrailFlag, boolean crcCheckFlag, String skipFolderText, 
+        String skipExenText, CompletionOptions completion)
+    {
+        auditTrailButton.setSelected(auditTrailFlag);
+        crcCheckButton.setSelected(crcCheckFlag);
+        skipFolderTextField.setText(skipFolderText);
+        skipExtensionTextField.setText(skipExenText);       
+        
+        switch (completion)
+        {
+            case doNothing:
+                doNothingButton.setSelected(true);
+                previousOptionButton = doNothingButton;
+                break;
+            case standBy:
+                standbyButton.setSelected(true);
+                previousOptionButton = standbyButton;
+                break;
+            case shutdown:
+                shutdownButton.setSelected(true);
+                previousOptionButton = shutdownButton;
+                break;
         }
     }
 }

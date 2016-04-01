@@ -25,8 +25,10 @@ public class Settings
     
     private Settings()
     {
-        sourcePath = "";
-        destinationPath = "";
+//        sourcePath = "";
+//        destinationPath = "";
+        sourcePath = "E:\\TestA";
+        destinationPath = "E:\\TestB";
         auditTrailFlag = false;
         crcCheckFlag = false;
         skipFoldersName = "";

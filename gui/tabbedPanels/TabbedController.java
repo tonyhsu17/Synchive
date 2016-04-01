@@ -13,23 +13,44 @@ import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import gui.tabbedPanels.FlagPanel.CompletionOptions;
 import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
 import synchive.EventCenter;
+import synchive.Settings;
 import synchive.EventCenter.EventFunction;
 import synchive.EventCenter.Events;
 
 public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDelegate
 {
     private TabbedContainerPaneView tabView;
-    private CompletionOptions afterCompletion;
-    private int auditTrailFlag, crcCheckFlag;
     private SummaryController summaryVC;
     private int id;
     
     public TabbedController(SummaryController sumVC) 
     {
+        Settings s = Settings.getInstance();
         summaryVC = sumVC;
         id = this.hashCode();
         tabView = new TabbedContainerPaneView(new Rectangle(7, 58, 498, 195), new Dimension(5, 150), this);
-        subscribeToNotifications();
+        
+        ((FlagPanel)tabView.getFlagPanel()).loadSettings(
+            s.getAuditTrailFlag(), 
+            s.getCrcCheckFlag(), 
+            s.getSkipFoldersName(), 
+            s.getSkipExtensionTypesText(), 
+            s.getCompletionFlag());
+        
+        ((CRCOptionsPanel)tabView.getCrcOptionPanel()).loadSettings(
+            s.getCrcDelimiterText(), 
+            s.getScanWithoutDelimFlag(), 
+            s.getCrcInFilenameFlag(), 
+            s.getAddCrcToExtensionTypeText(), 
+            s.getCrcDelimLeadingText(), 
+            s.getCrcDelimTrailingText());
+        
+        if(Settings.getInstance().getAuditTrailFlag())
+            subscribeToNotifications();
+        //always subscribe to errors
+        EventCenter.getInstance().subscribeEvent(Events.ErrorOccurred, id, (text) -> {
+            ((ErrorPanel)tabView.getErrorLogsPanel()).print((String)text);
+        });
     }
     
     public TabbedContainerPaneView getView()
@@ -46,9 +67,7 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
             ((AuditPanel)tabView.getAuditPanel()).print((String)text);
         });
         
-        EventCenter.getInstance().subscribeEvent(Events.ErrorOccurred, id, (text) -> {
-            ((ErrorPanel)tabView.getErrorLogsPanel()).print((String)text);
-        });
+        
     }
     
     @Override
@@ -88,15 +107,13 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     @Override
     public void auditTrailStateChange(JRadioButton button, int state)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setAuditTrailFlag(state == ItemEvent.SELECTED ? true : false); 
     }
 
     @Override
     public void crcCheckStateChange(JRadioButton button, int state)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setCrcCheckFlag(state == ItemEvent.SELECTED ? true : false); 
     }
 
     @Override

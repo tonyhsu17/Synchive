@@ -34,6 +34,9 @@ public class CRCOptionsPanel extends JPanel
     }
     
     private CRCOptionsPanelDelegate delegate;
+    private JTextField crcDelimiterTextField, extensionTypeTextField, 
+        crcDelimiterLeadingTextField, crcDelimiterTrailingTextField;
+    private JRadioButton checkWithoutDelimiterButton, addCrcFilenameButton;
     
     public CRCOptionsPanel(CRCOptionsPanelDelegate delegate)
     {
@@ -54,7 +57,7 @@ public class CRCOptionsPanel extends JPanel
         crcDelimiterLabel.setBounds(7, 29, 83, 14);
         add(crcDelimiterLabel);
         
-        JTextField crcDelimiterTextField = new JTextField();
+        crcDelimiterTextField = new JTextField();
         crcDelimiterTextField.setBounds(100, 25, 202, 22);
         crcDelimiterTextField.setMargin(new Insets(1, 2, 3, 2));
         crcDelimiterTextField.setPreferredSize(new Dimension(50, 20));
@@ -67,7 +70,7 @@ public class CRCOptionsPanel extends JPanel
         crcDelimiterExampleLabel.setBounds(318, 26, 175, 21);
         add(crcDelimiterExampleLabel);
         
-        JRadioButton checkWithoutDelimiterButton = new JRadioButton("Check without delimiters");
+        checkWithoutDelimiterButton = new JRadioButton("Check without delimiters");
         checkWithoutDelimiterButton.setBounds(7, 50, 186, 22);
         checkWithoutDelimiterButton.setFocusPainted(false);
         checkWithoutDelimiterButton.setSelected(Settings.getInstance().getScanWithoutDelimFlag());
@@ -83,7 +86,7 @@ public class CRCOptionsPanel extends JPanel
         horizontalBox.setBorder(new LineBorder(Color.LIGHT_GRAY));
         add(horizontalBox);
         
-        JRadioButton addCrcFilenameButton = new JRadioButton("Add CRC to filename");
+        addCrcFilenameButton = new JRadioButton("Add CRC to filename");
         addCrcFilenameButton.setBounds(7, 82, 143, 22);
         addCrcFilenameButton.setFocusPainted(false);
         addCrcFilenameButton.setToolTipText("Add CRC to both source and destination if CRC not in file name");
@@ -99,7 +102,7 @@ public class CRCOptionsPanel extends JPanel
         extensionTypeLabel.setBounds(7, 111, 131, 14);
         add(extensionTypeLabel);
         
-        JTextField extensionTypeTextField = new JTextField();
+        extensionTypeTextField = new JTextField();
         extensionTypeTextField.setBounds(155, 108, 328, 20);
         extensionTypeTextField.setText(Settings.getInstance().getAddCrcToExtensionTypeText());
         add(extensionTypeTextField);
@@ -128,7 +131,7 @@ public class CRCOptionsPanel extends JPanel
         crcDelimiterLeadingLabel.setBounds(7, 139, 143, 14);
         add(crcDelimiterLeadingLabel);
         
-        JTextField crcDelimiterLeadingTextField = new JTextField();
+        crcDelimiterLeadingTextField = new JTextField();
         crcDelimiterLeadingTextField.setBounds(155, 136, 70, 21);
         crcDelimiterLeadingTextField.setText(Settings.getInstance().getCrcDelimLeadingText());
         add(crcDelimiterLeadingTextField);
@@ -157,7 +160,7 @@ public class CRCOptionsPanel extends JPanel
         crcDelimiterTrailingLabel.setBounds(268, 139, 131, 14);
         add(crcDelimiterTrailingLabel);
         
-        JTextField crcDelimiterTrailingTextField = new JTextField();
+        crcDelimiterTrailingTextField = new JTextField();
         crcDelimiterTrailingTextField.setBounds(413, 136, 70, 21);
         crcDelimiterTrailingTextField.setText(Settings.getInstance().getCrcDelimTrailingText());
         add(crcDelimiterTrailingTextField);
@@ -181,5 +184,16 @@ public class CRCOptionsPanel extends JPanel
             {
             }
         });
+    }
+    
+    public void loadSettings(String crcDelim, boolean scanWithoutDelim, boolean addCRCFilename, 
+        String extensionText, String crcLeadingText, String crcTrailingText)
+    {
+        crcDelimiterTextField.setText(crcDelim);
+        checkWithoutDelimiterButton.setSelected(scanWithoutDelim);
+        addCrcFilenameButton.setSelected(addCRCFilename);
+        extensionTypeTextField.setText(extensionText);
+        crcDelimiterLeadingTextField.setText(crcLeadingText);
+        crcDelimiterTrailingTextField.setText(crcTrailingText);
     }
 }

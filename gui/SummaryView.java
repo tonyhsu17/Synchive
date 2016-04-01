@@ -19,14 +19,11 @@ public class SummaryView
     public interface SummaryViewDelegate {
         public void sourceTextChanged(JTextField label, String text);
         public void destinationTextChanged(JTextField label, String text);
-//        public static void testMethod() {
-//            System.out.println("");
-//        }
     }
     
-    private SummaryController vc;
     private SummaryViewDelegate delegate;
     private JFrame nuttySyncFrame;
+    private JTextField sourceTextField, destinationTextField;
     /**
      * Create the application.
      */
@@ -54,7 +51,7 @@ public class SummaryView
         sourceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         sourceLabel.setFont(new Font("Arial", Font.BOLD, 11));
         
-        JTextField sourceTextField = new JTextField();
+        sourceTextField = new JTextField();
         sourceTextField.setBounds(93, 7, 352, 22);
         sourceTextField.setMinimumSize(new Dimension(50, 20));
         sourceTextField.setToolTipText("");
@@ -101,7 +98,7 @@ public class SummaryView
         destinationLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         destinationLabel.setFont(new Font("Arial", Font.BOLD, 11));
         
-        JTextField destinationTextField = new JTextField();
+        destinationTextField = new JTextField();
         destinationTextField.setBounds(93, 33, 352, 22);
         destinationTextField.setMinimumSize(new Dimension(50, 20));
         destinationTextField.setColumns(10);
@@ -173,7 +170,13 @@ public class SummaryView
         return nuttySyncFrame;
     }
     
-    public void setVisible(Boolean flag) {
+    public void setVisible(boolean flag) {
         nuttySyncFrame.setVisible(flag);
+    }
+    
+    public void loadSettings(String sourceText, String destinationText)
+    {
+        sourceTextField.setText(sourceText);
+        destinationTextField.setText(destinationText);
     }
 }
