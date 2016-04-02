@@ -47,6 +47,7 @@ public class SummaryController implements SummaryViewDelegate
     public void runNuttySync()
     {
 //        SynchiveDiff diff = new SynchiveDiff(new File("E:\\TestA"), new File("E:\\TestB"));
+        Settings.getInstance().saveSettings();
         SynchiveDiff diff = new SynchiveDiff(
             new File(Settings.getInstance().getSourcePath()), new File(Settings.getInstance().getDestinationPath()));
         diff.syncLocations();

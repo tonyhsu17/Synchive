@@ -1,12 +1,23 @@
 package synchive;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.Scanner;
+
 import gui.tabbedPanels.FlagPanel;
+import gui.tabbedPanels.FlagPanel.CompletionOptions;
+
 
 public class Settings
 {
     private static Settings self = new Settings();
-    
-    //flags panel
+
+    // flags panel
     private String sourcePath;
     private String destinationPath;
     private boolean auditTrailFlag;
@@ -14,27 +25,195 @@ public class Settings
     private String skipFoldersName;
     private String skipExtensionTypesText;
     private FlagPanel.CompletionOptions completionFlag;
-    
-    //crc options panel
+
+    // crc options panel
     private String crcDelimiterText;
     private boolean scanWithoutDelimFlag;
     private boolean crcInFilenameFlag;
     private String addCrcToExtensionTypeText;
     private String crcDelimLeadingText;
     private String crcDelimTrailingText;
-    
+
+    private final String name = "~synchiveSettings.txt";
+    private File settingsFile;
+
+    private final String sourcePathKey = "sourcePath";
+    private final String destinationPathKey = "destinationPath";
+    private final String auditTrailFlagKey = "auditTrailFlag";
+    private final String crcCheckFlagKey = "crcCheckFlag";
+    private final String skipFoldersNameKey = "skipFoldersName";
+    private final String skipExtensionTypesTextKey = "skipExtensionTypesText";
+    private final String completionFlagKey = "completionFlag";
+    private final String crcDelimiterTextKey = "crcDelimiterText";
+    private final String scanWithoutDelimFlagKey = "scanWithoutDelimFlag";
+    private final String crcInFilenameFlagKey = "crcInFilenameFlag";
+    private final String addCrcToExtensionTypeTextKey = "addCrcToExtensionTypeText";
+    private final String crcDelimLeadingTextKey = "crcDelimLeadingText";
+    private final String crcDelimTrailingTextKey = "crcDelimTrailingText";
+
     private Settings()
     {
-//        sourcePath = "";
-//        destinationPath = "";
-        sourcePath = "E:\\TestA";
-        destinationPath = "E:\\TestB";
+        settingsFile = new File(name);
+        if(settingsFile.exists())
+        {
+            loadSettings();
+        }
+        else
+        {
+            resetToDefaults();
+        }
+    }
+
+    public static Settings getInstance()
+    {
+        return self;
+    }
+
+    private void loadSettings()
+    {
+        System.out.println("Loading Settings");
+        Scanner sc;
+        try
+        {
+            sc = new Scanner(settingsFile);
+            while(sc.hasNextLine())
+            {
+                String line = sc.nextLine();
+                String[] splitLine = line.split("=");
+                String value = "";
+                System.out.println(Arrays.toString(splitLine));
+                if(splitLine.length > 1)
+                {
+                    value = splitLine[1];
+                }
+                System.out.println("value:" + value);
+                switch (splitLine[0])
+                {
+                    case sourcePathKey:
+                        sourcePath = value;
+                        break;
+                    case destinationPathKey:
+                        destinationPath = value;
+                        break;
+                    case auditTrailFlagKey:
+                        auditTrailFlag = Boolean.valueOf(value);
+                        break;
+                    case crcCheckFlagKey:
+                        crcCheckFlag = Boolean.valueOf(value);
+                        break;
+                    case skipFoldersNameKey:
+                        skipFoldersName = value;
+                        break;
+                    case skipExtensionTypesTextKey:
+                        skipExtensionTypesText = value;
+                        break;
+                    case completionFlagKey:
+                        switch (Integer.valueOf(value))
+                        {
+                            case 0: // doNothing
+                                completionFlag = CompletionOptions.doNothing;
+                                break;
+                            case 1: // standby
+                                completionFlag = CompletionOptions.standBy;
+                                break;
+                            case 2: // shutdown
+                                completionFlag = CompletionOptions.shutdown;
+                                break;
+                        }
+                        break;
+                    case crcDelimiterTextKey:
+                        crcDelimiterText = value;
+                        break;
+                    case scanWithoutDelimFlagKey:
+                        scanWithoutDelimFlag = Boolean.valueOf(value);
+                        break;
+                    case crcInFilenameFlagKey:
+                        crcInFilenameFlag = Boolean.valueOf(value);
+                        break;
+                    case addCrcToExtensionTypeTextKey:
+                        addCrcToExtensionTypeText = value;
+                        break;
+                    case crcDelimLeadingTextKey:
+                        crcDelimLeadingText = value;
+                        break;
+                    case crcDelimTrailingTextKey:
+                        crcDelimTrailingText = value;
+                        break;
+                }
+
+            }
+        }
+        catch (FileNotFoundException e)
+        {
+            // Should not come here since file is confirmed first
+        }
+
+    }
+
+    public void saveSettings()
+    {
+        System.out.println("Saving Settings");
+        try
+        {
+            BufferedWriter output = new BufferedWriter(new FileWriter(settingsFile));
+            output.write(sourcePathKey + "=" + sourcePath);
+            output.newLine();
+            output.write(destinationPathKey + "=" + destinationPath);
+            output.newLine();
+            output.write(auditTrailFlagKey + "=" + auditTrailFlag);
+            output.newLine();
+            output.write(crcCheckFlagKey + "=" + crcCheckFlag);
+            output.newLine();
+            output.write(skipFoldersNameKey + "=" + skipFoldersName);
+            output.newLine();
+            output.write(skipExtensionTypesTextKey + "=" + skipExtensionTypesText);
+            output.newLine();
+            switch (completionFlag)
+            {
+                case doNothing:
+                    output.write(completionFlagKey + "=" + 0);
+                    break;
+                case standBy:
+                    output.write(completionFlagKey + "=" + 1);
+                    break;
+                case shutdown:
+                    output.write(completionFlagKey + "=" + 2);
+                    break;
+            }
+            output.newLine();
+
+            output.write(crcDelimiterTextKey + "=" + crcDelimiterText);
+            output.newLine();
+            output.write(scanWithoutDelimFlagKey + "=" + scanWithoutDelimFlag);
+            output.newLine();
+            output.write(crcInFilenameFlagKey + "=" + crcInFilenameFlag);
+            output.newLine();
+            output.write(addCrcToExtensionTypeTextKey + "=" + addCrcToExtensionTypeText);
+            output.newLine();
+            output.write(crcDelimLeadingTextKey + "=" + crcDelimLeadingText);
+            output.newLine();
+            output.write(crcDelimTrailingTextKey + "=" + crcDelimTrailingText);
+            output.newLine();
+
+            output.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void resetToDefaults()
+    {
+        sourcePath = "";
+        destinationPath = "";
         auditTrailFlag = false;
         crcCheckFlag = false;
         skipFoldersName = "";
         skipExtensionTypesText = "";
         completionFlag = FlagPanel.CompletionOptions.doNothing;
-        
+
         crcDelimiterText = "[], {}, (), __";
         scanWithoutDelimFlag = false;
         crcInFilenameFlag = false;
@@ -42,13 +221,9 @@ public class Settings
         crcDelimLeadingText = "[";
         crcDelimTrailingText = "]";
     }
-    
-    public static Settings getInstance()
-    {
-        return self;
-    }
 
-    //flags panel
+    // ~~~~~ Getters & Setters ~~~~~//
+    // flags panel
     public String getSourcePath()
     {
         return sourcePath;
@@ -109,17 +284,17 @@ public class Settings
         this.skipExtensionTypesText = skipExtensionTypesText;
     }
 
-    public FlagPanel.CompletionOptions getCompletionFlag()
+    public CompletionOptions getCompletionFlag()
     {
         return completionFlag;
     }
 
-    public void setCompletionFlag(FlagPanel.CompletionOptions completionFlag)
+    public void setCompletionFlag(CompletionOptions completionFlag)
     {
         this.completionFlag = completionFlag;
     }
 
-    //crc options panel
+    // crc options panel
     public String getCrcDelimiterText()
     {
         return crcDelimiterText;
@@ -149,7 +324,7 @@ public class Settings
     {
         this.crcInFilenameFlag = crcInFilenameFlag;
     }
-    
+
     public String getAddCrcToExtensionTypeText()
     {
         return addCrcToExtensionTypeText;
@@ -179,6 +354,5 @@ public class Settings
     {
         this.crcDelimTrailingText = crcDelimTrailingText;
     }
-    
-  
+
 }

@@ -22,7 +22,7 @@ public class SummaryView
     }
     
     private SummaryViewDelegate delegate;
-    private JFrame nuttySyncFrame;
+    private JFrame synchiveFrame;
     private JTextField sourceTextField, destinationTextField;
     /**
      * Create the application.
@@ -38,10 +38,10 @@ public class SummaryView
      */
     private void initialize()
     {
-        nuttySyncFrame = new JFrame();
-        nuttySyncFrame.setTitle("NuttySync");
-        nuttySyncFrame.setBounds(100, 100, 526, 340);
-        nuttySyncFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        synchiveFrame = new JFrame();
+        synchiveFrame.setTitle("Synchive");
+        synchiveFrame.setBounds(100, 100, 526, 340);
+        synchiveFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         JLabel sourceLabel = new JLabel("Source:");
         sourceLabel.setPreferredSize(new Dimension(57, 14));
@@ -142,36 +142,36 @@ public class SummaryView
         
         JLabel sizeReadLabel = new JLabel("Read: ");
         sizeReadLabel.setBounds(7, 258, 99, 14);
-        nuttySyncFrame.getContentPane().add(sizeReadLabel);
+        synchiveFrame.getContentPane().add(sizeReadLabel);
         
         JLabel sizeReadSpeedLabel = new JLabel("Read Speed:");
         sizeReadSpeedLabel.setBounds(116, 258, 154, 14);
-        nuttySyncFrame.getContentPane().add(sizeReadSpeedLabel);
+        synchiveFrame.getContentPane().add(sizeReadSpeedLabel);
         
         JLabel totalRunningTimeLabel = new JLabel("Running Time:");
         totalRunningTimeLabel.setBounds(280, 258, 223, 14);
-        nuttySyncFrame.getContentPane().add(totalRunningTimeLabel);
+        synchiveFrame.getContentPane().add(totalRunningTimeLabel);
         
         JProgressBar processingFileProgressBar = new JProgressBar();
         processingFileProgressBar.setBounds(7, 276, 496, 14);
-        nuttySyncFrame.getContentPane().add(processingFileProgressBar);
+        synchiveFrame.getContentPane().add(processingFileProgressBar);
         
-        nuttySyncFrame.getContentPane().setLayout(null);
-        nuttySyncFrame.getContentPane().add(sourceLabel);
-        nuttySyncFrame.getContentPane().add(sourceTextField);
-        nuttySyncFrame.getContentPane().add(sourceMoreButton);
-        nuttySyncFrame.getContentPane().add(destinationLabel);
-        nuttySyncFrame.getContentPane().add(destinationTextField);
-        nuttySyncFrame.getContentPane().add(destinationMoreButton);
+        synchiveFrame.getContentPane().setLayout(null);
+        synchiveFrame.getContentPane().add(sourceLabel);
+        synchiveFrame.getContentPane().add(sourceTextField);
+        synchiveFrame.getContentPane().add(sourceMoreButton);
+        synchiveFrame.getContentPane().add(destinationLabel);
+        synchiveFrame.getContentPane().add(destinationTextField);
+        synchiveFrame.getContentPane().add(destinationMoreButton);
     }
     
     public JFrame getFrame()
     {
-        return nuttySyncFrame;
+        return synchiveFrame;
     }
     
     public void setVisible(boolean flag) {
-        nuttySyncFrame.setVisible(flag);
+        synchiveFrame.setVisible(flag);
     }
     
     public void loadSettings(String sourceText, String destinationText)

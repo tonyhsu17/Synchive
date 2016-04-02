@@ -47,4 +47,4 @@ Temporary Items
 .apdisk
 *.class
 *.prefs
-/NuttySync.class
+~synchiveSettings.txt

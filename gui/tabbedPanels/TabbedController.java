@@ -14,7 +14,6 @@ import gui.tabbedPanels.FlagPanel.CompletionOptions;
 import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
 import synchive.EventCenter;
 import synchive.Settings;
-import synchive.EventCenter.EventFunction;
 import synchive.EventCenter.Events;
 
 public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDelegate
@@ -79,29 +78,25 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     @Override
     public void crcDelimiterTextChanged(JTextField field, String str)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setCrcDelimiterText(str);
     }
 
     @Override
     public void crcLeadingDelimiterTextChanged(JTextField field, String str)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setCrcDelimLeadingText(str);
     }
 
     @Override
     public void crcTrailingDelimiterTextChanged(JTextField field, String str)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setCrcDelimTrailingText(str);
     }
     
     @Override
     public void checkWithoutDelimStateChange(JRadioButton button, int state)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setScanWithoutDelimFlag(state == ItemEvent.SELECTED ? true : false); 
     }
 
     @Override
@@ -119,36 +114,31 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     @Override
     public void afterCompletionOptionChanged(JRadioButton button, CompletionOptions option)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setCompletionFlag(option);
     }
 
     @Override
     public void skipFolderTextChanged(JTextField textField, String str)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setSkipFoldersName(str);
     }
 
     @Override
     public void skipExtensionTextChanged(JTextField textField, String str)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setSkipExtensionTypesText(str);
     }
 
     @Override
     public void addCrcToFileNameStateChanged(JRadioButton button, int state)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setCrcInFilenameFlag(state == ItemEvent.SELECTED ? true : false); 
     }
 
     @Override
     public void crcForExtensionTypeTextChanged(JTextField field, String str)
     {
-        // TODO Auto-generated method stub
-        
+        Settings.getInstance().setAddCrcToExtensionTypeText(str);
     }
     
 }
