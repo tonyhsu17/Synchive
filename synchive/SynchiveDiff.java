@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -145,7 +146,7 @@ public class SynchiveDiff
     }
 
     // copies file from source to des with same name and folder
-    private void copyFile(File file, StandardCopyOption op) throws IOException
+    private void copyFile(SynchiveFile file, StandardCopyOption op) throws IOException
     {
         String relativePath = file.getParent().substring(srcLoc.getPath().length());
         String destinationPath = desLoc.getPath() + relativePath + "\\" + file.getName();
@@ -157,9 +158,17 @@ public class SynchiveDiff
         {
             postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
         }
+        catch (UnsupportedOperationException e)
+        {
+            postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
+        }
+        catch (SecurityException e)
+        {
+            postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
+        }
         // CRC32 Check
-        // unoptimized, should grab src crcVal from file if failed... delete file and try again?
-        if(!Utilities.calculateCRC32(file).equals(Utilities.calculateCRC32(new File(destinationPath))))
+        // if failed... delete file and try again?
+        if(file.getCRC().compareToIgnoreCase(Utilities.calculateCRC32(new File(destinationPath))) != 0)
         {
             postEvent(Events.ErrorOccurred, "CRC MISMATCH for file: " + file.getName());
         }

@@ -7,6 +7,7 @@ import java.awt.event.ItemEvent;
 import javax.swing.JButton;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import gui.SummaryController;
 import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
@@ -60,13 +61,25 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     private void subscribeToNotifications()
     {
         EventCenter.getInstance().subscribeEvent(Events.ProcessingFile, id, (text) -> {
-            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ((AuditPanel)tabView.getAuditPanel()).print((String)text);
+                }
+            });
         });
         EventCenter.getInstance().subscribeEvent(Events.Status, id, (text) -> {
-            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    ((AuditPanel)tabView.getAuditPanel()).print((String)text);
+                }
+            });
         });
-        
-        
     }
     
     @Override
