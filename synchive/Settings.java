@@ -5,17 +5,20 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.Scanner;
 
 import gui.tabbedPanels.FlagPanel;
 import gui.tabbedPanels.FlagPanel.CompletionOptions;
+import synchive.EventCenter.Events;
 
 
+/** Centralized location for settings and allowing settings to be saved and loaded.
+ * @author Tony Hsu
+ *
+ */
 public class Settings
 {
-    private static Settings self = new Settings();
+    private static Settings self = new Settings(); // Lazy init for singleton
 
     // flags panel
     private String sourcePath;
@@ -24,7 +27,7 @@ public class Settings
     private boolean crcCheckFlag;
     private String skipFoldersName;
     private String skipExtensionTypesText;
-    private FlagPanel.CompletionOptions completionFlag;
+    private CompletionOptions completionFlag;
 
     // crc options panel
     private String crcDelimiterText;
@@ -34,9 +37,10 @@ public class Settings
     private String crcDelimLeadingText;
     private String crcDelimTrailingText;
 
-    private final String name = "~synchiveSettings.txt";
+    private final String name = "~synchiveSettings.txt"; //TODO store in /Synchive/settings.ini
     private File settingsFile;
-
+    
+    // Key for writing
     private final String sourcePathKey = "sourcePath";
     private final String destinationPathKey = "destinationPath";
     private final String auditTrailFlagKey = "auditTrailFlag";
@@ -51,6 +55,9 @@ public class Settings
     private final String crcDelimLeadingTextKey = "crcDelimLeadingText";
     private final String crcDelimTrailingTextKey = "crcDelimTrailingText";
 
+    /** Private constructor to prevent instantiating multiple instances.
+     *  Use getInstance() to get singleton.
+     */
     private Settings()
     {
         settingsFile = new File(name);
@@ -65,14 +72,18 @@ public class Settings
         }
     }
 
+    /** Get an instance of Settings.
+     * @return Settings singleton
+     */
     public static Settings getInstance()
     {
         return self;
     }
 
+    /** Load settings
+     */
     private void loadSettings()
     {
-        System.out.println("Loading Settings");
         Scanner sc;
         try
         {
@@ -82,12 +93,10 @@ public class Settings
                 String line = sc.nextLine();
                 String[] splitLine = line.split("=", 2);
                 String value = "";
-                System.out.println(Arrays.toString(splitLine));
                 for(int i = 1; i < splitLine.length; i++)
                 {
                     value += splitLine[i];
                 }
-                System.out.println("value:" + value);
                 switch (splitLine[0])
                 {
                     case sourcePathKey:
@@ -148,12 +157,13 @@ public class Settings
         {
             // Should not come here since file is confirmed first
         }
-
+        EventCenter.getInstance().postEvent(Events.Status, "Settings Loaded");
     }
 
+    /** Save Settings
+     */
     public void saveSettings()
     {
-        System.out.println("Saving Settings");
         try
         {
             BufferedWriter output = new BufferedWriter(new FileWriter(settingsFile));
@@ -200,11 +210,13 @@ public class Settings
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            EventCenter.getInstance().postEvent(Events.ErrorOccurred, "Unable to save settings");
         }
-
+        EventCenter.getInstance().postEvent(Events.Status, "Saving Settings");
     }
 
+    /** Default Settings 
+     */
     private void resetToDefaults()
     {
         sourcePath = "";
@@ -223,8 +235,8 @@ public class Settings
         crcDelimTrailingText = "]";
     }
 
-    // ~~~~~ Getters & Setters ~~~~~//
-    // flags panel
+    // ~~~~~ Getters & Setters ~~~~~ //
+    // flags panel //
     public String getSourcePath()
     {
         return sourcePath;
@@ -295,7 +307,7 @@ public class Settings
         this.completionFlag = completionFlag;
     }
 
-    // crc options panel
+    // crc options panel //
     public String getCrcDelimiterText()
     {
         return crcDelimiterText;
@@ -355,5 +367,4 @@ public class Settings
     {
         this.crcDelimTrailingText = crcDelimTrailingText;
     }
-
 }
