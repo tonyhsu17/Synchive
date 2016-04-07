@@ -62,9 +62,27 @@ public class CRCOptionsPanel extends JPanel
         crcDelimiterTextField.setMargin(new Insets(1, 2, 3, 2));
         crcDelimiterTextField.setPreferredSize(new Dimension(50, 20));
         crcDelimiterTextField.setMinimumSize(new Dimension(50, 20));
-        crcDelimiterTextField.setText("[], {}, (), __");
         add(crcDelimiterTextField);
         crcDelimiterTextField.setColumns(10);
+        crcDelimiterTextField.getDocument().addDocumentListener(new DocumentListener()
+        {
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                delegate.crcDelimiterTextChanged(crcDelimiterTextField, crcDelimiterTextField.getText());
+            }
+            
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                delegate.crcDelimiterTextChanged(crcDelimiterTextField, crcDelimiterTextField.getText());
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e)
+            {
+            }
+        });
         
         JLabel crcDelimiterExampleLabel = new JLabel("Seperate with ',' (ie. \"[], {}, ()\")");
         crcDelimiterExampleLabel.setBounds(318, 26, 175, 21);

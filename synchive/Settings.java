@@ -56,6 +56,7 @@ public class Settings
         settingsFile = new File(name);
         if(settingsFile.exists())
         {
+            resetToDefaults();
             loadSettings();
         }
         else
@@ -79,12 +80,12 @@ public class Settings
             while(sc.hasNextLine())
             {
                 String line = sc.nextLine();
-                String[] splitLine = line.split("=");
+                String[] splitLine = line.split("=", 2);
                 String value = "";
                 System.out.println(Arrays.toString(splitLine));
-                if(splitLine.length > 1)
+                for(int i = 1; i < splitLine.length; i++)
                 {
-                    value = splitLine[1];
+                    value += splitLine[i];
                 }
                 System.out.println("value:" + value);
                 switch (splitLine[0])
