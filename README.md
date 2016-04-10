@@ -5,11 +5,18 @@ In order to achieve faster performance in subsequent runs, a file will be genera
 items in the backup directory. This file will be used as an alternative to reading each item in backup. 
 
 ## Features
-TODO
+- Check CRC before copying
+- Print Status Report
+- Drag n Drop support to folder location
+- Persistent Settings
 
 ## Additional Features To Implement
-- Add checks to prevent crashes (no file found from long strings? 255, no write permission)
-- Embed CRC to fileName
-- Ignore List/extension exclusion
-- Make a GUI
-- Persistent settings
+In no particular order:
+- Rename file to include CRC (include drag n drop support for extension type)
+- Include verbosity level for status reports
+- Skip Folder Name (include drag n drop support)
+- Skip Extension Type (include drag n drop support)
+- What do to after completion (also add 4th option that closes program)
+- Include progress stats (running time, etc)
+- Add folder selection for locations
+- Add UI indication if something goes wrong
