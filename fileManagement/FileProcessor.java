@@ -2,15 +2,12 @@ package fileManagement;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
 import java.util.Stack;
-
-import javax.rmi.CORBA.Util;
 
 import fileManagement.SynchiveFile.ChecksumException;
 import support.Utilities;
@@ -20,42 +17,44 @@ import synchive.Settings;
 
 
 /**
- * @Category: Processing Class: To generate a list of crc values for each file in the directory
- * @Structure: A ArrayList of FileWithProperties that include it's unique id (flat mapping)
- * @Process: Add initial directory to a stack. While the stack is not empty, remove the directory and process
+ * Generate a list of CRC32 values for each file in the directory including subdirectories
+ * @author Tony Hsu
+ * @category Model
+ * @structure: An arrayList of all files (flat mapping) and hashtable of all files by directories (structured mapping)
+ * @process: Add initial directory to a stack. While the stack is not empty, remove the directory and process
  *           all files in the directory. If the file is a directory, add it to the stack. Repeat the process
- *           until the stack is empty. If it is a file, generate unique id with crc value. If
- *           location is source, deletes previous crcFile and generates a new one with an arrayList to be used
+ *           until the stack is empty. If it is a file, generate unique id with CRC32 value. 
+ *           Depending on location, a flat mapping or structured mapping is generated.
  */
 public class FileProcessor
 {
     public static final String FOLDER_PREFIX = "~";
     public static final String LEFTOVER_FOLDER = "~leftovers";
 
-    File folder, idFile;
-    Stack<SynchiveFile> directoriesToProcess;
-    BufferedWriter output;
-
-    ArrayList<SynchiveFile> fileList; // flat mapping of files
-
+    private ArrayList<SynchiveFile> fileList; // flat mapping of files for source
     // "Folder Name" -> "Directory"; Directory contains "FileID" -> "FlagInfo"
-    private Hashtable<String, SynchiveDirectory> directoryList; // structured mapping
+    private Hashtable<String, SynchiveDirectory> directoryList; // structured mapping for destination
+    
+    private File directory; // location of directory
+    private File idFile; // id file in directory
+    private Stack<SynchiveFile> directoriesToProcess;
+    private BufferedWriter output;
 
     int location; // Des or Src
 
     // folder = folder location
     // location = constant DES or SRC
-    public FileProcessor(File folder, int location) throws IOException
+    public FileProcessor(File directory, int location) throws IOException
     {
-        if(!folder.isDirectory()) // break if not a folder
+        if(!directory.isDirectory()) // break if not a folder
         {
-            String errorDescription = "Folder: \"" + folder.getName() + "\" is not a directory";
+            String errorDescription = "Folder: \"" + directory.getName() + "\" is not a directory";
             postEvent(Events.ErrorOccurred, errorDescription);
             throw new Error(errorDescription);
         }
 
         this.location = location;
-        this.folder = folder;
+        this.directory = directory;
 
         if(location == Utilities.SOURCE)
         {
@@ -64,7 +63,7 @@ public class FileProcessor
         else
         {
             directoryList = new Hashtable<String, SynchiveDirectory>(); // des uses structural mapping
-            idFile = new File(folder.getPath() + "\\" + Utilities.CRC_FILE_NAME);
+            idFile = new File(directory.getPath() + "\\" + Utilities.CRC_FILE_NAME);
         }
         
         directoriesToProcess = new Stack<SynchiveFile>(); // used to recurse through all folders
@@ -132,14 +131,14 @@ public class FileProcessor
     // scans through directory and calls helper method to calculate crc value
     private void generateIDs(boolean writeOut) throws IOException
     {
-        directoriesToProcess.add(new SynchiveFile(folder)); // adds root dir
+        directoriesToProcess.add(new SynchiveFile(directory)); // adds root dir
 
         while(!directoriesToProcess.isEmpty()) // repeat until all folders are read
         {
             SynchiveFile f = directoriesToProcess.pop();
             if(writeOut) // only write to file if destination
             {
-                output.write(Utilities.convertToDirectoryLvl(f.getPath(), f.getLevel(), folder.getPath()));
+                output.write(Utilities.convertToDirectoryLvl(f.getPath(), f.getLevel(), directory.getPath()));
                 output.newLine();
             }
             readinFilesInDirectory(f, writeOut); // read the files in the folder
@@ -186,8 +185,6 @@ public class FileProcessor
                                 "Checksum mismatch for: \"" + temp.getName() + "\"\n  - Calculated: [" + temp.getCRC() + "] Found: " + e.getMessage());
                         }
                     }
-
-                    
 
                     if(writeOut) // only write to file if destination
                     {

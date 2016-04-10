@@ -2,14 +2,16 @@ package fileManagement;
 
 import java.util.Hashtable;
 
-
-/** @Category: Supporting Class: To store each item (file) with a flag to
- *            determine if both source and destination have the same file.
- * @Structure: A hashtable containing all the items in a directory. Parameters
- *             for the hash entry is the file name and a flag value.
- * @Process: Items are stored initially stored as FILE_NOT_EXIST. Once
- *           doesFileExist() is called, if the file is found, then the FileFlag
- *           is modified to FILE_EXIST. */
+ 
+/**
+ * Component class to store a list of files with a flag to determine 
+ * if both source and destination have the same file.
+ * 
+ * @author Tony Hsu
+ * @category Component
+ * @structure A hashtable containing all the items in a directory. Parameters
+ *             for the hash entry is the file name and a file found flag.
+ */
 public class SynchiveDirectory
 {
     // FileFlag is used to determine if FILE_EXIST then no need to copy file over, otherwise if
@@ -19,37 +21,63 @@ public class SynchiveDirectory
         FILE_EXIST, FILE_NOT_EXIST
     }
 
-    private Hashtable<String, FileFlag> files; // <FileName, FILE_TYPE>
-    private String folderName; // name of folder including relative path
-    private String realFolderName; // name of folder
+    private Hashtable<String, FileFlag> files; // FileName to if file exist
+    private String uniqueID; // name of folder including relative path
+    private String directoryPath; // path of directory from relative to root
 
-    public SynchiveDirectory(String folderName)
+    /**
+     * Creates an empty directory with path parsed from uniqueID.
+     * 
+     * @param uniqueID Format: "~<"Hierarchy Level">: <"Path">"
+     */
+    public SynchiveDirectory(String uniqueID)
     {
-        this.setFolderName(folderName);
+        this.uniqueID = uniqueID;
         files = new Hashtable<String, FileFlag>();
         
-        String[] splitStr = folderName.split(" "); // [level, path]
-        
-        if(splitStr.length == 2)
+        String[] splitStr = uniqueID.split(" ", 2); // [level, path]
+        if(splitStr.length == 1) // if root directory
         {
-            realFolderName = splitStr[1]; //TODO throw corrupted file
+            directoryPath = "\\";
         }
-        else
+        else if(splitStr.length == 2) // if directory in root
         {
-            realFolderName = "\\";
+            directoryPath = splitStr[1]; 
+        }
+        else // unable to parse uniqueID 
+        {
+            directoryPath = uniqueID;
         }
     }
 
+    /**
+     * Add file to directory.
+     * 
+     * @param fileName Name of file
+     * @param FILE_FLAG File exist state
+     */
     public void addFile(String fileName, FileFlag FILE_FLAG)
     {
         files.put(fileName, FILE_FLAG);
     }
 
+    /**
+     * Returns file exist state for fileName.
+     * 
+     * @param fileName Name of file to lookup
+     * @return File exist state flag. Null if not found
+     */
     public FileFlag getValueForKey(String fileName)
     {
         return files.get(fileName);
     }
 
+    /**
+     * Change file exist to true for fileName
+     * 
+     * @param fileName Name of file to change
+     * @return file found in list
+     */
     public boolean doesFileExist(String fileName)
     {
         FileFlag flag = files.get(fileName);
@@ -62,33 +90,32 @@ public class SynchiveDirectory
         return false;
     }
 
-    // ~~~~~ Getters ~~~~~//
-    public String getFolderName()
+    // ~~~~~ Getters & Setters ~~~~~//
+    public String getUniqueID()
     {
-        return folderName;
+        return uniqueID;
+    }
+    
+    public void setUniqueID(String folderName)
+    {
+        this.uniqueID = folderName;
     }
 
     public String getRealFolderName()
     {
-        return realFolderName;
+        return directoryPath;
+    }
+    
+    public void setRealFolderName(String realFolderName)
+    {
+        this.directoryPath = realFolderName;
     }
 
     public Hashtable<String, FileFlag> getFiles()
     {
         return files;
     }
-
-    // ~~~~~ Setters ~~~~~//
-    public void setFolderName(String folderName)
-    {
-        this.folderName = folderName;
-    }
-
-    public void setRealFolderName(String realFolderName)
-    {
-        this.realFolderName = realFolderName;
-    }
-
+    
     public void setFiles(Hashtable<String, FileFlag> files)
     {
         this.files = files;

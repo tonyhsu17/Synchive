@@ -7,30 +7,31 @@ import java.util.Formatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.omg.CORBA.ExceptionList;
-
-import synchive.Settings;
-
 
 /**
- * @Category: Extension Class: To provide each file with a crc32 value and
- *            depth level.
- * @Structure: A hashtable containing all the items in a directory. Parameters
- *             for the hash entry is the file name and a flag value.
- * @Process: Items are stored initially stored as FILE_NOT_EXIST. Once
- *           doesFileExist() is called, if the file is found, then the FileFlag
- *           is modified to FILE_EXIST.
+ * Component Class to provide each file with a crc32 value and depth level.
+ * 
+ * @author Tony Hsu
+ * @category Component
+ * @structure Extends File for additional properties
  */
 @SuppressWarnings("serial")
 public class SynchiveFile extends File
 {
-    private final int numOfCharInCRC = 8;
-    private final String specialCharacters = "[]{}()+\\^&.$?*|:<>=!";
-    private String uniqueID; // file path + CRC value
-    private int level; // 0 = root, 1+ directory in root
-    private String crc;
-    private boolean copyAllowed; // determine if calculated CRC matches filename CRC
+    private static final int NUM_CHAR_IN_CRC32 = 8;
+    private static final String SPECIAL_CHARACTERS = "[]{}()+\\^&.$?*|:<>=!";
 
+    private String uniqueID; // file path + CRC value
+    private int level; // 0 = root, > 0 = directories in root
+    private String crc; // CRC32 representation in 8 chars
+    private boolean copyAllowed; // determine if CRC32 matches filename CRC32 to allow copying
+
+    /**
+     * Constructs file with default properties.
+     * (Hierarchy = root, no CRC32 value, copying allowed)
+     * 
+     * @param file Provide additional properties to file.
+     */
     public SynchiveFile(File file)
     {
         super(file.getPath());
@@ -39,6 +40,13 @@ public class SynchiveFile extends File
         copyAllowed = true;
     }
 
+    /**
+     * Constructs file with additional properties.
+     * (Hierarchy = level, no CRC32 value, copying allowed)
+     * 
+     * @param file Provide additional properties to file
+     * @param level Hierarchy level. (0 for root, > 0 for directories in root)
+     */
     public SynchiveFile(File file, int level)
     {
         super(file.getPath());
@@ -46,26 +54,35 @@ public class SynchiveFile extends File
         crc = "";
         copyAllowed = true;
     }
-    
+
+    /**
+     * Returns if copy is allowed on file.
+     * 
+     * @return Flag if copy is allowed
+     */
     public boolean copyAllowed()
     {
         return copyAllowed;
     }
-    
-    //determines if copying is allowed by finding CRC value in fileName.
-    //if it cannot find CRC in fileName, assume none exist and dont check
-    //else scan through possibleCRC and return if matching crc otherwise throw an exception
+
+    /**
+     * Determine if copying is allowed by finding CRC32 value in fileName.
+     * If it cannot find CRC32 in fileName, assume none provided and skip comparison with calculated CRC32.
+     * 
+     * @param delimiter Characters encasing a CRC32 value. Empty string for any CRC32 match
+     * @throws ChecksumException CRC32 from filename and calculated CRC32 mismatch. Possible corrupted file
+     */
     public void determineCopyingAllowed(String delimiter) throws ChecksumException
     {
         String[] possibleCRC = findCRCInFileName(delimiter);
-        if(possibleCRC.length == 0) //no crc found
+        if(possibleCRC.length == 0) // no crc32 in fileName found
         {
             return;
         }
         else
         {
             copyAllowed = false;
-            for(String possible: possibleCRC) // only set copyAllowed if matching crc
+            for(String possible : possibleCRC) // only set copyAllowed if matching crc
             {
                 if(crc.compareToIgnoreCase(possible) == 0)
                 {
@@ -74,62 +91,66 @@ public class SynchiveFile extends File
                 }
             }
             System.out.println("Bad crc:" + Arrays.toString(possibleCRC));
-            //cannot find matching CRC, throw exception
+            // cannot find matching CRC, throw exception
             throw new ChecksumException(Arrays.toString(possibleCRC));
         }
     }
-    
+
+    /**
+     * Find CRC32 value from filename.
+     * @param delimiter Constraints to find CRC32 value. Can be empty
+     * @return A list of possible CRC32
+     */
     private String[] findCRCInFileName(String delimiter)
     {
         ArrayList<String> possibleCRC = new ArrayList<String>();
         String[] splitDelim = delimiter.split(",");
-        
+
         for(String delim : splitDelim) // go through each delimiter
         {
             String trimmed = delim.trim(); // get rid of spacings
             // only handle even number, doesn't make sense having mismatching lengths
             if(trimmed.length() % 2 == 0)
             {
-                String leading = trimmed.substring(0, delim.length()/2); // first half is left side
-                String trailing = trimmed.substring(delim.length()/2); // last half is right side
-                String sanitizedLeading = ""; 
+                String leading = trimmed.substring(0, delim.length() / 2); // first half is left side
+                String trailing = trimmed.substring(delim.length() / 2); // last half is right side
+                String sanitizedLeading = "";
                 String sanitizedTrailing = "";
-                
+
                 // sanitized the strings in case of special characters used in pattern matching
                 for(int i = 0; i < leading.length(); i++)
                 {
-                    char right = leading.charAt(i);
-                    char left = trailing.charAt(i);
-                    
-                    sanitizedLeading += charContains(right, specialCharacters) ? ("\\" + right) : right;
-                    sanitizedTrailing += charContains(left, specialCharacters) ? ("\\" + left) : left;
+                    char left = leading.charAt(i);
+                    char right = trailing.charAt(i);
+
+                    sanitizedLeading += charContains(left, SPECIAL_CHARACTERS) ? ("\\" + left) : left;
+                    sanitizedTrailing += charContains(right, SPECIAL_CHARACTERS) ? ("\\" + right) : right;
                 }
-                
-                // String pattern matching using delimiters + only letters and numbers for CRC
-                // Hex can only be a-f and 0-9
-                Formatter regx = new Formatter(
-                    new StringBuilder(sanitizedLeading + "[a-fA-F0-9]{" + numOfCharInCRC + "}+" + sanitizedTrailing));
-                Pattern p = Pattern.compile(regx.toString());
-                Matcher m = p.matcher(getName());
-                
+
+                // String pattern matching using delimiters and set formatting for CRC32 in hex
+                Formatter regx = new Formatter(new StringBuilder(
+                        sanitizedLeading + "[a-fA-F0-9]{" + NUM_CHAR_IN_CRC32 + "}+" + sanitizedTrailing));
+                Matcher m = Pattern.compile(regx.toString()).matcher(getName());
+
                 // go through matcher and to list all possible CRC values
                 while(m.find())
                 {
                     String str = m.group(0);
-                    System.out.println(str);
+                    //strip out delimiters
                     possibleCRC.add(str.substring(leading.length(), str.length() - trailing.length()));
                 }
                 regx.close();
             }
         }
-        for(String s : possibleCRC)
-        {
-            System.out.println(s);
-        }
         return (String[])possibleCRC.toArray(new String[0]);
     }
-        
-    //checks if character is in pattern
+
+    /**
+     * Checks if a character is in string
+     * @param c Character to check
+     * @param pattern String to find character in
+     * @return Character found in pattern
+     */
     private boolean charContains(char c, String pattern)
     {
         for(char p : pattern.toCharArray())
@@ -141,7 +162,7 @@ public class SynchiveFile extends File
         }
         return false;
     }
-    
+
     // ~~~~~ Getters & Setters ~~~~~ //
     public String getUniqueID()
     {
@@ -177,8 +198,12 @@ public class SynchiveFile extends File
     {
         this.crc = crc;
     }
-    
-    public class ChecksumException extends Exception
+
+    /**
+     * Exception thrown if CRC32 mismatch found.
+     * @author Tony Hsu
+     */
+    public static class ChecksumException extends Exception
     {
         public ChecksumException(String message)
         {
@@ -186,5 +211,3 @@ public class SynchiveFile extends File
         }
     }
 }
-
-

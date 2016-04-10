@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +28,10 @@ import fileManagement.FileProcessor;
  *           After reading in every file, scan through source and for each file in src, mark if found in des, otherwise
  *           copy into des. Afterwards, if file in des has not been marked, "delete" aka move to a separate location.
  */
+/*
+@Process: Items are stored initially stored as FILE_NOT_EXIST. Once
+*           doesFileExist() is called, if the file is found, then the FileFlag
+*           is modified to FILE_EXIST. */
 public class SynchiveDiff
 {
     private String LEFTOVER_FOLDER = FileProcessor.LEFTOVER_FOLDER;
@@ -37,22 +42,14 @@ public class SynchiveDiff
     private Hashtable<String, SynchiveDirectory> destinationList; // Mapping of each file in directory
     private ArrayList<SynchiveFile> sourceCRCFiles; // list of all files in source location
 
-    public SynchiveDiff(File curDir, File backupDir)
+    public SynchiveDiff(File curDir, File backupDir) throws Error, IOException
     {
         this.srcLoc = curDir;
         this.desLoc = backupDir;
 
-        try
-        {
-            crcFile = new File(backupDir.getPath() + "\\" + Utilities.CRC_FILE_NAME);
-            FileProcessor desReader = new FileProcessor(backupDir, Utilities.DESTINATION);
-            destinationList = desReader.getDirectoryList();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        crcFile = new File(backupDir.getPath() + "\\" + Utilities.CRC_FILE_NAME);
+        FileProcessor desReader = new FileProcessor(backupDir, Utilities.DESTINATION);
+        destinationList = desReader.getDirectoryList();   
     }
 
     public void syncLocations()
@@ -104,7 +101,7 @@ public class SynchiveDiff
 
                         newDir.setRealFolderName(relativeDir);
                         newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
-                        destinationList.put(newDir.getFolderName(), newDir); // add newDir to folderHashTable
+                        destinationList.put(newDir.getUniqueID(), newDir); // add newDir to folderHashTable
 
                         copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
                         
@@ -124,12 +121,9 @@ public class SynchiveDiff
             insertToFile(); // write newly added files to crcFile
             postEvent(Events.Status, "Operation Completed");
         }
-        catch (IOException e)
+        catch (IOException | Error e)
         {
-            e.printStackTrace();
-            System.exit(1);
         }
-
     }
 
     private void createDirectory(File location) throws IOException
@@ -145,7 +139,7 @@ public class SynchiveDiff
     }
 
     // copies file from source to des with same name and folder
-    private void copyFile(File file, StandardCopyOption op) throws IOException
+    private void copyFile(SynchiveFile file, StandardCopyOption op) throws IOException
     {
         String relativePath = file.getParent().substring(srcLoc.getPath().length());
         String destinationPath = desLoc.getPath() + relativePath + "\\" + file.getName();
@@ -157,9 +151,17 @@ public class SynchiveDiff
         {
             postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
         }
+        catch (UnsupportedOperationException e)
+        {
+            postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
+        }
+        catch (SecurityException e)
+        {
+            postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
+        }
         // CRC32 Check
-        // unoptimized, should grab src crcVal from file if failed... delete file and try again?
-        if(!Utilities.calculateCRC32(file).equals(Utilities.calculateCRC32(new File(destinationPath))))
+        // if failed... delete file and try again?
+        if(file.getCRC().compareToIgnoreCase(Utilities.calculateCRC32(new File(destinationPath))) != 0)
         {
             postEvent(Events.ErrorOccurred, "CRC MISMATCH for file: " + file.getName());
         }
@@ -270,7 +272,7 @@ public class SynchiveDiff
 
     private String getFilePathFromFileCRC(File desLoc, SynchiveDirectory fileDir, String fileName)
     {
-        String[] splitDir = fileDir.getFolderName().split(": ");
+        String[] splitDir = fileDir.getUniqueID().split(": ");
         String[] splitFile = fileName.split("\"");
         String retVal = desLoc.getPath() + (splitDir.length == 2 ? splitDir[1] : "") + "\\" + splitFile[1];
         return retVal;
