@@ -14,7 +14,7 @@ import synchive.EventCenter.Events;
 
 /** Centralized location for settings and allowing settings to be saved and loaded.
  * @author Tony Hsu
- *
+ * @component Model
  */
 public class Settings
 {
@@ -157,7 +157,7 @@ public class Settings
         {
             // Should not come here since file is confirmed first
         }
-        EventCenter.getInstance().postEvent(Events.Status, "Settings Loaded");
+        postEvent(Events.Status, "Settings Loaded");
     }
 
     /** Save Settings
@@ -210,9 +210,9 @@ public class Settings
         }
         catch (IOException e)
         {
-            EventCenter.getInstance().postEvent(Events.ErrorOccurred, "Unable to save settings");
+            postEvent(Events.ErrorOccurred, "Unable to save settings");
         }
-        EventCenter.getInstance().postEvent(Events.Status, "Saving Settings");
+        postEvent(Events.Status, "Saving Settings");
     }
 
     /** Default Settings 
@@ -233,6 +233,11 @@ public class Settings
         addCrcToExtensionTypeText = "";
         crcDelimLeadingText = "[";
         crcDelimTrailingText = "]";
+    }
+    
+    private void postEvent(Events e, String str)
+    {
+        EventCenter.getInstance().postEvent(e, str);
     }
 
     // ~~~~~ Getters & Setters ~~~~~ //

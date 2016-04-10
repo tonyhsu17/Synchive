@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -51,9 +52,16 @@ public class SummaryController implements SummaryViewDelegate
         {
             public void run() {
                 Settings.getInstance().saveSettings();
-                SynchiveDiff diff = new SynchiveDiff(
-                    new File(Settings.getInstance().getSourcePath()), new File(Settings.getInstance().getDestinationPath()));
-                diff.syncLocations();
+                SynchiveDiff diff;
+                try
+                {
+                    diff = new SynchiveDiff(
+                        new File(Settings.getInstance().getSourcePath()), new File(Settings.getInstance().getDestinationPath()));
+                    diff.syncLocations();
+                }
+                catch (IOException | Error e)
+                {
+                }
             }
         };
         executionThread.start();
