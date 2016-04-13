@@ -26,6 +26,41 @@ public class Utilities
     {
         return "~" + level + ": " + filePath.substring(rootPath.length());
     }
+    
+    // returns appropriate naming including CRC value. 
+    /**
+     * @param filename Filename with extension
+     * @param extension Extension of filename (including '.')
+     * @param CRC CRC value to put into filename
+     * @param encasement Delimiters to surround CRC in
+     * @return
+     */
+    public static final String getFilenameWithCRC(String filename, String extension, String CRC, String[] encasement)
+    {
+        final String[] delimiters = {")", "}", "]", "-", "_", "+", "="}; // used to check if extra spacing is required or not.
+        boolean addExtraSpacing = true;
+        String additionalSpacing = ""; // default no spacing
+        String fullName = filename.substring(0, filename.length() - extension.length()); //strip out extension from name
+        
+        // loop through each trailing delimiter type to skip adding spacing
+        for(String delim : delimiters)
+        {
+            if(fullName.endsWith(delim))
+            {
+                addExtraSpacing = false;
+            }
+        }
+        if(addExtraSpacing) // if no tags detected, determine if using spaces or underscores
+        {
+            String[] spacesSplit = fullName.split(" ");
+            // if spaces found use space, else use underscore
+            additionalSpacing = spacesSplit.length > 1 ? " " : "_";
+        }
+        
+        fullName += additionalSpacing + encasement[0] + CRC.toUpperCase() + encasement[1] + extension;
+        System.out.println("fullName post: " + fullName);
+        return fullName;
+    }
 
     public static final String calculateCRC32(File file) throws IOException
     {

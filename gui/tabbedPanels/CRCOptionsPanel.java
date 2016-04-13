@@ -60,8 +60,6 @@ public class CRCOptionsPanel extends JPanel
         crcDelimiterTextField = new JTextField();
         crcDelimiterTextField.setBounds(100, 25, 202, 22);
         crcDelimiterTextField.setMargin(new Insets(1, 2, 3, 2));
-        crcDelimiterTextField.setPreferredSize(new Dimension(50, 20));
-        crcDelimiterTextField.setMinimumSize(new Dimension(50, 20));
         add(crcDelimiterTextField);
         crcDelimiterTextField.setColumns(10);
         crcDelimiterTextField.getDocument().addDocumentListener(new DocumentListener()
@@ -121,7 +119,8 @@ public class CRCOptionsPanel extends JPanel
         add(extensionTypeLabel);
         
         extensionTypeTextField = new JTextField();
-        extensionTypeTextField.setBounds(155, 108, 328, 20);
+        extensionTypeTextField.setMargin(new Insets(1, 2, 3, 2));
+        extensionTypeTextField.setBounds(155, 108, 328, 22);
         extensionTypeTextField.setText(Settings.getInstance().getAddCrcToExtensionTypeText());
         add(extensionTypeTextField);
         extensionTypeTextField.setColumns(10);
@@ -150,7 +149,8 @@ public class CRCOptionsPanel extends JPanel
         add(crcDelimiterLeadingLabel);
         
         crcDelimiterLeadingTextField = new JTextField();
-        crcDelimiterLeadingTextField.setBounds(155, 136, 70, 21);
+        crcDelimiterLeadingTextField.setMargin(new Insets(1, 2, 3, 2));
+        crcDelimiterLeadingTextField.setBounds(155, 136, 70, 22);
         crcDelimiterLeadingTextField.setText(Settings.getInstance().getCrcDelimLeadingText());
         add(crcDelimiterLeadingTextField);
         crcDelimiterLeadingTextField.setColumns(10);
@@ -179,7 +179,8 @@ public class CRCOptionsPanel extends JPanel
         add(crcDelimiterTrailingLabel);
         
         crcDelimiterTrailingTextField = new JTextField();
-        crcDelimiterTrailingTextField.setBounds(413, 136, 70, 21);
+        crcDelimiterTrailingTextField.setMargin(new Insets(1, 2, 3, 2));
+        crcDelimiterTrailingTextField.setBounds(413, 136, 70, 22);
         crcDelimiterTrailingTextField.setText(Settings.getInstance().getCrcDelimTrailingText());
         add(crcDelimiterTrailingTextField);
         crcDelimiterTrailingTextField.setColumns(10);

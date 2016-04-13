@@ -347,6 +347,22 @@ public class Settings
     {
         return addCrcToExtensionTypeText;
     }
+    
+    public String[] getAddCRCToExtensionTypes()
+    {
+        String[] splitStr = addCrcToExtensionTypeText.split(",");
+        String[] extensions = new String[splitStr.length];
+        for(int i = 0; i < splitStr.length; i++)
+        {
+            String trimmed = splitStr[i].trim().toLowerCase();
+            if(!trimmed.startsWith("."))
+            {
+                trimmed = "." + trimmed;
+            }
+            extensions[i] = trimmed;
+        }
+        return extensions;
+    }
 
     public void setAddCrcToExtensionTypeText(String addCrcToExtensionTypeText)
     {
