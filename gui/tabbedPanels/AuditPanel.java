@@ -8,6 +8,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
+@SuppressWarnings("serial")
 public class AuditPanel extends JPanel
 {
     public AuditPanel()

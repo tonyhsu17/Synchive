@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 import gui.tabbedPanels.FlagPanel;
 import gui.tabbedPanels.FlagPanel.CompletionOptions;
@@ -55,7 +57,8 @@ public class Settings
     private final String crcDelimLeadingTextKey = "crcDelimLeadingText";
     private final String crcDelimTrailingTextKey = "crcDelimTrailingText";
 
-    /** Private constructor to prevent instantiating multiple instances.
+    /** 
+     * Private constructor to prevent instantiating multiple instances.
      *  Use getInstance() to get singleton.
      */
     private Settings()
@@ -72,7 +75,8 @@ public class Settings
         }
     }
 
-    /** Get an instance of Settings.
+    /** 
+     * Get an instance of Settings.
      * @return Settings singleton
      */
     public static Settings getInstance()
@@ -80,7 +84,8 @@ public class Settings
         return self;
     }
 
-    /** Load settings
+    /** 
+     * Load settings
      */
     private void loadSettings()
     {
@@ -132,7 +137,7 @@ public class Settings
                         }
                         break;
                     case crcDelimiterTextKey:
-                        crcDelimiterText = value;
+                        crcDelimiterText = normalizeSeperator(value, "");
                         break;
                     case scanWithoutDelimFlagKey:
                         scanWithoutDelimFlag = Boolean.valueOf(value);
@@ -141,7 +146,7 @@ public class Settings
                         crcInFilenameFlag = Boolean.valueOf(value);
                         break;
                     case addCrcToExtensionTypeTextKey:
-                        addCrcToExtensionTypeText = value;
+                        addCrcToExtensionTypeText = normalizeSeperator(value, ".");
                         break;
                     case crcDelimLeadingTextKey:
                         crcDelimLeadingText = value;
@@ -160,7 +165,8 @@ public class Settings
         postEvent(Events.Status, "Settings Loaded");
     }
 
-    /** Save Settings
+    /** 
+     * Save Settings
      */
     public void saveSettings()
     {
@@ -215,7 +221,8 @@ public class Settings
         postEvent(Events.Status, "Saving Settings");
     }
 
-    /** Default Settings 
+    /** 
+     * Default Settings 
      */
     private void resetToDefaults()
     {
@@ -227,12 +234,42 @@ public class Settings
         skipExtensionTypesText = "";
         completionFlag = FlagPanel.CompletionOptions.doNothing;
 
-        crcDelimiterText = "[], {}, (), __";
+        crcDelimiterText = "[], {}, (), __,";
         scanWithoutDelimFlag = false;
         crcInFilenameFlag = false;
         addCrcToExtensionTypeText = "";
         crcDelimLeadingText = "[";
         crcDelimTrailingText = "]";
+    }
+    
+    /**
+     * Add prefixes to a given list of words (comma seperated).
+     * @param str Words seperated by comma
+     * @param prefix Prefix to append to each word
+     * @return String with each word including prefix and comma space seperated
+     */
+    private String normalizeSeperator(String str, String prefix)
+    {
+        String[] splitStr = str.split(",");
+        Set<String> values = new HashSet<String>();
+        String normalizedList = "";
+        for(String s : splitStr)
+        {
+            String trimmed = s.trim().toLowerCase();
+            if(trimmed.length() > 0)
+            {
+                if(!trimmed.startsWith(prefix))
+                {
+                    trimmed = prefix + trimmed; //normalize all extension types with prefix
+                }
+                values.add(trimmed);
+            }
+        }
+        for(String s : values)
+        {
+            normalizedList += s + ", ";
+        }
+        return normalizedList;
     }
     
     private void postEvent(Events e, String str)
@@ -352,12 +389,12 @@ public class Settings
     {
         String[] splitStr = addCrcToExtensionTypeText.split(",");
         String[] extensions = new String[splitStr.length];
-        for(int i = 0; i < splitStr.length; i++)
+        for(int i = 0; i < extensions.length; i++)
         {
             String trimmed = splitStr[i].trim().toLowerCase();
             if(!trimmed.startsWith("."))
             {
-                trimmed = "." + trimmed;
+                trimmed = "." + trimmed; //normalize all extension types with prefix
             }
             extensions[i] = trimmed;
         }
