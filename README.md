@@ -9,10 +9,10 @@ items in the backup directory. This file will be used as an alternative to readi
 - Print Status Report
 - Drag n Drop support to folder location
 - Persistent Settings
+- Rename file to include CRC (including drag n drop support for extension type)
 
 ## Additional Features To Implement
 In no particular order:
-- Rename file to include CRC (include drag n drop support for extension type)
 - Include verbosity level for status reports
 - Skip Folder Name (include drag n drop support)
 - Skip Extension Type (include drag n drop support)

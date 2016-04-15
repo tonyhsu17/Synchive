@@ -25,6 +25,7 @@ public class SynchiveFile extends File
     private int level; // 0 = root, > 0 = directories in root
     private String crc; // CRC32 representation in 8 chars
     private boolean copyAllowed; // determine if CRC32 matches filename CRC32 to allow copying
+    private String[] possibleCRCInFilename; // possible CRC32 in filename, lazy-loaded
 
     /**
      * Constructs file with default properties.
@@ -34,10 +35,7 @@ public class SynchiveFile extends File
      */
     public SynchiveFile(File file)
     {
-        super(file.getPath());
-        this.level = 0;
-        crc = "";
-        copyAllowed = true;
+        this(file, 0, "");
     }
 
     /**
@@ -49,10 +47,24 @@ public class SynchiveFile extends File
      */
     public SynchiveFile(File file, int level)
     {
+        this(file, level, "");
+    }
+    
+    /**
+     * Constructs file with additional properties.
+     * (Hierarchy = level, CRC32 value, copying allowed)
+     * 
+     * @param file Provide additional properties to file
+     * @param level Hierarchy level. (0 for root, > 0 for directories in root)
+     * @param crc CRC value
+     */
+    public SynchiveFile(File file, int level, String crc)
+    {
         super(file.getPath());
-        this.level = level;
+        this.level = 0;
         crc = "";
         copyAllowed = true;
+        this.crc = crc;
     }
 
     /**
@@ -74,15 +86,18 @@ public class SynchiveFile extends File
      */
     public void determineCopyingAllowed(String delimiter) throws ChecksumException
     {
-        String[] possibleCRC = findCRCInFileName(delimiter);
-        if(possibleCRC.length == 0) // no crc32 in fileName found
+        if(possibleCRCInFilename == null)
+        {
+           possibleCRCInFilename = findCRCInFileName(delimiter);
+        }
+        if(possibleCRCInFilename.length == 0) // no crc32 in fileName found
         {
             return;
         }
         else
         {
             copyAllowed = false;
-            for(String possible : possibleCRC) // only set copyAllowed if matching crc
+            for(String possible : possibleCRCInFilename) // only set copyAllowed if matching crc
             {
                 if(crc.compareToIgnoreCase(possible) == 0)
                 {
@@ -90,9 +105,8 @@ public class SynchiveFile extends File
                     return;
                 }
             }
-            System.out.println("Bad crc:" + Arrays.toString(possibleCRC));
             // cannot find matching CRC, throw exception
-            throw new ChecksumException(Arrays.toString(possibleCRC));
+            throw new ChecksumException(Arrays.toString(possibleCRCInFilename));
         }
     }
 
@@ -197,6 +211,15 @@ public class SynchiveFile extends File
     public void setCRC(String crc)
     {
         this.crc = crc;
+    }
+    
+    public boolean getHasCRCInFilename(String delimiters)
+    {
+        if(possibleCRCInFilename == null)
+        {
+            possibleCRCInFilename = findCRCInFileName(delimiters);
+        }
+        return possibleCRCInFilename.length > 0;
     }
 
     /**

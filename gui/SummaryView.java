@@ -3,6 +3,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.io.File;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -10,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -81,7 +83,14 @@ public class SummaryView
             @Override
             public void filesDropped(File[] files)
             {
-                sourceTextField.setText(files[0].getPath());
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        sourceTextField.setText(files[0].getPath());
+                    }
+                });
             } // end filesDropped
         }); // end FileDrop.Listener
         
@@ -127,7 +136,14 @@ public class SummaryView
             @Override
             public void filesDropped(File[] files)
             {
-                destinationTextField.setText(files[0].getPath());
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        destinationTextField.setText(files[0].getPath());
+                    }
+                });
             } // end filesDropped
         }); // end FileDrop.Listener
         
