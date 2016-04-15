@@ -117,7 +117,7 @@ public class Settings
                         crcCheckFlag = Boolean.valueOf(value);
                         break;
                     case skipFoldersNameKey:
-                        skipFoldersName = value;
+                        skipFoldersName = normalizedSeperatorString(value, "", false);
                         break;
                     case skipExtensionTypesTextKey:
                         skipExtensionTypesText = value;
@@ -137,7 +137,7 @@ public class Settings
                         }
                         break;
                     case crcDelimiterTextKey:
-                        crcDelimiterText = normalizeSeperator(value, "");
+                        crcDelimiterText = normalizedSeperatorString(value, "", false);
                         break;
                     case scanWithoutDelimFlagKey:
                         scanWithoutDelimFlag = Boolean.valueOf(value);
@@ -146,7 +146,7 @@ public class Settings
                         crcInFilenameFlag = Boolean.valueOf(value);
                         break;
                     case addCrcToExtensionTypeTextKey:
-                        addCrcToExtensionTypeText = normalizeSeperator(value, ".");
+                        addCrcToExtensionTypeText = normalizedSeperatorString(value, ".", true);
                         break;
                     case crcDelimLeadingTextKey:
                         crcDelimLeadingText = value;
@@ -243,19 +243,37 @@ public class Settings
     }
     
     /**
-     * Add prefixes to a given list of words (comma seperated).
-     * @param str Words seperated by comma
+     * Add prefixes to a given list of words (comma separated).
+     * @param str Words separated by comma
      * @param prefix Prefix to append to each word
-     * @return String with each word including prefix and comma space seperated
+     * @param toLowercase Should lowercase string?
+     * @return String with each word including prefix and comma space separated
      */
-    private String normalizeSeperator(String str, String prefix)
+    private String normalizedSeperatorString(String str, String prefix, boolean toLowercase)
+    {
+        String[] list = normalizedSeperatorList(str, prefix, toLowercase);
+        String normalizedString = "";
+        for(String s : list)
+        {
+            normalizedString += s + ", ";
+        }
+        return normalizedString;
+    }
+    
+    /**
+     * Add prefixes to a given list of words (comma separated).
+     * @param str Words separated by comma
+     * @param prefix Prefix to append to each word
+     * @param toLowercase Should lowercase string?
+     * @return List of each word including prefix
+     */
+    private String[] normalizedSeperatorList(String str, String prefix, boolean toLowercase)
     {
         String[] splitStr = str.split(",");
         Set<String> values = new HashSet<String>();
-        String normalizedList = "";
         for(String s : splitStr)
         {
-            String trimmed = s.trim().toLowerCase();
+            String trimmed = toLowercase ? s.trim().toLowerCase() : s.trim();
             if(trimmed.length() > 0)
             {
                 if(!trimmed.startsWith(prefix))
@@ -265,11 +283,7 @@ public class Settings
                 values.add(trimmed);
             }
         }
-        for(String s : values)
-        {
-            normalizedList += s + ", ";
-        }
-        return normalizedList;
+        return (String[])values.toArray(new String[0]);
     }
     
     private void postEvent(Events e, String str)
@@ -331,7 +345,12 @@ public class Settings
 
     public String getSkipExtensionTypesText()
     {
-        return skipExtensionTypesText;
+        return normalizedSeperatorString(skipExtensionTypesText, "", false);
+    }
+    
+    public String[] getSkipExtensionTypes()
+    {
+        return normalizedSeperatorList(skipExtensionTypesText, "", false);
     }
 
     public void setSkipExtensionTypesText(String skipExtensionTypesText)
@@ -387,18 +406,7 @@ public class Settings
     
     public String[] getAddCRCToExtensionTypes()
     {
-        String[] splitStr = addCrcToExtensionTypeText.split(",");
-        String[] extensions = new String[splitStr.length];
-        for(int i = 0; i < extensions.length; i++)
-        {
-            String trimmed = splitStr[i].trim().toLowerCase();
-            if(!trimmed.startsWith("."))
-            {
-                trimmed = "." + trimmed; //normalize all extension types with prefix
-            }
-            extensions[i] = trimmed;
-        }
-        return extensions;
+        return normalizedSeperatorList(addCrcToExtensionTypeText, ".", true);
     }
 
     public void setAddCrcToExtensionTypeText(String addCrcToExtensionTypeText)

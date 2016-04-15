@@ -7,6 +7,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -17,9 +19,12 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import support.FileDrop;
+import support.Utilities;
 import synchive.Settings;
 
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 @SuppressWarnings("serial")
 public class FlagPanel extends JPanel
@@ -113,6 +118,32 @@ public class FlagPanel extends JPanel
             {
             }
         });
+        new FileDrop(skipFolderTextField, new FileDrop.Listener()
+        {
+            @Override
+            public void filesDropped(File[] files)
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        String str = skipFolderTextField.getText();
+                        for(File file : files)
+                        {
+                            if(file.isDirectory())
+                            {
+                             // don't add a comma in the beginning if there is text
+                                str += (Utilities.stringEndsWith(str, new String[] {"", ",", " "}) ? "" : ", ") + file.getName() + ", ";
+                            }
+                        }
+                        skipFolderTextField.setText(str);
+                        delegate.skipFolderTextChanged(skipFolderTextField, str);
+                    }
+                });
+                
+            } // end filesDropped
+        }); // end FileDrop.Listener
         
         JLabel skipExtensionLabel = new JLabel("Skip Extension Type");
         skipExtensionLabel.setBounds(7, 92, 129, 14);
@@ -143,6 +174,29 @@ public class FlagPanel extends JPanel
             {
             }
         });
+        new FileDrop(skipExtensionTextField, new FileDrop.Listener()
+        {
+            @Override
+            public void filesDropped(File[] files)
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        String extensions = skipExtensionTextField.getText();
+                        Set<String> extenSet = Utilities.getExtensionsForFiles(files);
+                        for(String str : extenSet)
+                        {
+                            // don't add a comma in the beginning if there is text
+                            extensions += (Utilities.stringEndsWith(str, new String[] {"", ",", " "}) ? "" : ", ") + str + ", ";
+                        }
+                        skipExtensionTextField.setText(extensions);
+                        delegate.skipExtensionTextChanged(skipExtensionTextField, extensions);
+                    }
+                });
+            } // end filesDropped
+        }); // end FileDrop.Listener
         
         Box horizontalBox_1 = Box.createHorizontalBox();
         horizontalBox_1.setBorder(new LineBorder(Color.LIGHT_GRAY));

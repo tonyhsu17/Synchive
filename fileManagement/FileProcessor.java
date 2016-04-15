@@ -148,7 +148,9 @@ public class FileProcessor
     // helper method for readinDirectory()
     private void readinFilesInDirectory(SynchiveFile f, boolean writeOut) throws IOException
     {
-        if(f.getName() == LEFTOVER_FOLDER)
+        // skip over generated folder or folder not needing to be copied
+        if(f.getName() == LEFTOVER_FOLDER || 
+            Settings.getInstance().getSkipFoldersName().contains(f.getName()))
         {
             return;
         }
@@ -162,15 +164,17 @@ public class FileProcessor
             {
                 // create new file entry
                 SynchiveFile temp = new SynchiveFile(fileEntry, f.getLevel());
-
-                if(!temp.getName().equals(Utilities.CRC_FILE_NAME) // skip over generated files
-                && !temp.getName().equals(Utilities.AUDIT_FILE_NAME))
+                    
+                // skip over generated files or extension type not needing to be copied
+                if(!temp.getName().equals(Utilities.CRC_FILE_NAME) && 
+                 !temp.getName().equals(Utilities.AUDIT_FILE_NAME) &&
+                 temp.determineProcessingAllowed(Settings.getInstance().getSkipExtensionTypesText()))
                 {
                     postEvent(Events.ProcessingFile, "Reading file... " + temp.getName());
                     String val = Utilities.calculateCRC32(fileEntry); // get crc value
                     temp.setCRC(val);
                     
-                    //could probably optimize this part or reassigning
+                    // could probably optimize this part or reassigning
                     temp = addCRCToFilename(temp); //add CRC to filename if conditions met
                     
                     // do a checksum check if flag enabled

@@ -7,6 +7,8 @@ import java.util.Formatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import support.Utilities;
+
 
 /**
  * Component Class to provide each file with a crc32 value and depth level.
@@ -76,15 +78,27 @@ public class SynchiveFile extends File
     {
         return copyAllowed;
     }
+    
+    /**
+     * Determine if copying is allowed by checking exclude list
+     * @param extensions List of extensions to exclude
+     * @return Copy allowed if not in exclude list
+     */
+    public boolean determineProcessingAllowed(String extensions)
+    {
+        copyAllowed = !extensions.contains(Utilities.getExtensionType(getName()));
+        return copyAllowed;
+    }
 
     /**
      * Determine if copying is allowed by finding CRC32 value in fileName.
      * If it cannot find CRC32 in fileName, assume none provided and skip comparison with calculated CRC32.
      * 
      * @param delimiter Characters encasing a CRC32 value. Empty string for any CRC32 match
+     * @return true if CRC not found or CRC match.
      * @throws ChecksumException CRC32 from filename and calculated CRC32 mismatch. Possible corrupted file
      */
-    public void determineCopyingAllowed(String delimiter) throws ChecksumException
+    public boolean determineCopyingAllowed(String delimiter) throws ChecksumException
     {
         if(possibleCRCInFilename == null)
         {
@@ -92,7 +106,7 @@ public class SynchiveFile extends File
         }
         if(possibleCRCInFilename.length == 0) // no crc32 in fileName found
         {
-            return;
+            return true;
         }
         else
         {
@@ -102,7 +116,7 @@ public class SynchiveFile extends File
                 if(crc.compareToIgnoreCase(possible) == 0)
                 {
                     copyAllowed = true;
-                    return;
+                    return true;
                 }
             }
             // cannot find matching CRC, throw exception

@@ -3,6 +3,8 @@ package support;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
@@ -73,6 +75,40 @@ public class Utilities
             return "";
         }
         return "." + splitStr[splitStr.length-1];
+    }
+    
+    /**
+     * Returns a set of all possible extension types in a file or directory. Including sub-directories.
+     * @param file File or directory to search through
+     * @return A set of all extensions in the file or directory
+     */
+    public static final Set<String> getExtensionsForFiles(File[] file)
+    {
+        Set<String> types = new HashSet<String>();
+        for(File f : file)
+        {
+            if(f.isDirectory())
+            {
+                types.addAll(getExtensionsForFiles(f.listFiles())); // recurse through sub-directories
+            }
+            else
+            {
+                types.add(Utilities.getExtensionType(f.getName()));
+            }
+        }
+        return types;
+    }
+    
+    public static final boolean stringEndsWith(String string, String[] pattern)
+    {
+        for(String str : pattern)
+        {
+            if((str.equals("") && str.isEmpty()) || string.endsWith(str))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static final String calculateCRC32(File file) throws IOException

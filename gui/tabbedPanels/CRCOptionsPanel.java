@@ -5,7 +5,6 @@ import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.Box;
@@ -155,16 +154,17 @@ public class CRCOptionsPanel extends JPanel
                     @Override
                     public void run()
                     {
-                        String extensions = "";
-                        Set<String> extenSet = getExtensionsForFiles(files);
+                        String extensions = extensionTypeTextField.getText();
+                        Set<String> extenSet = Utilities.getExtensionsForFiles(files);
                         for(String str : extenSet)
                         {
-                            extensions += ", " + str;
+                         // don't add a comma in the beginning if there is text
+                            extensions += (Utilities.stringEndsWith(str, new String[] {"", ",", " "}) ? "" : ", ") + str + ", ";
                         }
-                        extensionTypeTextField.setText(extensionTypeTextField.getText() + extensions);
+                        extensionTypeTextField.setText(extensions);
+                        delegate.crcForExtensionTypeTextChanged(extensionTypeTextField, extensions);
                     }
                 });
-               
             } // end filesDropped
         }); // end FileDrop.Listener
         
@@ -227,28 +227,6 @@ public class CRCOptionsPanel extends JPanel
             {
             }
         });
-    }
-    
-    /**
-     * Returns a set of all possible extension types in a file or directory. Including sub-directories.
-     * @param file File or directory to search through
-     * @return A set of all extensions in the file or directory
-     */
-    private Set<String> getExtensionsForFiles(File[] file)
-    {
-        Set<String> types = new HashSet<String>();
-        for(File f : file)
-        {
-            if(f.isDirectory())
-            {
-                types.addAll(getExtensionsForFiles(f.listFiles())); // recurse through sub-directories
-            }
-            else
-            {
-                types.add(Utilities.getExtensionType(f.getName()));
-            }
-        }
-        return types;
     }
     
     public void loadSettings(String crcDelim, boolean scanWithoutDelim, boolean addCRCFilename, 
