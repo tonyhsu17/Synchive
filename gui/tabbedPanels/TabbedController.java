@@ -1,5 +1,6 @@
 package gui.tabbedPanels;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ItemEvent;
@@ -13,15 +14,19 @@ import gui.SummaryController;
 import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import gui.tabbedPanels.FlagPanel.CompletionOptions;
 import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
+import gui.tabbedPanels.TabbedContainerPaneView.TabbedContainerPaneViewDelegate;
+import support.BlinkTab;
 import synchive.EventCenter;
 import synchive.Settings;
 import synchive.EventCenter.Events;
 
-public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDelegate
+public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDelegate, TabbedContainerPaneViewDelegate
 {
     private TabbedContainerPaneView tabView;
     private SummaryController summaryVC;
-    private int id;
+    private int id; 
+    private BlinkTab errorColorState;
+    private final static int ERROR_TAB_INDEX = 3;
     
     public TabbedController(SummaryController sumVC) 
     {
@@ -29,6 +34,7 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
         summaryVC = sumVC;
         id = this.hashCode();
         tabView = new TabbedContainerPaneView(new Rectangle(7, 58, 498, 195), new Dimension(5, 150), this);
+        errorColorState = new BlinkTab(tabView, 3, Color.red);
         
         ((FlagPanel)tabView.getFlagPanel()).loadSettings(
             s.getAuditTrailFlag(), 
@@ -46,10 +52,12 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
             s.getCrcDelimTrailingText());
         
         if(Settings.getInstance().getAuditTrailFlag())
-            subscribeToNotifications();
+            subscribeToAdditionalNotifications();
         //always subscribe to errors
         EventCenter.getInstance().subscribeEvent(Events.ErrorOccurred, id, (text) -> {
             ((ErrorPanel)tabView.getErrorLogsPanel()).print((String)text);
+            //blink tab indicating something outputted
+            errorColorState.startBlinking();
         });
     }
     
@@ -58,7 +66,7 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
         return tabView;
     }
     
-    private void subscribeToNotifications()
+    private void subscribeToAdditionalNotifications()
     {
         EventCenter.getInstance().subscribeEvent(Events.ProcessingFile, id, (text) -> {
             SwingUtilities.invokeLater(new Runnable()
@@ -80,6 +88,11 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
                 }
             });
         });
+    }
+    
+    public void clearLogs()
+    {
+        tabView.clearLogs();
     }
     
     @Override
@@ -152,6 +165,15 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     public void crcForExtensionTypeTextChanged(JTextField field, String str)
     {
         Settings.getInstance().setAddCrcToExtensionTypeText(str);
+    }
+
+    @Override
+    public void tabChangedIndex(int index)
+    {
+        if(index == ERROR_TAB_INDEX) 
+        {
+            errorColorState.stopBlinking();
+        }
     }
     
 }

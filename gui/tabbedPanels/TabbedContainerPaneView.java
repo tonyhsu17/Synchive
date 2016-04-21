@@ -4,19 +4,30 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
+import java.awt.Color;
 
 @SuppressWarnings("serial")
 public class TabbedContainerPaneView extends JTabbedPane
 {    
+    public interface TabbedContainerPaneViewDelegate {
+        public void tabChangedIndex(int index);
+    }
+    
     private JPanel flagPanel, crcOptionPanel, auditPanel, errorLogsPanel;
+    private Object delegate;
     
     public TabbedContainerPaneView(Rectangle bounds, Dimension prefSize, Object delegate) 
     {
         super(JTabbedPane.TOP);
+        this.delegate = delegate;
         initialize(bounds, prefSize, delegate);
     }
     
@@ -39,6 +50,21 @@ public class TabbedContainerPaneView extends JTabbedPane
         
         errorLogsPanel = new ErrorPanel();
         addTab("Error Logs", null, errorLogsPanel, null);
+
+        addChangeListener(new ChangeListener()
+        {
+            @Override
+            public void stateChanged(ChangeEvent e)
+            {
+                ((TabbedContainerPaneViewDelegate)delegate).tabChangedIndex(getSelectedIndex());
+            }
+        });
+    }
+    
+    public void clearLogs()
+    {
+        ((AuditPanel)auditPanel).clear();
+        ((ErrorPanel)errorLogsPanel).clear();
     }
     
     public JPanel getFlagPanel()

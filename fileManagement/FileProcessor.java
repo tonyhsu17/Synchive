@@ -75,7 +75,7 @@ public class FileProcessor
                 postEvent(Events.Status,
                     "Reading and Generating Destination FileID List... " + "This may take some time, but subsequent runs will be quick.");
                 output = new BufferedWriter(new FileWriter(idFile));
-                generateIDs(true);
+                generateIDs(output);
                 output.close(); // close file
             }
             postEvent(Events.Status, "Reading in fileIDs");
@@ -85,7 +85,7 @@ public class FileProcessor
         else
         {
             postEvent(Events.Status, "Reading in Source files... This may take some time...");
-            generateIDs(false);
+            generateIDs(null);
         }
         postEvent(Events.Status,
             location == Utilities.DESTINATION ? "Finished Generating Destination FileID List" : "Finished Reading Source Files");
@@ -108,6 +108,19 @@ public class FileProcessor
     private void readinFileIDs() throws IOException
     {
         Scanner sc = new Scanner(idFile);
+        if(!sc.hasNextLine()) // in-case empty file
+        {
+            sc.close();
+            postEvent(Events.Status,
+                "Empty ID file, Regenerating Destination FileID List... ");
+            output = new BufferedWriter(new FileWriter(idFile));
+            generateIDs(output);
+            output.close(); // close file
+            postEvent(Events.Status,
+                "Finished regenerating ID file... Continuing reading in");
+            sc = new Scanner(idFile);
+        }
+        
         String str = sc.nextLine();
 
         while(sc.hasNextLine() && str.startsWith(FOLDER_PREFIX)) // not finished and is a folder
@@ -129,24 +142,24 @@ public class FileProcessor
     }
 
     // scans through directory and calls helper method to calculate crc value
-    private void generateIDs(boolean writeOut) throws IOException
+    private void generateIDs(BufferedWriter writeOut) throws IOException
     {
         directoriesToProcess.add(new SynchiveFile(directory)); // adds root dir
 
         while(!directoriesToProcess.isEmpty()) // repeat until all folders are read
         {
             SynchiveFile f = directoriesToProcess.pop();
-            if(writeOut) // only write to file if destination
+            if(writeOut != null) // only write to file if destination
             {
-                output.write(Utilities.convertToDirectoryLvl(f.getPath(), f.getLevel(), directory.getPath()));
-                output.newLine();
+                writeOut.write(Utilities.convertToDirectoryLvl(f.getPath(), f.getLevel(), directory.getPath()));
+                writeOut.newLine();
             }
             readinFilesInDirectory(f, writeOut); // read the files in the folder
         }
     }
 
     // helper method for readinDirectory()
-    private void readinFilesInDirectory(SynchiveFile f, boolean writeOut) throws IOException
+    private void readinFilesInDirectory(SynchiveFile f, BufferedWriter writeOut) throws IOException
     {
         // skip over generated folder or folder not needing to be copied
         if(f.getName() == LEFTOVER_FOLDER || 
@@ -193,10 +206,10 @@ public class FileProcessor
                         }
                     }
 
-                    if(writeOut) // only write to file if destination
+                    if(writeOut != null) // only write to file if destination
                     {
-                        output.write(temp.generateUniqueID()); // wrtie uid to file
-                        output.newLine();
+                        writeOut.write(temp.generateUniqueID()); // wrtie uid to file
+                        writeOut.newLine();
                     }
                     else
                     {

@@ -6,6 +6,7 @@ import java.awt.Cursor;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
@@ -37,11 +38,31 @@ public class ErrorPanel extends JPanel
         errorTextArea.setWrapStyleWord(true);
         scrollPane.setViewportView(errorTextArea);
     }
+    public void clear()
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                errorTextArea.setText("");
+            }
+        });
+    }
+    
     
     public void print(String str)
     {
-        String text = errorTextArea.getText();
-        text += str + "\n";
-        errorTextArea.setText(text);
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                String text = errorTextArea.getText();
+                text += str + "\n";
+                
+                errorTextArea.setText(text);
+            }
+        });
     }
 }

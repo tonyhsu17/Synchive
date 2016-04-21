@@ -12,6 +12,7 @@ items in the backup directory. This file will be used as an alternative to readi
 - Rename file to include CRC (drag n drop supported for extension type)
 - Skip specific folders (drag n drop supported)
 - Skip extension type (drag n drop support)
+- UI indication if something goes wrong
 
 ## Additional Features To Implement
 In no particular order:
@@ -19,4 +20,6 @@ In no particular order:
 - What do to after completion (also add 4th option that closes program)
 - Include progress stats (running time, etc)
 - Add folder selection for locations ("..." button)
-- Add UI indication if something goes wrong
+- Disable "Run" until completion
+- Add tooltips
+

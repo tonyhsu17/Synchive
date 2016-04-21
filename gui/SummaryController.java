@@ -52,6 +52,7 @@ public class SummaryController implements SummaryViewDelegate
         {
             public void run() {
                 Settings.getInstance().saveSettings();
+                tabController.clearLogs();
                 SynchiveDiff diff;
                 try
                 {

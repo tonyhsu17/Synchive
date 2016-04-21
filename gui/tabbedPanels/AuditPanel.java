@@ -6,6 +6,7 @@ import java.awt.Cursor;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
@@ -40,10 +41,30 @@ public class AuditPanel extends JPanel
        
     }
     
+    public void clear()
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                auditTextArea.setText("");
+            }
+        });
+    }
+    
     public void print(String str)
     {
-        String text = auditTextArea.getText();
-        text += str + "\n";
-        auditTextArea.setText(text);
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                String text = auditTextArea.getText();
+                text += str + "\n";
+                
+                auditTextArea.setText(text);
+            }
+        });
     }
 }
