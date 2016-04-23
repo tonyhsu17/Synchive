@@ -132,12 +132,15 @@ public class SynchiveFile extends File
     {
         ArrayList<String> possibleCRC = new ArrayList<String>();
         String[] splitDelim = delimiter.split(",");
-
+        boolean emptyDelim = delimiter.isEmpty();
+        
         for(String delim : splitDelim) // go through each delimiter
         {
-            String trimmed = delim.trim(); // get rid of spacings
+            String trimmed = delim.trim(); // get rid of extra spacings and don't allow "space" delim
+            
+            // Allow empty delim if specified otherwise don't allow it
             // only handle even number, doesn't make sense having mismatching lengths
-            if(trimmed.length() % 2 == 0)
+            if((emptyDelim || trimmed.length() > 0) && trimmed.length() % 2 == 0)
             {
                 String leading = trimmed.substring(0, delim.length() / 2); // first half is left side
                 String trailing = trimmed.substring(delim.length() / 2); // last half is right side

@@ -199,8 +199,7 @@ public class FileProcessor
                         try
                         {
                             // either scan without delimiters or with delimiters based on flag
-                            temp.determineCopyingAllowed(Settings.getInstance().getScanWithoutDelimFlag() ? 
-                                "" : Settings.getInstance().getCrcDelimiterText());
+                            temp.determineCopyingAllowed(getCRCDelimiters());
                         }
                         catch (ChecksumException e) // catch file checksum mismatch
                         {
@@ -231,8 +230,7 @@ public class FileProcessor
      */
     private SynchiveFile addCRCToFilename(SynchiveFile temp)
     {
-        if(Settings.getInstance().getCrcInFilenameFlag() 
-            && !temp.getHasCRCInFilename(Settings.getInstance().getCrcDelimiterText()))
+        if(Settings.getInstance().getCrcInFilenameFlag() && !temp.getHasCRCInFilename(getCRCDelimiters()))
         {
             String[] addCRCToExtentions = Settings.getInstance().getAddCRCToExtensionTypes();
             for(String extension : addCRCToExtentions)
@@ -267,6 +265,15 @@ public class FileProcessor
             }
         }
         return temp;
+    }
+    
+    /**
+     * Handles delimiters to use for CRC in filename.
+     * @return Delimiters or empty string if ScanWithoutDelimFlag checked
+     */
+    private String getCRCDelimiters()
+    {
+        return Settings.getInstance().getScanWithoutDelimFlag() ? "" : Settings.getInstance().getCrcDelimiterText();
     }
 
     private void postEvent(Events e, Object obj)

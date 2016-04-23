@@ -49,6 +49,7 @@ public class Utilities
             if(fullName.endsWith(delim))
             {
                 addExtraSpacing = false;
+                break;
             }
         }
         if(addExtraSpacing) // if no tags detected, determine if using spaces or underscores
