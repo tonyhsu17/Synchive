@@ -204,7 +204,7 @@ public class FileProcessor
                         catch (ChecksumException e) // catch file checksum mismatch
                         {
                             postEvent(Events.ErrorOccurred, 
-                                "Checksum mismatch for: \"" + temp.getName() + "\"\n  - Calculated: [" + temp.getCRC() + "] Found: " + e.getMessage());
+                                "Checksum mismatch for: \"" + temp.getName() + "\"\n  - Calculated: [" + temp.getCRC().toUpperCase() + "] Found: " + e.getMessage());
                         }
                     }
 

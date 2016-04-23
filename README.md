@@ -23,6 +23,7 @@ In no particular order:
 - Add command line ability (-nogui ...)
 
 "Release" Build
+- Add read from ID file for source
 - Add Changelog
 - Add folder selection for locations ("..." button)
 - Include verbosity level for status reports

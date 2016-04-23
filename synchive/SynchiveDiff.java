@@ -200,7 +200,7 @@ public class SynchiveDiff
     // rewrites crcFile in des to include new files
     private void insertToFile()
     {
-        System.out.println("Rewritting CRC file...");
+        postEvent(Events.ProcessingFile, "Rewritting CRC file...");
         try
         {
             crcFile.delete();
