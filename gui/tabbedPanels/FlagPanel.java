@@ -29,7 +29,7 @@ import javax.swing.SwingUtilities;
 @SuppressWarnings("serial")
 public class FlagPanel extends JPanel
 {
-    public static enum CompletionOptions { doNothing, standBy, shutdown }
+    public static enum CompletionOptions { doNothing, close, standBy, shutdown }
     
     public interface FlagPanelDelegate {
         public void auditTrailStateChange(JRadioButton button, int state);
@@ -42,7 +42,7 @@ public class FlagPanel extends JPanel
     
     private JButton runButton;
     private JRadioButton previousOptionButton, auditTrailButton, crcCheckButton, 
-        doNothingButton, standbyButton, shutdownButton;
+        doNothingButton, closeButton, standbyButton, shutdownButton;
     private FlagPanelDelegate delegate;
     private JTextField skipFolderTextField, skipExtensionTextField;
 
@@ -211,18 +211,28 @@ public class FlagPanel extends JPanel
         // After Completion //
         doNothingButton = new JRadioButton("Do nothing", false);
         doNothingButton.setFocusPainted(false);
-        doNothingButton.setBounds(7, 137, 109, 23);
+        doNothingButton.setBounds(2, 137, 109, 23);
         previousOptionButton = doNothingButton; //used to keep selection highlighted if same clicked
         add(doNothingButton);
         doNothingButton.addMouseListener(new MouseAdapter() {
-        public void mouseReleased(MouseEvent arg0) {
-            afterCompletionDidChange(arg0, CompletionOptions.doNothing);
+            public void mouseReleased(MouseEvent arg0) {
+                afterCompletionDidChange(arg0, CompletionOptions.doNothing);
+            }
+        });
+        
+        closeButton = new JRadioButton("Close", false);
+        closeButton.setFocusPainted(false);
+        closeButton.setBounds(113, 137, 109, 23);
+        add(closeButton);
+        closeButton.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent arg0) {
+                afterCompletionDidChange(arg0, CompletionOptions.close);
             }
         });
         
         standbyButton = new JRadioButton("Standby", false);
         standbyButton.setFocusPainted(false);
-        standbyButton.setBounds(191, 137, 109, 23);
+        standbyButton.setBounds(224, 137, 109, 23);
         add(standbyButton);
         standbyButton.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent arg0) {
@@ -232,7 +242,7 @@ public class FlagPanel extends JPanel
         
         shutdownButton = new JRadioButton("Shutdown", false);
         shutdownButton.setFocusPainted(false);
-        shutdownButton.setBounds(341, 137, 109, 23);
+        shutdownButton.setBounds(335, 137, 109, 23);
         add(shutdownButton);
         shutdownButton.addMouseListener(new MouseAdapter() {
             public void mouseReleased(MouseEvent arg0) {
@@ -262,13 +272,16 @@ public class FlagPanel extends JPanel
         auditTrailButton.setSelected(auditTrailFlag);
         crcCheckButton.setSelected(crcCheckFlag);
         skipFolderTextField.setText(skipFolderText);
-        skipExtensionTextField.setText(skipExenText);       
-        
+        skipExtensionTextField.setText(skipExenText);
         switch (completion)
         {
             case doNothing:
                 doNothingButton.setSelected(true);
                 previousOptionButton = doNothingButton;
+                break;
+            case close:
+                closeButton.setSelected(true);
+                previousOptionButton = closeButton;
                 break;
             case standBy:
                 standbyButton.setSelected(true);

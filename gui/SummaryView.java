@@ -103,6 +103,7 @@ public class SummaryView
         sourceMoreButton.setMaximumSize(new Dimension(45, 22));
         sourceMoreButton.setDefaultCapable(false);
         sourceMoreButton.setFocusPainted(false);
+        sourceMoreButton.setEnabled(false);
         
         JLabel destinationLabel = new JLabel("Destination:");
         destinationLabel.setBounds(7, 33, 67, 22);
@@ -157,6 +158,7 @@ public class SummaryView
         destinationMoreButton.setDefaultCapable(false);
         destinationMoreButton.setFocusTraversalKeysEnabled(false);
         destinationMoreButton.setFocusPainted(false);
+        destinationMoreButton.setEnabled(false);
         
         statusLabel = new JLabel("Status: Waiting");
         statusLabel.setBounds(7, 258, 113, 14);

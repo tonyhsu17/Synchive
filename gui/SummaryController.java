@@ -9,6 +9,7 @@ import javax.swing.UIManager;
 
 import gui.SummaryView.SummaryViewDelegate;
 import gui.tabbedPanels.TabbedController;
+import support.PowerOptions;
 import support.StopWatch;
 import support.StopWatch.StopWatchDelegate;
 import synchive.EventCenter;
@@ -35,8 +36,19 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
         
         EventCenter.getInstance().subscribeEvent(Events.RunningStatus, this.hashCode(), (arr) -> {
             summaryView.setStatus("Status - " + ((Object[])arr)[1]);
-            if(((Object[])arr)[0] == EventCenter.RunningStatusEvents.Completed ||
-                ((Object[])arr)[0] == EventCenter.RunningStatusEvents.Error) 
+            if(((Object[])arr)[0] == EventCenter.RunningStatusEvents.Completed)
+            {
+                watch.stop();
+                try
+                {
+                    completionHandler();
+                }
+                catch (Exception e)
+                {
+                    EventCenter.getInstance().postEvent(Events.ErrorOccurred, "Unable to execute Completion Option");
+                }
+            }
+            else if(((Object[])arr)[0] == EventCenter.RunningStatusEvents.Error)
             {
                 watch.stop();
             }
@@ -89,6 +101,24 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
             }
         };
         executionThread.start();
+    }
+    
+    public void completionHandler() throws RuntimeException, IOException
+    {
+        switch(Settings.getInstance().getCompletionFlag())
+        {
+            case doNothing:
+                break;
+            case close:
+                System.exit(0);
+                break;
+            case standBy:
+                PowerOptions.standby();
+                break;
+            case shutdown:
+                PowerOptions.shutdown();
+                break;
+        }
     }
     
     @Override

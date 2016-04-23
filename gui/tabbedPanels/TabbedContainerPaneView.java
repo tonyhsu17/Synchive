@@ -22,12 +22,10 @@ public class TabbedContainerPaneView extends JTabbedPane
     }
     
     private JPanel flagPanel, crcOptionPanel, auditPanel, errorLogsPanel;
-    private Object delegate;
     
     public TabbedContainerPaneView(Rectangle bounds, Dimension prefSize, Object delegate) 
     {
         super(JTabbedPane.TOP);
-        this.delegate = delegate;
         initialize(bounds, prefSize, delegate);
     }
     

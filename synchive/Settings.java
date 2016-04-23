@@ -128,10 +128,13 @@ public class Settings
                             case 0: // doNothing
                                 completionFlag = CompletionOptions.doNothing;
                                 break;
-                            case 1: // standby
+                            case 1: // close program
+                                completionFlag = CompletionOptions.close;
+                                break;
+                            case 2: // standby
                                 completionFlag = CompletionOptions.standBy;
                                 break;
-                            case 2: // shutdown
+                            case 3: // shutdown
                                 completionFlag = CompletionOptions.shutdown;
                                 break;
                         }
@@ -190,11 +193,14 @@ public class Settings
                 case doNothing:
                     output.write(completionFlagKey + "=" + 0);
                     break;
-                case standBy:
+                case close:
                     output.write(completionFlagKey + "=" + 1);
                     break;
-                case shutdown:
+                case standBy:
                     output.write(completionFlagKey + "=" + 2);
+                    break;
+                case shutdown:
+                    output.write(completionFlagKey + "=" + 3);
                     break;
             }
             output.newLine();
