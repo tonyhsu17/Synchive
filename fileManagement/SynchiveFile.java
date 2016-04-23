@@ -64,7 +64,6 @@ public class SynchiveFile extends File
     {
         super(file.getPath());
         this.level = 0;
-        crc = "";
         copyAllowed = true;
         this.crc = crc;
     }

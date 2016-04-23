@@ -69,24 +69,21 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     private void subscribeToAdditionalNotifications()
     {
         EventCenter.getInstance().subscribeEvent(Events.ProcessingFile, id, (text) -> {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    ((AuditPanel)tabView.getAuditPanel()).print((String)text);
-                }
-            });
+            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
         });
         EventCenter.getInstance().subscribeEvent(Events.Status, id, (text) -> {
-            SwingUtilities.invokeLater(new Runnable()
+            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
+        });
+        EventCenter.getInstance().subscribeEvent(Events.RunningStatus, id, (arr) -> {
+            if(((Object[])arr)[0] == EventCenter.RunningStatusEvents.Completed ||
+                ((Object[])arr)[0] == EventCenter.RunningStatusEvents.Error) 
             {
-                @Override
-                public void run()
-                {
-                    ((AuditPanel)tabView.getAuditPanel()).print((String)text);
-                }
-            });
+                ((FlagPanel)tabView.getFlagPanel()).getRunButton().setEnabled(true);
+            }
+            else
+            {
+                ((FlagPanel)tabView.getFlagPanel()).getRunButton().setEnabled(false);
+            }
         });
     }
     
@@ -98,7 +95,7 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     @Override
     public void runNuttySync(JButton button)
     {
-        summaryVC.runNuttySync();
+        summaryVC.runSynchiveDiffer();
     }
 
     @Override

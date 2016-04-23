@@ -57,7 +57,7 @@ public class Utilities
             // if spaces found use space, else use underscore
             additionalSpacing = spacesSplit.length > 1 ? " " : "_";
         }
-        
+       
         fullName += additionalSpacing + encasement[0] + CRC.toUpperCase() + encasement[1] + extension;
         return fullName;
     }

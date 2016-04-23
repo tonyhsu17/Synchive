@@ -9,13 +9,21 @@ import javax.swing.UIManager;
 
 import gui.SummaryView.SummaryViewDelegate;
 import gui.tabbedPanels.TabbedController;
+import support.StopWatch;
+import support.StopWatch.StopWatchDelegate;
+import synchive.EventCenter;
+import synchive.EventCenter.Events;
+import synchive.EventCenter.RunningStatusEvents;
 import synchive.Settings;
 import synchive.SynchiveDiff;
 
-public class SummaryController implements SummaryViewDelegate
+public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
 {
     private SummaryView summaryView;
     private TabbedController tabController;
+    
+    private StopWatch watch;
+    private SynchiveDiff diff;
 
     public SummaryController()
     {
@@ -23,6 +31,16 @@ public class SummaryController implements SummaryViewDelegate
         tabController = new TabbedController(this);
         summaryView.loadSettings(
             Settings.getInstance().getSourcePath(), Settings.getInstance().getDestinationPath());
+        watch = new StopWatch(this);
+        
+        EventCenter.getInstance().subscribeEvent(Events.RunningStatus, this.hashCode(), (arr) -> {
+            summaryView.setStatus("Status - " + ((Object[])arr)[1]);
+            if(((Object[])arr)[0] == EventCenter.RunningStatusEvents.Completed ||
+                ((Object[])arr)[0] == EventCenter.RunningStatusEvents.Error) 
+            {
+                watch.stop();
+            }
+        });
     }
 
     public void run()
@@ -45,7 +63,7 @@ public class SummaryController implements SummaryViewDelegate
         });
     }
     
-    public void runNuttySync()
+    public void runSynchiveDiffer()
     {
 //        SynchiveDiff diff = new SynchiveDiff(new File("E:\\TestA"), new File("E:\\TestB"));
         Thread executionThread = new Thread()
@@ -53,7 +71,10 @@ public class SummaryController implements SummaryViewDelegate
             public void run() {
                 Settings.getInstance().saveSettings();
                 tabController.clearLogs();
-                SynchiveDiff diff;
+                watch.start();
+                EventCenter.getInstance().postEvent(Events.RunningStatus, 
+                    new Object[] {EventCenter.RunningStatusEvents.Running, "Running"});
+                
                 try
                 {
                     diff = new SynchiveDiff(
@@ -62,6 +83,8 @@ public class SummaryController implements SummaryViewDelegate
                 }
                 catch (IOException | Error e)
                 {
+                    EventCenter.getInstance().postEvent(Events.RunningStatus, 
+                        new Object[] {RunningStatusEvents.Error, "Error"});
                 }
             }
         };
@@ -80,4 +103,9 @@ public class SummaryController implements SummaryViewDelegate
         Settings.getInstance().setDestinationPath(text);
     }
 
+    @Override
+    public void timeChanged(StopWatch watch, String string)
+    {
+        summaryView.setRunningTime("Running Time - " + string);
+    }
 }

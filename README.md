@@ -13,13 +13,18 @@ items in the backup directory. This file will be used as an alternative to readi
 - Skip specific folders (drag n drop supported)
 - Skip extension type (drag n drop support)
 - UI indication if something goes wrong
+- Include current progress
+- Disable "Run" until completion
 
 ## Additional Features To Implement
 In no particular order:
 - Include verbosity level for status reports
 - What do to after completion (also add 4th option that closes program)
-- Include progress stats (running time, etc)
 - Add folder selection for locations ("..." button)
-- Disable "Run" until completion
 - Add tooltips
+- Add command line ability (-nogui ...)
 
+
+Phase 2
+- Add read from ID file for source (faster process aka diff changes)
+- Make folder monitoring program to create ID File

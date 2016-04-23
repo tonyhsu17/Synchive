@@ -13,6 +13,7 @@ import fileManagement.SynchiveFile.ChecksumException;
 import support.Utilities;
 import synchive.EventCenter;
 import synchive.EventCenter.Events;
+import synchive.EventCenter.RunningStatusEvents;
 import synchive.Settings;
 
 
@@ -50,6 +51,8 @@ public class FileProcessor
         {
             String errorDescription = "Folder: \"" + directory.getName() + "\" is not a directory";
             postEvent(Events.ErrorOccurred, errorDescription);
+            postEvent(Events.RunningStatus, 
+                new Object[] {RunningStatusEvents.Error, "Error"});
             throw new Error(errorDescription);
         }
 
@@ -162,7 +165,7 @@ public class FileProcessor
     private void readinFilesInDirectory(SynchiveFile f, BufferedWriter writeOut) throws IOException
     {
         // skip over generated folder or folder not needing to be copied
-        if(f.getName() == LEFTOVER_FOLDER || 
+        if(f.getName().equals(LEFTOVER_FOLDER) || 
             Settings.getInstance().getSkipFoldersName().contains(f.getName()))
         {
             return;
@@ -213,7 +216,7 @@ public class FileProcessor
                     }
                     else
                     {
-                        // add  to source mapping
+                        // add to source mapping
                         fileList.add(temp); // adds to file list
                     }
                 }
@@ -266,8 +269,8 @@ public class FileProcessor
         return temp;
     }
 
-    private void postEvent(Events e, String str)
+    private void postEvent(Events e, Object obj)
     {
-        EventCenter.getInstance().postEvent(e, str);
+        EventCenter.getInstance().postEvent(e, obj);
     }
 }

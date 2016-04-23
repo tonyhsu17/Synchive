@@ -3,7 +3,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.io.File;
-import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,6 +15,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import support.FileDrop;
+
 public class SummaryView
 {
     public interface SummaryViewDelegate {
@@ -26,6 +26,8 @@ public class SummaryView
     private SummaryViewDelegate delegate;
     private JFrame synchiveFrame;
     private JTextField sourceTextField, destinationTextField;
+    private JLabel totalRunningTimeLabel, statusLabel;
+    
     /**
      * Create the application.
      */
@@ -42,7 +44,7 @@ public class SummaryView
     {
         synchiveFrame = new JFrame();
         synchiveFrame.setTitle("Synchive");
-        synchiveFrame.setBounds(100, 100, 526, 340);
+        synchiveFrame.setBounds(100, 100, 526, 322);
         synchiveFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         JLabel sourceLabel = new JLabel("Source:");
@@ -156,21 +158,13 @@ public class SummaryView
         destinationMoreButton.setFocusTraversalKeysEnabled(false);
         destinationMoreButton.setFocusPainted(false);
         
-        JLabel sizeReadLabel = new JLabel("Read: ");
-        sizeReadLabel.setBounds(7, 258, 99, 14);
-        synchiveFrame.getContentPane().add(sizeReadLabel);
+        statusLabel = new JLabel("Status: Waiting");
+        statusLabel.setBounds(7, 258, 113, 14);
+        synchiveFrame.getContentPane().add(statusLabel);
         
-        JLabel sizeReadSpeedLabel = new JLabel("Read Speed:");
-        sizeReadSpeedLabel.setBounds(116, 258, 154, 14);
-        synchiveFrame.getContentPane().add(sizeReadSpeedLabel);
-        
-        JLabel totalRunningTimeLabel = new JLabel("Running Time:");
-        totalRunningTimeLabel.setBounds(280, 258, 223, 14);
+        totalRunningTimeLabel = new JLabel("Running Time:");
+        totalRunningTimeLabel.setBounds(130, 258, 151, 14);
         synchiveFrame.getContentPane().add(totalRunningTimeLabel);
-        
-        JProgressBar processingFileProgressBar = new JProgressBar();
-        processingFileProgressBar.setBounds(7, 276, 496, 14);
-        synchiveFrame.getContentPane().add(processingFileProgressBar);
         
         synchiveFrame.getContentPane().setLayout(null);
         synchiveFrame.getContentPane().add(sourceLabel);
@@ -186,8 +180,33 @@ public class SummaryView
         return synchiveFrame;
     }
     
-    public void setVisible(boolean flag) {
+    public void setVisible(boolean flag) 
+    {
         synchiveFrame.setVisible(flag);
+    }
+    
+    public void setStatus(String str) 
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                statusLabel.setText(str);
+            }
+        });
+    }
+    
+    public void setRunningTime(String str)
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                totalRunningTimeLabel.setText(str);
+            }
+        });
     }
     
     public void loadSettings(String sourceText, String destinationText)

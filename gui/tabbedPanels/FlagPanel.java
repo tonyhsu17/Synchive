@@ -40,6 +40,7 @@ public class FlagPanel extends JPanel
         public void skipExtensionTextChanged(JTextField textField, String str);
     }
     
+    private JButton runButton;
     private JRadioButton previousOptionButton, auditTrailButton, crcCheckButton, 
         doNothingButton, standbyButton, shutdownButton;
     private FlagPanelDelegate delegate;
@@ -78,7 +79,7 @@ public class FlagPanel extends JPanel
             }
         });
         
-        JButton runButton = new JButton("Run");
+        runButton = new JButton("Run");
         runButton.setFocusPainted(false);
         runButton.setBounds(244, 7, 240, 50);
         add(runButton);
@@ -278,5 +279,10 @@ public class FlagPanel extends JPanel
                 previousOptionButton = shutdownButton;
                 break;
         }
+    }
+    
+    public JButton getRunButton()
+    {
+        return runButton;
     }
 }

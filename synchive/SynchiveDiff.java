@@ -16,6 +16,7 @@ import fileManagement.SynchiveDirectory;
 import fileManagement.SynchiveFile;
 import support.Utilities;
 import synchive.EventCenter.Events;
+import synchive.EventCenter.RunningStatusEvents;
 import fileManagement.FileProcessor;
 
 
@@ -99,7 +100,6 @@ public class SynchiveDiff
                         newDir.setRealFolderName(relativeDir);
                         newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
                         destinationList.put(newDir.getUniqueID(), newDir); // add newDir to folderHashTable
-
                         copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
                         
                         postEvent(Events.ProcessingFile, isRoot ? 
@@ -114,9 +114,10 @@ public class SynchiveDiff
                 
             }
 
-            // clean up stuff
             insertToFile(); // write newly added files to crcFile
             postEvent(Events.Status, "Operation Completed");
+            postEvent(Events.RunningStatus, 
+                new Object[] {RunningStatusEvents.Completed, "Completed"});
         }
         catch (IOException | Error e)
         {
@@ -144,15 +145,7 @@ public class SynchiveDiff
         {
             Files.copy(Paths.get(file.getPath()), Paths.get(destinationPath), op);
         }
-        catch (IOException e)
-        {
-            postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
-        }
-        catch (UnsupportedOperationException e)
-        {
-            postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
-        }
-        catch (SecurityException e)
+        catch (IOException | UnsupportedOperationException | SecurityException e)
         {
             postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
         }
@@ -275,8 +268,8 @@ public class SynchiveDiff
         return retVal;
     }
     
-    private void postEvent(Events e, String str)
+    private void postEvent(Events e, Object obj)
     {
-        EventCenter.getInstance().postEvent(e, str);
+        EventCenter.getInstance().postEvent(e, obj);
     }
 }

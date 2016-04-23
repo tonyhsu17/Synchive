@@ -10,10 +10,17 @@ public class EventCenter
         public void postEvent(Object obj); // generic function for function pass-in
     }
     public static enum Events { // list of possible events
-        ProcessingFile, // comment
-        ErrorOccurred, // comment
-        Status, // comment
+        ProcessingFile, // A file is being processed
+        ErrorOccurred, // An error has occurred
+        Status, // General status
+        RunningStatus, // Overall status
     }; 
+    public static enum RunningStatusEvents {
+        Waiting,
+        Running,
+        Completed,
+        Error,
+    };
 
     private static EventCenter self = new EventCenter();
     private Hashtable<Events, Hashtable<Object, EventFunction>> eventList; // contains a map of events to subscriber list
