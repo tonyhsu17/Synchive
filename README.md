@@ -19,8 +19,8 @@ items in the backup directory. This file will be used as an alternative to readi
 
 ## Additional Features To Implement
 In no particular order:
-
-- Add command line ability (-nogui ...)
+- Add java docs and comments for everything
+- Add command line ability (-nogui ...) (TODO TEST)
 
 "Release" Build
 - Add read from ID file for source
@@ -28,7 +28,6 @@ In no particular order:
 - Add folder selection for locations ("..." button)
 - Include verbosity level for status reports
 - Add tooltips
-- Add java docs and comments for everything
 - Add test cases 
 
 

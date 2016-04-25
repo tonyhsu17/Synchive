@@ -230,7 +230,7 @@ public class Settings
     /** 
      * Default Settings 
      */
-    private void resetToDefaults()
+    public void resetToDefaults()
     {
         sourcePath = "";
         destinationPath = "";

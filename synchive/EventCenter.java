@@ -83,6 +83,10 @@ public class EventCenter
     // post event to subscribers
     public void postEvent(Events e, Object obj)
     {
+        if(e == Events.ErrorOccurred || e == Events.RunningStatus)
+        {
+            System.out.println(obj);
+        }
         if(eventList.containsKey(e))
         {
             Hashtable<Object, EventFunction> events = eventList.get(e);
