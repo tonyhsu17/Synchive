@@ -83,9 +83,13 @@ public class EventCenter
     // post event to subscribers
     public void postEvent(Events e, Object obj)
     {
-        if(e == Events.ErrorOccurred || e == Events.RunningStatus)
+        if(e == Events.ErrorOccurred)
         {
             System.out.println(obj);
+        }
+        else if(e == Events.RunningStatus)
+        {
+            System.out.println("Status: " + ((Object[])obj)[1]);
         }
         if(eventList.containsKey(e))
         {

@@ -26,7 +26,7 @@ public class Synchive
     {
         boolean showGUI = true;
         boolean loadSettings = true;
-        String[] locations = new String[2];
+        String[] locations = {"", ""};
         
         // parse arguments
         if(args.length > 0)
