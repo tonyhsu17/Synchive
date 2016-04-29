@@ -56,11 +56,11 @@ public class StopWatch
     public String toString()
     {
         long seconds = totalInSeconds % 60;
-        long minutes = totalInSeconds / 60;
+        long minutes = (totalInSeconds / 60) % 60;
         long hours = totalInSeconds / 60 / 60;
         if(hours > 0)
         {
-            return String.format("%02:%02d:%02d", hours, minutes, seconds);
+            return String.format("%02d:%02d:%02d", hours, minutes, seconds);
         }
         else
         {

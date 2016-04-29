@@ -1,17 +1,22 @@
 package gui;
 
 import java.awt.EventQueue;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import fileManagement.FileProcessor;
 import gui.SummaryView.SummaryViewDelegate;
+import gui.tabbedPanels.ErrorPanel;
 import gui.tabbedPanels.TabbedController;
 import support.PowerOptions;
 import support.StopWatch;
 import support.StopWatch.StopWatchDelegate;
+import support.Utilities;
 import synchive.EventCenter;
 import synchive.EventCenter.Events;
 import synchive.EventCenter.RunningStatusEvents;
@@ -116,6 +121,11 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
                 PowerOptions.standby();
                 break;
             case shutdown:
+                BufferedWriter output = new BufferedWriter(new FileWriter("output.txt"));
+                output.write(tabController.getView().getErrorLogs());
+                output.newLine();
+                output.write("Completed in: " + watch.toString());
+                output.close();
                 PowerOptions.shutdown();
                 break;
         }

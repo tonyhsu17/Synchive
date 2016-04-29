@@ -16,6 +16,7 @@ public class Utilities
     public static final String AUDIT_FILE_NAME = "~auditTrail.txt";
     public static final int SOURCE = 5;
     public static final int DESTINATION = 10;
+    public static final int NUM_CHAR_IN_CRC32 = 8;
 
 //    public static final String getEncodedFileString(String fileName, String CRC32)
 //    {
@@ -52,11 +53,30 @@ public class Utilities
                 break;
             }
         }
-        if(addExtraSpacing) // if no tags detected, determine if using spaces or underscores
+        if(addExtraSpacing) // if no tags detected, determine if using spaces, underscores, or dots
         {
+            String[] dotsSplit = fullName.split(".");
+            String[] underscoresSplit = fullName.split("_");
             String[] spacesSplit = fullName.split(" ");
-            // if spaces found use space, else use underscore
-            additionalSpacing = spacesSplit.length > 1 ? " " : "_";
+            
+            // check which one is used most, default is no space
+            // examples: Hello.World, Hello World, Hello_World, HelloWorld
+            // Length must be greater than one to exist
+            if (dotsSplit.length > 1 && 
+                dotsSplit.length > Math.max(underscoresSplit.length, spacesSplit.length))
+            {
+                additionalSpacing = ".";
+            }
+            else if (underscoresSplit.length > 1 && 
+                underscoresSplit.length > Math.max(dotsSplit.length, spacesSplit.length))
+            {
+                additionalSpacing = "_";
+            }
+            else if (spacesSplit.length > 1 && 
+                spacesSplit.length > Math.max(dotsSplit.length, underscoresSplit.length))
+            {
+                additionalSpacing = " ";
+            }
         }
        
         fullName += additionalSpacing + encasement[0] + CRC.toUpperCase() + encasement[1] + extension;
@@ -130,6 +150,10 @@ public class Utilities
         {
             System.out.println("Unable to determine crc32 value for file: " + file.getName());
             return "";
+        }
+        for(int i = hex.length(); i < NUM_CHAR_IN_CRC32; i++)
+        {
+            hex = "0" + hex;
         }
         return hex;
     }

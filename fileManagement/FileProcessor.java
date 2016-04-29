@@ -2,8 +2,12 @@ package fileManagement;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Scanner;
@@ -77,7 +81,8 @@ public class FileProcessor
             {
                 postEvent(Events.Status,
                     "Reading and Generating Destination FileID List... " + "This may take some time, but subsequent runs will be quick.");
-                output = new BufferedWriter(new FileWriter(idFile));
+                CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
+                output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(idFile), encoder));  
                 generateIDs(output);
                 output.close(); // close file
             }

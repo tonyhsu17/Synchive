@@ -38,6 +38,7 @@ public class ErrorPanel extends JPanel
         errorTextArea.setWrapStyleWord(true);
         scrollPane.setViewportView(errorTextArea);
     }
+    
     public void clear()
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -50,6 +51,10 @@ public class ErrorPanel extends JPanel
         });
     }
     
+    public String getLog()
+    {
+        return errorTextArea.getText();
+    }
     
     public void print(String str)
     {

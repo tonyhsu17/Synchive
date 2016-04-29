@@ -20,7 +20,6 @@ import support.Utilities;
 @SuppressWarnings("serial")
 public class SynchiveFile extends File
 {
-    private static final int NUM_CHAR_IN_CRC32 = 8;
     private static final String SPECIAL_CHARACTERS = "[]{}()+\\^&.$?*|:<>=!";
 
     private String uniqueID; // file path + CRC value
@@ -159,7 +158,7 @@ public class SynchiveFile extends File
 
                 // String pattern matching using delimiters and set formatting for CRC32 in hex
                 Formatter regx = new Formatter(new StringBuilder(
-                        sanitizedLeading + "[a-fA-F0-9]{" + NUM_CHAR_IN_CRC32 + "}+" + sanitizedTrailing));
+                        sanitizedLeading + "[a-fA-F0-9]{" + Utilities.NUM_CHAR_IN_CRC32 + "}+" + sanitizedTrailing));
                 Matcher m = Pattern.compile(regx.toString()).matcher(getName());
 
                 // go through matcher and to list all possible CRC values

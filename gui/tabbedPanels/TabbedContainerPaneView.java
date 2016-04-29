@@ -65,6 +65,11 @@ public class TabbedContainerPaneView extends JTabbedPane
         ((ErrorPanel)errorLogsPanel).clear();
     }
     
+    public String getErrorLogs()
+    {
+        return ((ErrorPanel)errorLogsPanel).getLog();
+    }
+    
     public JPanel getFlagPanel()
     {
         return flagPanel;
