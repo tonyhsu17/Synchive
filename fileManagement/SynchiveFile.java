@@ -62,7 +62,7 @@ public class SynchiveFile extends File
     public SynchiveFile(File file, int level, String crc)
     {
         super(file.getPath());
-        this.level = 0;
+        this.level = level;
         copyAllowed = true;
         this.crc = crc;
     }
