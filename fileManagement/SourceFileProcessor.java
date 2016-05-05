@@ -11,9 +11,7 @@ public class SourceFileProcessor extends FileProcessorBase
     {
         super(directory);
         fileList = new ArrayList<SynchiveFile>(); // source uses flat mapping
-        System.out.println("~~~~~~Source~~~~~~~~~~~~~");
         readinIDs();
-        System.out.println(toString());
     }
     
     public ArrayList<SynchiveFile> getFiles()
@@ -23,7 +21,6 @@ public class SourceFileProcessor extends FileProcessorBase
     
     public void didProcessFile(SynchiveFile file, SynchiveFile dir)
     {
-        System.out.println("Scr Storing:" + file.getUniqueID());
         fileList.add(file);
     }
     

@@ -1,13 +1,7 @@
 package synchive;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
 
 import fileManagement.DestinationFileProcessor;
 import fileManagement.SourceFileProcessor;
@@ -42,8 +35,6 @@ public class SynchiveDiff
     private String LEFTOVER_FOLDER = Utilities.LEFTOVER_FOLDER;
     // srcLoc = source directory, desLoc = destination directory
     private File srcLoc, desLoc;
-    // crcFile = source crc file
-    private File crcFile;
     private Hashtable<String, SynchiveDirectory> destinationList; // Mapping of each file in directory
     private ArrayList<SynchiveFile> sourceCRCFiles; // list of all files in source location
     private DestinationFileProcessor desReader;
@@ -52,7 +43,6 @@ public class SynchiveDiff
         this.srcLoc = curDir;
         this.desLoc = backupDir;
 
-        crcFile = new File(backupDir.getPath() + "\\" + Utilities.CRC_FILE_NAME);
         desReader = new DestinationFileProcessor(backupDir);
         destinationList = desReader.getFiles();
     }
@@ -74,7 +64,6 @@ public class SynchiveDiff
                 {
                     String dirUID = Utilities.convertToDirectoryLvl(
                         temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath());
-                    System.out.println("@dirUID: " + dirUID);
                     SynchiveDirectory dir = destinationList.get(dirUID);
                     boolean isRoot = temp.getParent().equals(srcLoc.getPath()) ? true : false; // if file is in root dir
 
@@ -211,17 +200,11 @@ public class SynchiveDiff
         postEvent(Events.ProcessingFile, "Rewritting CRC file...");
         try
         {
-            crcFile.delete();
-            CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
-            BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(crcFile), encoder));
-            output.write("Synchive v0.1 - location=" + desReader.getRoot().getPath());
-            output.newLine();
+            desReader.writeToFile(true);
             Enumeration<String> enu = destinationList.keys();
             while(enu.hasMoreElements()) // go through folders
             {
                 String folderName = enu.nextElement();
-                output.write(folderName);
-                output.newLine();
                 // go through files in folder
                 SynchiveDirectory dir = destinationList.get(folderName);
                 Enumeration<String> enuFiles = dir.getFiles().keys();
@@ -231,12 +214,7 @@ public class SynchiveDiff
                     SynchiveDirectory.FileFlag val = dir.getValueForKey(fileCRC);
                     if(val != null)
                     {
-                        if(val == SynchiveDirectory.FileFlag.FILE_EXIST) // only write matching files
-                        {
-                            output.write(fileCRC);
-                            output.newLine();
-                        }
-                        else if(val == SynchiveDirectory.FileFlag.FILE_NOT_EXIST)
+                        if(val == SynchiveDirectory.FileFlag.FILE_NOT_EXIST)
                         {
                             // make leftover folder for not found ones
                             File leftoversFolder = new File(desLoc.getPath() + "\\" + LEFTOVER_FOLDER);
@@ -257,10 +235,10 @@ public class SynchiveDiff
                     }
                 }
             }
-            output.close();
         }
         catch (IOException e)
         {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

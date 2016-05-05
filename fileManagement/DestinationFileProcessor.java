@@ -2,7 +2,6 @@ package fileManagement;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -10,8 +9,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import javax.annotation.Generated;
 
 import fileManagement.SynchiveDirectory.FileFlag;
 import support.Utilities;
@@ -27,7 +24,6 @@ public class DestinationFileProcessor extends FileProcessorBase
         super(directory);
         directoryList = new Hashtable<String, SynchiveDirectory>(); // des uses structural mapping
         readinIDs();
-        System.out.println(toString());
     }
     
     public Hashtable<String, SynchiveDirectory> getFiles()
@@ -43,7 +39,6 @@ public class DestinationFileProcessor extends FileProcessorBase
             output.newLine(); 
             
             String dirID = Utilities.convertToDirectoryLvl(dir.getPath(), dir.getLevel(), getRoot().getPath());
-            System.out.println("ProcessFile: " + file.toString() + " dir: " + dir.toString());
             SynchiveDirectory fileList = directoryList.get(dirID);
             
             if(fileList == null)
@@ -68,7 +63,6 @@ public class DestinationFileProcessor extends FileProcessorBase
             output.write(id);
             output.newLine();
             
-            System.out.println("Processing Dir: " + id);
             directoryList.put(id, new SynchiveDirectory(id));
         }
         catch (IOException e)
@@ -79,14 +73,12 @@ public class DestinationFileProcessor extends FileProcessorBase
     }
     
     public void directoryReadFromID(SynchiveDirectory dir)
-    {
-        System.out.println("DirReadFromID: " + dir.getUniqueID());        
+    {        
         directoryList.put(dir.getUniqueID(), dir);
     }
     
     public void fileReadFromID(SynchiveFile file, SynchiveDirectory dir)
     {
-        System.out.println("fileReadFromID: " + dir.getUniqueID() + " file:" + file.getUniqueID());
         directoryList.get(dir.getUniqueID()).addFile(file.getUniqueID(), FileFlag.FILE_NOT_EXIST);
     }
     
@@ -121,9 +113,7 @@ public class DestinationFileProcessor extends FileProcessorBase
             output.close(); // close file
             if(hasSubIDFile()) // if there's subIDFiles write idFile to include subIDFiles
             {
-                CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
-                output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(getRoot().getPath() + "\\" + Utilities.CRC_FILE_NAME)), encoder));
-                writeToFile(output);
+                writeToFile(false);
             }
         }
         catch (IOException e)
@@ -133,33 +123,39 @@ public class DestinationFileProcessor extends FileProcessorBase
         } 
     }
     
-    public void writeToFile(BufferedWriter writer) throws IOException
+    public void writeToFile(boolean checkExist) throws IOException
     {
-        writer.write("Synchive v0.1 - location=" + getRoot().getPath());
-        writer.newLine();
+        CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
+        BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(getRoot().getPath() + "\\" + Utilities.CRC_FILE_NAME)), encoder));
+        output.write("Synchive v0.1 - root=" + getRoot().getPath());
+        output.newLine();
         
         Enumeration<String> keys = directoryList.keys();
         while(keys.hasMoreElements())
         {
             String key = keys.nextElement();
             SynchiveDirectory dir = directoryList.get(key);
-            writer.write(dir.getUniqueID());
-            writer.newLine();
+            output.write(dir.getUniqueID());
+            output.newLine();
             
             Hashtable<String, FileFlag> file = dir.getFiles();
             Enumeration<String> fileEnum = file.keys();
             while(fileEnum.hasMoreElements())
             {
-                writer.write(fileEnum.nextElement());
-                writer.newLine();
+                String fileID = fileEnum.nextElement();
+                if(checkExist && file.get(fileID) != FileFlag.FILE_EXIST)
+                {
+                    continue;
+                }
+                output.write(fileID);
+                output.newLine();
             }
         }
-        writer.close();
+        output.close();
     }
     
     public String toString()
     {
-//        Hashtable<String, SynchiveDirectory>
         Enumeration<String> keys = directoryList.keys();
         String str = "{\n";
         while(keys.hasMoreElements())
