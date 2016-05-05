@@ -1,5 +1,6 @@
 package fileManagement;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 
  
@@ -88,6 +89,18 @@ public class SynchiveDirectory
             return true;
         }
         return false;
+    }
+    
+    public String toString()
+    {
+        Enumeration<String> list = files.keys();
+        String str = "[";
+        while(list.hasMoreElements())
+        {
+            str += list.nextElement() + ", ";
+        }
+        str += "]";
+        return str;
     }
 
     // ~~~~~ Getters & Setters ~~~~~//

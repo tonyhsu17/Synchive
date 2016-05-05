@@ -9,14 +9,11 @@ import java.io.IOException;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
-import fileManagement.FileProcessor;
 import gui.SummaryView.SummaryViewDelegate;
-import gui.tabbedPanels.ErrorPanel;
 import gui.tabbedPanels.TabbedController;
 import support.PowerOptions;
 import support.StopWatch;
 import support.StopWatch.StopWatchDelegate;
-import support.Utilities;
 import synchive.EventCenter;
 import synchive.EventCenter.Events;
 import synchive.EventCenter.RunningStatusEvents;

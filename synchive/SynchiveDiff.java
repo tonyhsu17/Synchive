@@ -2,8 +2,12 @@ package synchive;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,12 +16,15 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+
+import fileManagement.DestinationFileProcessor;
+import fileManagement.SourceFileProcessor;
 import fileManagement.SynchiveDirectory;
 import fileManagement.SynchiveFile;
 import support.Utilities;
 import synchive.EventCenter.Events;
 import synchive.EventCenter.RunningStatusEvents;
-import fileManagement.FileProcessor;
 
 
 /**
@@ -32,31 +39,31 @@ import fileManagement.FileProcessor;
 *           is modified to FILE_EXIST. */
 public class SynchiveDiff
 {
-    private String LEFTOVER_FOLDER = FileProcessor.LEFTOVER_FOLDER;
+    private String LEFTOVER_FOLDER = Utilities.LEFTOVER_FOLDER;
     // srcLoc = source directory, desLoc = destination directory
     private File srcLoc, desLoc;
     // crcFile = source crc file
     private File crcFile;
     private Hashtable<String, SynchiveDirectory> destinationList; // Mapping of each file in directory
     private ArrayList<SynchiveFile> sourceCRCFiles; // list of all files in source location
-
+    private DestinationFileProcessor desReader;
     public SynchiveDiff(File curDir, File backupDir) throws Error, IOException
     {
         this.srcLoc = curDir;
         this.desLoc = backupDir;
 
         crcFile = new File(backupDir.getPath() + "\\" + Utilities.CRC_FILE_NAME);
-        FileProcessor desReader = new FileProcessor(backupDir, Utilities.DESTINATION);
-        destinationList = desReader.getDirectoryList();   
+        desReader = new DestinationFileProcessor(backupDir);
+        destinationList = desReader.getFiles();
     }
 
     public void syncLocations()
     {
-        FileProcessor rd;
+        SourceFileProcessor rd;
         try
         {
-            rd = new FileProcessor(srcLoc, Utilities.SOURCE);
-            sourceCRCFiles = rd.getCRCFileList();
+            rd = new SourceFileProcessor(srcLoc);
+            sourceCRCFiles = rd.getFiles();
             
             postEvent(Events.Status, "Comparing Differences...");
             for(int i = 0; i < sourceCRCFiles.size(); i++)
@@ -65,9 +72,10 @@ public class SynchiveDiff
                 SynchiveFile temp = sourceCRCFiles.get(i); // file to parse through
                 if(temp.copyAllowed())
                 {
-                    SynchiveDirectory dir =
-                        destinationList.get(Utilities.convertToDirectoryLvl(
-                            temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath()));
+                    String dirUID = Utilities.convertToDirectoryLvl(
+                        temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath());
+                    System.out.println("@dirUID: " + dirUID);
+                    SynchiveDirectory dir = destinationList.get(dirUID);
                     boolean isRoot = temp.getParent().equals(srcLoc.getPath()) ? true : false; // if file is in root dir
 
                     if(dir != null && dir.getFiles().size() > 0)
@@ -204,7 +212,10 @@ public class SynchiveDiff
         try
         {
             crcFile.delete();
-            BufferedWriter output = new BufferedWriter(new FileWriter(crcFile));
+            CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
+            BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(crcFile), encoder));
+            output.write("Synchive v0.1 - location=" + desReader.getRoot().getPath());
+            output.newLine();
             Enumeration<String> enu = destinationList.keys();
             while(enu.hasMoreElements()) // go through folders
             {
