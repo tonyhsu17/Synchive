@@ -19,6 +19,13 @@ public class Utilities
     public static final int DESTINATION = 10;
     public static final int NUM_CHAR_IN_CRC32 = 8;
 
+    
+    /**
+     * @param filePath
+     * @param level
+     * @param rootPath
+     * @return
+     */
     public static final String getDirectoryUniqueID(String filePath, int level, String rootPath)
     {
         return "~" + level + ": " + filePath.substring(rootPath.length());
@@ -116,6 +123,11 @@ public class Utilities
         return types;
     }
     
+    /**
+     * @param string
+     * @param pattern
+     * @return
+     */
     public static final boolean stringEndsWith(String string, String[] pattern)
     {
         for(String str : pattern)
@@ -128,6 +140,11 @@ public class Utilities
         return false;
     }
 
+    /**
+     * @param file
+     * @return
+     * @throws IOException
+     */
     public static final String calculateCRC32(File file) throws IOException
     {
         String hex = "";
