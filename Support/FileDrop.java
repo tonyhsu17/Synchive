@@ -297,6 +297,7 @@ public class FileDrop
                     // over the drag target.
                 }   // end dragOver
 
+                @SuppressWarnings({ "rawtypes", "unchecked" })
                 public void drop( java.awt.dnd.DropTargetDropEvent evt )
                 {   log( out, "FileDrop: drop event." );
                     try
@@ -314,7 +315,6 @@ public class FileDrop
                             // Get a useful list
                             java.util.List fileList = (java.util.List) 
                                 tr.getTransferData(java.awt.datatransfer.DataFlavor.javaFileListFlavor);
-                            java.util.Iterator iterator = fileList.iterator();
 
                             // Convert list to array
                             java.io.File[] filesTemp = new java.io.File[ fileList.size() ];
@@ -418,6 +418,7 @@ public class FileDrop
     }   // end constructor
 
     
+    @SuppressWarnings({ "unused", "rawtypes" })
     private static boolean supportsDnD()
     {   // Static Boolean
         if( supportsDnD == null )
@@ -436,32 +437,33 @@ public class FileDrop
     }   // end supportsDnD
     
     
-     // BEGIN 2007-09-12 Nathan Blomquist -- Linux (KDE/Gnome) support added.
-     private static String ZERO_CHAR_STRING = "" + (char)0;
-     private static File[] createFileArray(BufferedReader bReader, PrintStream out)
-     {
-        try { 
-            java.util.List list = new java.util.ArrayList();
-            java.lang.String line = null;
-            while ((line = bReader.readLine()) != null) {
-                try {
-                    // kde seems to append a 0 char to the end of the reader
-                    if(ZERO_CHAR_STRING.equals(line)) continue; 
-                    
-                    java.io.File file = new java.io.File(new java.net.URI(line));
-                    list.add(file);
-                } catch (Exception ex) {
-                    log(out, "Error with " + line + ": " + ex.getMessage());
-                }
-            }
+    // BEGIN 2007-09-12 Nathan Blomquist -- Linux (KDE/Gnome) support added.
+    private static String ZERO_CHAR_STRING = "" + (char)0;
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static File[] createFileArray(BufferedReader bReader, PrintStream out)
+    {
+       try { 
+           java.util.List list = new java.util.ArrayList();
+           java.lang.String line = null;
+           while ((line = bReader.readLine()) != null) {
+               try {
+                   // kde seems to append a 0 char to the end of the reader
+                   if(ZERO_CHAR_STRING.equals(line)) continue; 
+                   
+                   java.io.File file = new java.io.File(new java.net.URI(line));
+                   list.add(file);
+               } catch (Exception ex) {
+                   log(out, "Error with " + line + ": " + ex.getMessage());
+               }
+           }
 
-            return (java.io.File[]) list.toArray(new File[list.size()]);
-        } catch (IOException ex) {
-            log(out, "FileDrop: IOException");
-        }
-        return new File[0];
-     }
-     // END 2007-09-12 Nathan Blomquist -- Linux (KDE/Gnome) support added.
+           return (java.io.File[]) list.toArray(new File[list.size()]);
+       } catch (IOException ex) {
+           log(out, "FileDrop: IOException");
+       }
+       return new File[0];
+    }
+    // END 2007-09-12 Nathan Blomquist -- Linux (KDE/Gnome) support added.
      
     
     private void makeDropTarget( final java.io.PrintStream out, final java.awt.Component c, boolean recursive )
@@ -646,6 +648,7 @@ public class FileDrop
      * @author  rob@iharder.net
      * @version 1.2
      */
+    @SuppressWarnings("serial")
     public static class Event extends java.util.EventObject {
 
         private java.io.File[] files;
@@ -801,6 +804,7 @@ public class FileDrop
          * @param fetcher The {@link Fetcher} that will return the data object
          * @since 1.1
          */
+        @SuppressWarnings("rawtypes")
         public TransferableObject( Class dataClass, Fetcher fetcher )
         {   this.fetcher = fetcher;
             this.customFlavor = new java.awt.datatransfer.DataFlavor( dataClass, MIME_TYPE );
