@@ -10,11 +10,10 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-
-import fileManagement.DestinationFileProcessor;
-import fileManagement.SourceFileProcessor;
 import fileManagement.SynchiveDirectory;
 import fileManagement.SynchiveFile;
+import fileManagement.fileProcessor.DestinationFileProcessor;
+import fileManagement.fileProcessor.SourceFileProcessor;
 import support.Utilities;
 import synchive.EventCenter.Events;
 import synchive.EventCenter.RunningStatusEvents;
@@ -62,7 +61,7 @@ public class SynchiveDiff
                 SynchiveFile temp = sourceCRCFiles.get(i); // file to parse through
                 if(temp.copyAllowed())
                 {
-                    String dirUID = Utilities.convertToDirectoryLvl(
+                    String dirUID = Utilities.getDirectoryUniqueID(
                         temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath());
                     SynchiveDirectory dir = destinationList.get(dirUID);
                     boolean isRoot = temp.getParent().equals(srcLoc.getPath()) ? true : false; // if file is in root dir
@@ -91,8 +90,8 @@ public class SynchiveDiff
                             createDirectory(fd);
                         
                         SynchiveDirectory newDir =
-                            isRoot ? new SynchiveDirectory(Utilities.convertToDirectoryLvl(desLoc.getPath(), 0, desLoc.getPath()))
-                                : new SynchiveDirectory(Utilities.convertToDirectoryLvl(fd.getPath(), temp.getLevel(), desLoc.getPath()));
+                            isRoot ? new SynchiveDirectory(Utilities.getDirectoryUniqueID(desLoc.getPath(), 0, desLoc.getPath()))
+                                : new SynchiveDirectory(Utilities.getDirectoryUniqueID(fd.getPath(), temp.getLevel(), desLoc.getPath()));
 
                         newDir.setRealFolderName(relativeDir);
                         newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
@@ -150,7 +149,7 @@ public class SynchiveDiff
         // if failed... delete file and try again?
         if(file.getCRC().compareToIgnoreCase(Utilities.calculateCRC32(new File(destinationPath))) != 0)
         {
-            postEvent(Events.ErrorOccurred, "CRC MISMATCH for file: " + file.getName());
+            postEvent(Events.ErrorOccurred, "Copy CRC MISMATCH for file: " + file.getName());
         }
     }
 
@@ -162,21 +161,22 @@ public class SynchiveDiff
 
         try
         {
-            Files.copy(Paths.get(file.getPath()), Paths.get(destinationPath), op);
-            // CRC32 Check
-            // unoptimized, should grab src crcVal from file if failed... delete file and try again?
-            if(!Utilities.calculateCRC32(file).equals(Utilities.calculateCRC32(new File(destinationPath))))
-            {
-                postEvent(Events.ErrorOccurred, "CRC MISMATCH for file: " + file.getName());
-            }
-            file.delete();
+            Files.move(Paths.get(file.getPath()), Paths.get(destinationPath), op);
+//            Files.copy(Paths.get(file.getPath()), Paths.get(destinationPath), op);
+//            // CRC32 Check
+//            // unoptimized, should grab src crcVal from file if failed... delete file and try again?
+//            if(!Utilities.calculateCRC32(file).equals(Utilities.calculateCRC32(new File(destinationPath))))
+//            {
+//                postEvent(Events.ErrorOccurred, "CRC MISMATCH for file: " + file.getName());
+//            }
+//            file.delete();
             postEvent(Events.ProcessingFile, 
                 "File \"" + file.getName() + "\" in \"" + relativePath + 
                 "\" not found in source. Moved to \"" + LEFTOVER_FOLDER + "\"");
         }
         catch (IOException e)
         {
-            postEvent(Events.ErrorOccurred, "Unable to copy file: " + file.getName());
+            postEvent(Events.ErrorOccurred, "Unable to move file: " + file.getName() + " to \"" + LEFTOVER_FOLDER + "\"");
         }
     }
 

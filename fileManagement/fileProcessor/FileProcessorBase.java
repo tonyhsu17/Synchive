@@ -1,17 +1,13 @@
-package fileManagement;
+package fileManagement.fileProcessor;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.util.Scanner;
 import java.util.Stack;
 
+import fileManagement.SynchiveDirectory;
+import fileManagement.SynchiveFile;
 import fileManagement.SynchiveFile.ChecksumException;
 import support.Utilities;
 import synchive.EventCenter;
@@ -19,13 +15,12 @@ import synchive.Settings;
 import synchive.EventCenter.Events;
 import synchive.EventCenter.RunningStatusEvents;
 
-public class FileProcessorBase
+public abstract class FileProcessorBase
 {
     public static final String FOLDER_PREFIX = "~";
     public static final String LEFTOVER_FOLDER = "~leftovers";
     
     private File root; // location of directory
-    private boolean hasSubIDFile;
     
     private Stack<SynchiveFile> directoriesToProcess;
     
@@ -41,14 +36,9 @@ public class FileProcessorBase
         }
         
         this.root = directory;
-        hasSubIDFile = false;
         
         directoriesToProcess = new Stack<SynchiveFile>(); // used to recurse through all folders
         directoriesToProcess.add(new SynchiveFile(directory)); // adds root dir
-        
-//        postEvent(Events.Status, "Reading in fileIDs");
-//        readinFileIDs();
-//        postEvent(Events.Status, "Finished reading in fileIDs");
     }
     
     public void readinIDs()
@@ -68,10 +58,10 @@ public class FileProcessorBase
             // if idFile not found, process each file within directory
             if(idFiles.length == 0)
             {
-                initWriter();
                 try
                 {
-                    willProcessDirectory(file);
+                    String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getLevel(), root.getPath());
+                    willProcessDirectory(new SynchiveDirectory(dirID)); // delegate event
                     readFilesWithinDirectory(file);
                 }
                 catch (IOException e)
@@ -83,10 +73,10 @@ public class FileProcessorBase
             {
                 try
                 {
-                    // if there isn't a subIDFile, and current file is one
-                    if(!hasSubIDFile && !file.getPath().equals(getRoot())) 
+                    // if current file is a subIDFile
+                    if(!file.getPath().equals(getRoot())) 
                     {
-                        hasSubIDFile = true;
+                        //TODO Delete subIDFile sometime late?
                     }
                     
                     postEvent(Events.Status, "Reading in fileIDs for \"" + idFiles[0].getParentFile().getName() + "\"");
@@ -99,7 +89,6 @@ public class FileProcessorBase
                 } //catch bad fileFormat and readFilesWithin instead
             }
         }
-        closeWriter();
     }
     
     private void readFilesWithinDirectory(SynchiveFile file) throws IOException
@@ -143,7 +132,8 @@ public class FileProcessorBase
                     
                     if(temp.copyAllowed())
                     {
-                        didProcessFile(temp, file);
+                        String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getLevel(), root.getPath());
+                        didProcessFile(temp, new SynchiveDirectory(dirID));
                     }
                 }
             }
@@ -171,12 +161,11 @@ public class FileProcessorBase
             int newLevel = Integer.parseInt(String.valueOf(splitDir[0].charAt(1))) + baseLevel;
             
             String path = locationDir + splitDir[1];
-            String dirID = Utilities.convertToDirectoryLvl(path, newLevel, getRoot().getPath());
+            String dirID = Utilities.getDirectoryUniqueID(path, newLevel, getRoot().getPath());
             SynchiveDirectory dir = new SynchiveDirectory(dirID);
+            //postEvent(Events.Status, "Parsing folder... " + dir.getRealFolderName());
             
-            postEvent(Events.Status, "Parsing folder... " + dir.getRealFolderName());
-            
-            directoryReadFromID(dir);
+            willProcessDirectory(dir);
             
             str = getNextLine(sc);
             while(str != null && !str.startsWith(FOLDER_PREFIX)) // store files in folder
@@ -188,16 +177,11 @@ public class FileProcessorBase
                 SynchiveFile temp = new SynchiveFile(
                     new File(fileLoc), newLevel, splitStr[0]);
                 
-                fileReadFromID(temp, dir);
+                didProcessFile(temp, dir);
                 str = getNextLine(sc);
             }
         }
         sc.close();
-    }
-    
-    private String getNextLine(Scanner sc)
-    {
-        return sc.hasNextLine() ? sc.nextLine() : null;
     }
     
     /**
@@ -244,6 +228,11 @@ public class FileProcessorBase
         return temp;
     }
     
+    private String getNextLine(Scanner sc)
+    {
+        return sc.hasNextLine() ? sc.nextLine() : null;
+    }
+    
     /**
      * Handles delimiters to use for CRC in filename.
      * @return Delimiters or empty string if ScanWithoutDelimFlag checked
@@ -253,47 +242,17 @@ public class FileProcessorBase
         return Settings.getInstance().getScanWithoutDelimFlag() ? "" : Settings.getInstance().getCrcDelimiterText();
     }
     
-    // Methods to override
-    public void didProcessFile(SynchiveFile file, SynchiveFile dir)
+    private void postEvent(Events e, Object obj)
     {
-    }
-    
-    public void willProcessDirectory(SynchiveFile file)
-    {
-    }
-    
-    public void directoryReadFromID(SynchiveDirectory dir)
-    {
-        
-    }
-    
-    public void fileReadFromID(SynchiveFile file, SynchiveDirectory dir)
-    {
-        
-    }
-    
-    public void initWriter()
-    {
-        
-    }
-    
-    public void closeWriter()
-    {
-        
+        EventCenter.getInstance().postEvent(e, obj);
     }
     
     public File getRoot()
     {
         return root;
     }
+    // Methods to override
+    public abstract void didProcessFile(SynchiveFile file, SynchiveDirectory dir);
     
-    public Boolean hasSubIDFile()
-    {
-        return hasSubIDFile;
-    }
-    
-    private void postEvent(Events e, Object obj)
-    {
-        EventCenter.getInstance().postEvent(e, obj);
-    }
+    public abstract void willProcessDirectory(SynchiveDirectory dir);
 }

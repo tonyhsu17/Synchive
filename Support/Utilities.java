@@ -19,18 +19,13 @@ public class Utilities
     public static final int DESTINATION = 10;
     public static final int NUM_CHAR_IN_CRC32 = 8;
 
-//    public static final String getEncodedFileString(String fileName, String CRC32)
-//    {
-//        return CRC32 + " \"" + fileName + "\"";
-//    }
-
-    public static final String convertToDirectoryLvl(String filePath, int level, String rootPath)
+    public static final String getDirectoryUniqueID(String filePath, int level, String rootPath)
     {
         return "~" + level + ": " + filePath.substring(rootPath.length());
     }
     
-    // returns appropriate naming including CRC value. 
     /**
+     * Returns file name including CRC value. 
      * @param filename Filename with extension
      * @param extension Extension of filename (including '.')
      * @param CRC CRC value to put into filename

@@ -1,8 +1,12 @@
-package fileManagement;
+package fileManagement.fileProcessor;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+
+import fileManagement.SynchiveDirectory;
+import fileManagement.SynchiveFile;
+import synchive.EventCenter;
+import synchive.EventCenter.Events;
 
 public class SourceFileProcessor extends FileProcessorBase
 {
@@ -11,7 +15,9 @@ public class SourceFileProcessor extends FileProcessorBase
     {
         super(directory);
         fileList = new ArrayList<SynchiveFile>(); // source uses flat mapping
+        EventCenter.getInstance().postEvent(Events.Status, "Processing Source");
         readinIDs();
+        EventCenter.getInstance().postEvent(Events.Status, "Finished Processing Source");
     }
     
     public ArrayList<SynchiveFile> getFiles()
@@ -19,33 +25,15 @@ public class SourceFileProcessor extends FileProcessorBase
         return fileList;
     }
     
-    public void didProcessFile(SynchiveFile file, SynchiveFile dir)
+    @Override
+    public void didProcessFile(SynchiveFile file, SynchiveDirectory dir)
     {
         fileList.add(file);
     }
-    
-    public void willProcessDirectory(SynchiveFile file)
+
+    @Override
+    public void willProcessDirectory(SynchiveDirectory dir)
     {
-    }
-    
-    public void directoryReadFromID(SynchiveDirectory dir)
-    {
-        
-    }
-    
-    public void fileReadFromID(SynchiveFile file, SynchiveDirectory dir)
-    {
-        fileList.add(file);
-    }
-    
-    public void initWriter()
-    {
-        
-    }
-    
-    public void closeWriter()
-    {
-        
     }
     
     public String toString()
