@@ -4,15 +4,12 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
-import java.awt.Color;
 
 @SuppressWarnings("serial")
 public class TabbedContainerPaneView extends JTabbedPane

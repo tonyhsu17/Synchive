@@ -8,7 +8,6 @@ import java.awt.event.ItemEvent;
 import javax.swing.JButton;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import gui.SummaryController;
 import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
