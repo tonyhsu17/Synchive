@@ -191,6 +191,11 @@ public class SynchiveFile extends File
         }
         return false;
     }
+    
+    public String toString()
+    {
+        return uniqueID;
+    }
 
     // ~~~~~ Getters & Setters ~~~~~ //
     public String getUniqueID()
