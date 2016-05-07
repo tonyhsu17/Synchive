@@ -79,7 +79,7 @@ public class DestinationFileProcessor extends FileProcessorBase
             output.write(dir.getUniqueID());
             output.newLine();
             
-            Hashtable<String, FileFlag> file = dir.getFiles();
+            Hashtable<String, FileFlag> file = dir.getLookupTable();
             Enumeration<String> fileEnum = file.keys();
             while(fileEnum.hasMoreElements())
             {
