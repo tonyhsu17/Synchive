@@ -17,53 +17,47 @@ import support.Utilities;
 import synchive.EventCenter;
 import synchive.EventCenter.Events;
 
+/**
+ * Store the entire destination location into memory for processing. 
+ * 
+ * @author Tony Hsu
+ * @structure Contains a lookup table of DirectoryIDs to SynchiveDirectorys.
+ */
 public class DestinationFileProcessor extends FileProcessorBase
 {
-    // "Folder Name" -> "Directory"; Directory contains "FileID" -> "FlagInfo"
-    private Hashtable<String, SynchiveDirectory> directoryList; // structured mapping for destination
+    /**
+     * Structured mapping of "DirectoryID" -> "SynchiveDirectory"
+     */
+    private Hashtable<String, SynchiveDirectory> directoryList;
     
+    /**
+     * Processes directory location into a lookup table of files to folders.
+     * @param directory Destination Directory
+     */
     public DestinationFileProcessor(File directory)
     {
         super(directory);
+        
         directoryList = new Hashtable<String, SynchiveDirectory>(); // des uses structural mapping
         EventCenter.getInstance().postEvent(Events.Status, "Processing Destination ...");
         readinIDs();
+        
         try
         {
-            writeToFile(false);
+            writeToFile(false); // write to file in-case source and destination is same location
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            EventCenter.getInstance().postEvent(Events.ErrorOccurred, "Failed to write to idFile.");
         }
         EventCenter.getInstance().postEvent(Events.Status, "Finished Processing Destination");
     }
     
-    public Hashtable<String, SynchiveDirectory> getFiles()
-    {
-        return directoryList;
-    }
-    
-    @Override
-    public void didProcessFile(SynchiveFile file, SynchiveDirectory dir)
-    {
-        SynchiveDirectory fileList = directoryList.get(dir.getUniqueID());
-        
-        if(fileList == null)
-        {
-            System.out.println("damg");
-        }
-        else
-            directoryList.get(dir.getUniqueID()).addFile(file.getUniqueID(), FileFlag.FILE_NOT_EXIST);
-    }
-    
-    @Override
-    public void willProcessDirectory(SynchiveDirectory dir)
-    {
-        directoryList.put(dir.getUniqueID(), new SynchiveDirectory(dir.getUniqueID()));
-    }
-    
+    /**
+     * Write-out the structural mapping for storage.
+     * @param checkExist If true, skip files with FILE_NOT_EXIST flag. If false, include every file.
+     * @throws IOException Exceptions thrown from BufferWriter
+     */
     public void writeToFile(boolean checkExist) throws IOException
     {
         CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
@@ -95,6 +89,7 @@ public class DestinationFileProcessor extends FileProcessorBase
         output.close();
     }
     
+    // Dumps the lookup table of DirectoryID including what's in each directory
     public String toString()
     {
         Enumeration<String> keys = directoryList.keys();
@@ -107,5 +102,29 @@ public class DestinationFileProcessor extends FileProcessorBase
         }
         str += "}";
         return str;
+    }
+    
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
+     * @return Structural mapping of each folder
+     */
+    public Hashtable<String, SynchiveDirectory> getFiles()
+    {
+        return directoryList;
+    }
+    
+    // ~~~~~ Required override methods ~~~~~~ //
+    @Override
+    public void didProcessFile(SynchiveFile file, SynchiveDirectory dir)
+    {
+        // Stores the file within it's directory 
+       directoryList.get(dir.getUniqueID()).addFile(file.getUniqueID(), FileFlag.FILE_NOT_EXIST);
+    }
+    
+    @Override
+    public void willProcessDirectory(SynchiveDirectory dir)
+    {
+        // Stores the directory into hashtable
+        directoryList.put(dir.getUniqueID(), new SynchiveDirectory(dir.getUniqueID()));
     }
 }
