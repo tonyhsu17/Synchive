@@ -15,7 +15,7 @@ public class SourceFileProcessor extends FileProcessorBase
     {
         super(directory);
         fileList = new ArrayList<SynchiveFile>(); // source uses flat mapping
-        EventCenter.getInstance().postEvent(Events.Status, "Processing Source");
+        EventCenter.getInstance().postEvent(Events.Status, "Processing Source ...");
         readinIDs();
         EventCenter.getInstance().postEvent(Events.Status, "Finished Processing Source");
     }

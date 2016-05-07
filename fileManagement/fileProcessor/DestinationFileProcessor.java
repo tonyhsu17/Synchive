@@ -26,8 +26,17 @@ public class DestinationFileProcessor extends FileProcessorBase
     {
         super(directory);
         directoryList = new Hashtable<String, SynchiveDirectory>(); // des uses structural mapping
-        EventCenter.getInstance().postEvent(Events.Status, "Processing Destination");
+        EventCenter.getInstance().postEvent(Events.Status, "Processing Destination ...");
         readinIDs();
+        try
+        {
+            writeToFile(false);
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         EventCenter.getInstance().postEvent(Events.Status, "Finished Processing Destination");
     }
     

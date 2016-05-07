@@ -1,9 +1,11 @@
 package fileManagement.fileProcessor;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Scanner;
+import java.io.InputStreamReader;
 import java.util.Stack;
 
 import fileManagement.SynchiveDirectory;
@@ -142,8 +144,10 @@ public abstract class FileProcessorBase
     
     private void readFromIDFile(File file, int baseLevel) throws IOException
     {
-        Scanner sc = new Scanner(file);
-        String str = sc.nextLine();
+        BufferedReader sc = new BufferedReader(
+            new InputStreamReader(
+                             new FileInputStream(file), "UTF8"));
+        String str = sc.readLine();
         
         if(str == null) // in-case of empty file
         {
@@ -154,7 +158,7 @@ public abstract class FileProcessorBase
         String[] header = str.split("="); // strip out header
         String locationDir = header[1]; // directory of root
         
-        str = getNextLine(sc);
+        str = sc.readLine();
         while(str != null && str.startsWith(FOLDER_PREFIX)) // not finished and is a folder
         {
             String[] splitDir = str.split(" ", 2); // [level, path]
@@ -167,7 +171,7 @@ public abstract class FileProcessorBase
             
             willProcessDirectory(dir);
             
-            str = getNextLine(sc);
+            str = sc.readLine();
             while(str != null && !str.startsWith(FOLDER_PREFIX)) // store files in folder
             {
                 String[] splitStr = str.split(" ", 2); // [crc, name]
@@ -178,7 +182,7 @@ public abstract class FileProcessorBase
                     new File(fileLoc), newLevel, splitStr[0]);
                 
                 didProcessFile(temp, dir);
-                str = getNextLine(sc);
+                str = sc.readLine();
             }
         }
         sc.close();
@@ -226,11 +230,6 @@ public abstract class FileProcessorBase
             }
         }
         return temp;
-    }
-    
-    private String getNextLine(Scanner sc)
-    {
-        return sc.hasNextLine() ? sc.nextLine() : null;
     }
     
     /**
