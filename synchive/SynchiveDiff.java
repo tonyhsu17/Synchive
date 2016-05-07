@@ -62,7 +62,7 @@ public class SynchiveDiff
                 if(temp.copyAllowed())
                 {
                     String dirUID = Utilities.getDirectoryUniqueID(
-                        temp.getParentFile().getPath(), temp.getLevel(), srcLoc.getPath());
+                        temp.getParentFile().getPath(), temp.getDepth(), srcLoc.getPath());
                     SynchiveDirectory dir = destinationList.get(dirUID);
                     boolean isRoot = temp.getParent().equals(srcLoc.getPath()) ? true : false; // if file is in root dir
 
@@ -91,7 +91,7 @@ public class SynchiveDiff
                         
                         SynchiveDirectory newDir =
                             isRoot ? new SynchiveDirectory(Utilities.getDirectoryUniqueID(desLoc.getPath(), 0, desLoc.getPath()))
-                                : new SynchiveDirectory(Utilities.getDirectoryUniqueID(fd.getPath(), temp.getLevel(), desLoc.getPath()));
+                                : new SynchiveDirectory(Utilities.getDirectoryUniqueID(fd.getPath(), temp.getDepth(), desLoc.getPath()));
 
                         newDir.setRelativeDirectoryPath(relativeDir);
                         newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder

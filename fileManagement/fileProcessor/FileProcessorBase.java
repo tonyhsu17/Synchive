@@ -62,7 +62,7 @@ public abstract class FileProcessorBase
             {
                 try
                 {
-                    String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getLevel(), root.getPath());
+                    String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
                     willProcessDirectory(new SynchiveDirectory(dirID)); // delegate event
                     readFilesWithinDirectory(file);
                 }
@@ -82,7 +82,7 @@ public abstract class FileProcessorBase
                     }
                     
                     postEvent(Events.Status, "Reading in fileIDs for \"" + idFiles[0].getParentFile().getName() + "\"");
-                    readFromIDFile(idFiles[0], file.getLevel());
+                    readFromIDFile(idFiles[0], file.getDepth());
                 }
                 catch (IOException e)
                 {
@@ -99,12 +99,12 @@ public abstract class FileProcessorBase
         {
             if(fileEntry.isDirectory() && !fileEntry.getName().equals(Utilities.LEFTOVER_FOLDER)) // add child folders to read as well
             {
-                directoriesToProcess.push(new SynchiveFile(fileEntry, file.getLevel() + 1));
+                directoriesToProcess.push(new SynchiveFile(fileEntry, file.getDepth() + 1));
             }
             else
             {
                 // create new file entry
-                SynchiveFile temp = new SynchiveFile(fileEntry, file.getLevel());
+                SynchiveFile temp = new SynchiveFile(fileEntry, file.getDepth());
                     
                 // skip over generated files or extension type not needing to be copied
                 if(!temp.getName().equals(Utilities.CRC_FILE_NAME) && 
@@ -134,7 +134,7 @@ public abstract class FileProcessorBase
                     
                     if(temp.copyAllowed())
                     {
-                        String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getLevel(), root.getPath());
+                        String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
                         didProcessFile(temp, new SynchiveDirectory(dirID));
                     }
                 }
@@ -213,7 +213,7 @@ public abstract class FileProcessorBase
                     {
                         if(temp.renameTo(newFile))
                         {
-                            return new SynchiveFile(newFile, temp.getLevel(), temp.getCRC());
+                            return new SynchiveFile(newFile, temp.getDepth(), temp.getCRC());
                         }
                         else
                         {

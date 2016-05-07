@@ -11,22 +11,39 @@ import support.Utilities;
 
 
 /**
- * Component Class to provide each file with a crc32 value and depth level.
+ * Class to provide each file with additional properties: crc32 value, depth level, is copy allowed.
  * 
  * @author Tony Hsu
- * @category Component
  * @structure Extends File for additional properties
  */
 @SuppressWarnings("serial")
 public class SynchiveFile extends File
 {
+    /**
+     * Special characters to sanitize if in input
+     */
     private static final String SPECIAL_CHARACTERS = "[]{}()+\\^&.$?*|:<>=!";
 
-    private String uniqueID; // file path + CRC value
-    private int level; // 0 = root, > 0 = directories in root
-    private String crc; // CRC32 representation in 8 chars
-    private boolean copyAllowed; // determine if CRC32 matches filename CRC32 to allow copying
-    private String[] possibleCRCInFilename; // possible CRC32 in filename, lazy-loaded
+    /**
+     * Unique Name to identify file. Property is lazy-loaded
+     */
+    private String uniqueID; 
+    /**
+     * Depth of the file relative to root
+     */
+    private int level;
+    /**
+     * CRC32 representation in 8 hexadecimal
+     */
+    private String crc;
+    /**
+     * Flag to determine if copying allowed
+     */
+    private boolean copyAllowed;
+    /**
+     * Possible CRC32 in filename. Property is lazy-loaded
+     */
+    private String[] possibleCRCInFilename; 
 
     /**
      * Constructs file with default properties.
@@ -78,7 +95,7 @@ public class SynchiveFile extends File
     }
     
     /**
-     * Determine if copying is allowed by checking exclude list
+     * Determine if copying is allowed by checking exclude extensions list
      * @param extensions List of extensions to exclude
      * @return Copy allowed if not in exclude list
      */
@@ -100,8 +117,9 @@ public class SynchiveFile extends File
     {
         if(possibleCRCInFilename == null)
         {
-           possibleCRCInFilename = findCRCInFileName(delimiter);
+           possibleCRCInFilename = findCRCInFilename(delimiter);
         }
+        
         if(possibleCRCInFilename.length == 0) // no crc32 in fileName found
         {
             return true;
@@ -127,7 +145,7 @@ public class SynchiveFile extends File
      * @param delimiter Constraints to find CRC32 value. Can be empty
      * @return A list of possible CRC32
      */
-    private String[] findCRCInFileName(String delimiter)
+    private String[] findCRCInFilename(String delimiter)
     {
         ArrayList<String> possibleCRC = new ArrayList<String>();
         String[] splitDelim = delimiter.split(",");
@@ -176,6 +194,7 @@ public class SynchiveFile extends File
 
     /**
      * Checks if a character is in string
+     * 
      * @param c Character to check
      * @param pattern String to find character in
      * @return Character found in pattern
@@ -192,58 +211,68 @@ public class SynchiveFile extends File
         return false;
     }
     
+    // Returns uniqueID of file
     public String toString()
     {
         return uniqueID;
     }
 
     // ~~~~~ Getters & Setters ~~~~~ //
+    /**
+     * @return UniqueID of file
+     */
     public String getUniqueID()
     {
         if(uniqueID == null)
         {
-            return generateUniqueID();
+            uniqueID = crc + " \"" + getName() + "\"";
+            return uniqueID;
         }
         return uniqueID;
     }
 
-    public String generateUniqueID()
-    {
-        uniqueID = crc + " \"" + getName() + "\"";
-        return uniqueID;
-    }
-
-    public int getLevel()
+    /**
+     * @return Depth of file relative to source or destination root
+     */
+    public int getDepth()
     {
         return level;
     }
 
-    public void setLevel(int level)
-    {
-        this.level = level;
-    }
-
+    /**
+     * @return CRC32 value in 8 hexadecimal
+     */
     public String getCRC()
     {
         return crc;
     }
 
+    /**
+     * Set the crc value of the file
+     * @param crc CRC32 value in 8 hexadecimal
+     */
     public void setCRC(String crc)
     {
         this.crc = crc;
     }
     
+    /**
+     * Check if CRC exist in filename
+     * @param delimiters Delimiters to check CRC in, can be empty
+     * @return True of CRC found, false if not found in filename
+     */
     public boolean getHasCRCInFilename(String delimiters)
     {
         if(possibleCRCInFilename == null)
         {
-            possibleCRCInFilename = findCRCInFileName(delimiters);
+            possibleCRCInFilename = findCRCInFilename(delimiters);
         }
         return possibleCRCInFilename.length > 0;
     }
 
     /**
-     * Exception thrown if CRC32 mismatch found.
+     * Exception Class for if CRC32 mismatch found.
+     * 
      * @author Tony Hsu
      */
     public static class ChecksumException extends Exception
