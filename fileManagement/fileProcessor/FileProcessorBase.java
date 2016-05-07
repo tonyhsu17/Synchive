@@ -147,7 +147,7 @@ public abstract class FileProcessorBase
         BufferedReader sc = new BufferedReader(
             new InputStreamReader(
                              new FileInputStream(file), "UTF8"));
-        String str = sc.readLine();
+        String str = sc.readLine(); // strip out header
         
         if(str == null) // in-case of empty file
         {
@@ -155,8 +155,8 @@ public abstract class FileProcessorBase
             throw new IOException("Empty File");
         }
         
-        String[] header = str.split("="); // strip out header
-        String locationDir = header[1]; // directory of root
+//        String[] header = str.split("=");
+        String locationDir = file.getParentFile().getPath(); // directory of root        
         
         str = sc.readLine();
         while(str != null && str.startsWith(FOLDER_PREFIX)) // not finished and is a folder
