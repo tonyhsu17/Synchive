@@ -13,7 +13,7 @@ import java.util.zip.CheckedInputStream;
 public class Utilities
 {
     public static final String LEFTOVER_FOLDER = "~leftovers";
-    public static final String CRC_FILE_NAME = "~listOfFilesInCRC.txt";
+    public static final String ID_FILE_NAME = "~listOfFilesInCRC.txt";
     public static final String AUDIT_FILE_NAME = "~auditTrail.txt";
     public static final int SOURCE = 5;
     public static final int DESTINATION = 10;

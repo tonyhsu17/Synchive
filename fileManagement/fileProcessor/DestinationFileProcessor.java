@@ -61,7 +61,7 @@ public class DestinationFileProcessor extends FileProcessorBase
     public void writeToFile(boolean checkExist) throws IOException
     {
         CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
-        BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(getRoot().getPath() + "\\" + Utilities.CRC_FILE_NAME)), encoder));
+        BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(getRoot().getPath() + "\\" + Utilities.ID_FILE_NAME)), encoder));
         output.write("Synchive v0.1 - root=" + getRoot().getPath());
         output.newLine();
         
