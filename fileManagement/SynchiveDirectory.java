@@ -5,31 +5,42 @@ import java.util.Hashtable;
 
  
 /**
- * Component class to store a list of files with a flag to determine 
+ * Class to store a list of files with a flag to determine 
  * if both source and destination have the same file.
  * 
  * @author Tony Hsu
- * @category Component
  * @structure A hashtable containing all the items in a directory. Parameters
  *             for the hash entry is the file name and a file found flag.
  */
 public class SynchiveDirectory
 {
-    // FileFlag is used to determine if FILE_EXIST then no need to copy file over, otherwise if
-    // FILE_NOT_EXIST, then the file will need to be copied over.
+    /**
+     * Used to determine file needs to be copied.
+     * If FILE_EXIST then no need to copy file over, otherwise if
+     * FILE_NOT_EXIST, then the file will need to be copied over.
+     */
     public static enum FileFlag
     {
         FILE_EXIST, FILE_NOT_EXIST
     }
 
-    private Hashtable<String, FileFlag> files; // FileName to if file exist
-    private String uniqueID; // name of folder including relative path
-    private String directoryPath; // path of directory from relative to root
+    /**
+     * Lookup table of "FileName" to "if file exist"
+     */
+    private Hashtable<String, FileFlag> files;
+    /**
+     * Unique name to identify directory.
+     */
+    private String uniqueID; 
+    /**
+     * Path of directory relative to root
+     */
+    private String directoryPath;
 
     /**
      * Creates an empty directory with path parsed from uniqueID.
      * 
-     * @param uniqueID Format: "~<"Hierarchy Level">: <"Path">"
+     * @param uniqueID Format: "~<"Depth Level">: <"Path">"
      */
     public SynchiveDirectory(String uniqueID)
     {
@@ -54,7 +65,7 @@ public class SynchiveDirectory
     /**
      * Add file to directory.
      * 
-     * @param fileName Name of file
+     * @param fileName UniqueID of file
      * @param FILE_FLAG File exist state
      */
     public void addFile(String fileName, FileFlag FILE_FLAG)
@@ -74,7 +85,7 @@ public class SynchiveDirectory
     }
 
     /**
-     * Change file exist to true for fileName
+     * Change file exist to true for fileName if found
      * 
      * @param fileName Name of file to change
      * @return file found in list
@@ -91,46 +102,52 @@ public class SynchiveDirectory
         return false;
     }
     
+    // Dumps a list of files with flag value
     public String toString()
     {
         Enumeration<String> list = files.keys();
-        String str = "[";
+        String str = "[\n";
         while(list.hasMoreElements())
         {
-            str += list.nextElement() + ", ";
+            String name = list.nextElement();
+            FileFlag flag = files.get(name);
+            str += "name: " + list.nextElement() + " flag: " + flag + ",\n";
         }
         str += "]";
         return str;
     }
 
-    // ~~~~~ Getters & Setters ~~~~~//
+    // ~~~~~ Getters & Setters ~~~~~ //
+    /**
+     * @return UniqueID of the directory
+     */
     public String getUniqueID()
     {
         return uniqueID;
     }
-    
-    public void setUniqueID(String folderName)
-    {
-        this.uniqueID = folderName;
-    }
 
-    public String getRealFolderName()
+    /**
+     * @return Directory's relative path
+     */
+    public String getRelativeDirectoryPath()
     {
         return directoryPath;
     }
     
-    public void setRealFolderName(String realFolderName)
+    /**
+     * Sets the name of directory
+     * @param directoryPath Path of directory
+     */
+    public void setRelativeDirectoryPath(String directoryPath)
     {
-        this.directoryPath = realFolderName;
+        this.directoryPath = directoryPath;
     }
 
-    public Hashtable<String, FileFlag> getFiles()
+    /**
+     * @return Lookup table of "fileUID" to "FileFlag"
+     */
+    public Hashtable<String, FileFlag> getLookupTable()
     {
         return files;
-    }
-    
-    public void setFiles(Hashtable<String, FileFlag> files)
-    {
-        this.files = files;
     }
 }

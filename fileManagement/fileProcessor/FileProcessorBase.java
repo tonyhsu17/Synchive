@@ -17,15 +17,32 @@ import synchive.Settings;
 import synchive.EventCenter.Events;
 import synchive.EventCenter.RunningStatusEvents;
 
+/**
+ * Abstract class for handling files. Extend to process the information.
+ * 
+ * @author Tony Hsu
+ * @structure 
+ */
 public abstract class FileProcessorBase
 {
-    public static final String FOLDER_PREFIX = "~";
-    public static final String LEFTOVER_FOLDER = "~leftovers";
-    
-    private File root; // location of directory
-    
+    /**
+     * Prefix to determine if read from file line is a directory
+     */
+    private final String DIR_LINE_PREFIX = "~";
+    /**
+     * Location of directory
+     */
+    private File root;
+    /**
+     * Stack used to recursively read sub-directories
+     */
     private Stack<SynchiveFile> directoriesToProcess;
     
+    /**
+     * Initializes a directory to be parsed and processed.
+     * 
+     * @param directory Directory to process
+     */
     public FileProcessorBase(File directory)
     {
         if(!directory.isDirectory()) // break if not a folder
@@ -43,33 +60,29 @@ public abstract class FileProcessorBase
         directoriesToProcess.add(new SynchiveFile(directory)); // adds root dir
     }
     
+    /**
+     * Parses and processes a directory including idFiles. Providing useful information to abstract methods.
+     */
     public void readinIDs()
     {
         while(!directoriesToProcess.isEmpty())
         {
             SynchiveFile file = directoriesToProcess.pop();
-            File[] idFiles = file.listFiles(new FileFilter()
+            File[] idFiles = file.listFiles(new FileFilter() // filter out every file except idFile
             {
                 @Override
                 public boolean accept(File arg0)
                 {
-                    return arg0.getName().equals(Utilities.CRC_FILE_NAME);
+                    return arg0.getName().equals(Utilities.ID_FILE_NAME);
                 }
             });
 
             // if idFile not found, process each file within directory
             if(idFiles.length == 0)
             {
-                try
-                {
-                    String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getLevel(), root.getPath());
-                    willProcessDirectory(new SynchiveDirectory(dirID)); // delegate event
-                    readFilesWithinDirectory(file);
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
+                String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
+                willProcessDirectory(new SynchiveDirectory(dirID)); // abstract method
+                readFilesWithinDirectory(file);
             }
             else
             {
@@ -78,43 +91,55 @@ public abstract class FileProcessorBase
                     // if current file is a subIDFile
                     if(!file.getPath().equals(getRoot())) 
                     {
-                        //TODO Delete subIDFile sometime late?
+                        //TODO Delete subIDFile sometime later?
                     }
                     
                     postEvent(Events.Status, "Reading in fileIDs for \"" + idFiles[0].getParentFile().getName() + "\"");
-                    readFromIDFile(idFiles[0], file.getLevel());
+                    readFromIDFile(idFiles[0], file.getDepth());
                 }
                 catch (IOException e)
                 {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    //TODO delete IDFIle and readd to top of stack to reprocess
                 } //catch bad fileFormat and readFilesWithin instead
             }
         }
     }
     
-    private void readFilesWithinDirectory(SynchiveFile file) throws IOException
+    /**
+     * Read in the directory and add sub-directories to the stack to be processed.
+     * Each file within the directory will be processed.
+     * @param file Directory to process
+     */
+    private void readFilesWithinDirectory(SynchiveFile file)
     {
         for(File fileEntry : file.listFiles()) // go through each file in directory
         {
-            if(fileEntry.isDirectory() && !fileEntry.getName().equals(Utilities.LEFTOVER_FOLDER)) // add child folders to read as well
+            if(fileEntry.isDirectory() 
+                && !fileEntry.getName().equals(Utilities.LEFTOVER_FOLDER)) // add child folders to read as well
             {
-                directoriesToProcess.push(new SynchiveFile(fileEntry, file.getLevel() + 1));
+                directoriesToProcess.push(new SynchiveFile(fileEntry, file.getDepth() + 1));
             }
             else
             {
                 // create new file entry
-                SynchiveFile temp = new SynchiveFile(fileEntry, file.getLevel());
+                SynchiveFile temp = new SynchiveFile(fileEntry, file.getDepth());
                     
                 // skip over generated files or extension type not needing to be copied
-                if(!temp.getName().equals(Utilities.CRC_FILE_NAME) && 
+                if(!temp.getName().equals(Utilities.ID_FILE_NAME) && 
                  !temp.getName().equals(Utilities.AUDIT_FILE_NAME) &&
                  temp.determineProcessingAllowed(Settings.getInstance().getSkipExtensionTypesText()))
                 {
                     postEvent(Events.ProcessingFile, "Reading file... " + temp.getName());
-                    String val = Utilities.calculateCRC32(fileEntry); // get crc value
-                    temp.setCRC(val);
-                    // could probably optimize this part or reassigning
+                    try
+                    {
+                        String val = Utilities.calculateCRC32(fileEntry); // get crc value
+                        temp.setCRC(val);
+                    }
+                    catch (IOException e1)
+                    {
+                        postEvent(Events.ErrorOccurred, "Unable to calculate CRC value for: " + temp.getName());
+                    } 
+                    
                     temp = addCRCToFilename(temp); //add CRC to filename if conditions met
                     
                     // do a checksum check if flag enabled
@@ -124,25 +149,29 @@ public abstract class FileProcessorBase
                         {
                             // either scan without delimiters or with delimiters based on flag
                             temp.determineCopyingAllowed(getCRCDelimiters());
+                            
+                            String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
+                            didProcessFile(temp, new SynchiveDirectory(dirID)); // abstract method
                         }
                         catch (ChecksumException e) // catch file checksum mismatch
                         {
                             postEvent(Events.ErrorOccurred, 
-                                "Checksum mismatch for: \"" + temp.getName() + "\"\n  - Calculated: [" + temp.getCRC().toUpperCase() + "] Found: " + e.getMessage());
+                                "Checksum mismatch for: \"" + temp.getName() + "\"\n  " +
+                                    "- Calculated: [" + temp.getCRC().toUpperCase() + "] Found: " + e.getMessage());
                         }
-                    }
-                    
-                    if(temp.copyAllowed())
-                    {
-                        String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getLevel(), root.getPath());
-                        didProcessFile(temp, new SynchiveDirectory(dirID));
                     }
                 }
             }
         }
     }
     
-    private void readFromIDFile(File file, int baseLevel) throws IOException
+    /**
+     * Process directory and sub-directories through idFile.
+     * @param file Directory to process
+     * @param baseDepth Depth level relative to root
+     * @throws IOException Throws error if unable to open file or bad data.
+     */
+    private void readFromIDFile(File file, int baseDepth) throws IOException
     {
         BufferedReader sc = new BufferedReader(
             new InputStreamReader(
@@ -155,33 +184,41 @@ public abstract class FileProcessorBase
             throw new IOException("Empty File");
         }
         
-//        String[] header = str.split("=");
         String locationDir = file.getParentFile().getPath(); // directory of root        
         
         str = sc.readLine();
-        while(str != null && str.startsWith(FOLDER_PREFIX)) // not finished and is a folder
+        while(str != null && str.startsWith(DIR_LINE_PREFIX)) // not finished and is a folder
         {
             String[] splitDir = str.split(" ", 2); // [level, path]
-            int newLevel = Integer.parseInt(String.valueOf(splitDir[0].charAt(1))) + baseLevel;
+            if(splitDir.length != 2)
+            {
+                sc.close();
+                throw new IOException("Bad format found");
+            }
+            int newLevel = Integer.parseInt(String.valueOf(splitDir[0].charAt(1))) + baseDepth;
             
             String path = locationDir + splitDir[1];
             String dirID = Utilities.getDirectoryUniqueID(path, newLevel, getRoot().getPath());
             SynchiveDirectory dir = new SynchiveDirectory(dirID);
-            //postEvent(Events.Status, "Parsing folder... " + dir.getRealFolderName());
             
-            willProcessDirectory(dir);
+            willProcessDirectory(dir); // abstract method
             
             str = sc.readLine();
-            while(str != null && !str.startsWith(FOLDER_PREFIX)) // store files in folder
+            while(str != null && !str.startsWith(DIR_LINE_PREFIX)) // store files in folder
             {
                 String[] splitStr = str.split(" ", 2); // [crc, name]
+                if(splitDir.length != 2)
+                {
+                    sc.close();
+                    throw new IOException("Bad format found");
+                }
                 // reconstruct file path (root path + directory path + fileName)
                 String fileLoc = locationDir + splitDir[1] + "\\" + 
                     splitStr[1].substring(1, splitStr[1].length() - 1);
                 SynchiveFile temp = new SynchiveFile(
                     new File(fileLoc), newLevel, splitStr[0]);
                 
-                didProcessFile(temp, dir);
+                didProcessFile(temp, dir); // abstract method
                 str = sc.readLine();
             }
         }
@@ -191,7 +228,7 @@ public abstract class FileProcessorBase
     /**
      * Add CRC to filename if there is flag checked and no CRC already in filename
      * @param temp File to add CRC to filename
-     * @return Original file if setting not enabled, or rename error. New file if rename sucessful.
+     * @return Original file if setting not enabled, or rename error. New file if rename successful.
      */
     private SynchiveFile addCRCToFilename(SynchiveFile temp)
     {
@@ -213,7 +250,7 @@ public abstract class FileProcessorBase
                     {
                         if(temp.renameTo(newFile))
                         {
-                            return new SynchiveFile(newFile, temp.getLevel(), temp.getCRC());
+                            return new SynchiveFile(newFile, temp.getDepth(), temp.getCRC());
                         }
                         else
                         {
@@ -233,6 +270,17 @@ public abstract class FileProcessorBase
     }
     
     /**
+     * Short handed method
+     * @param e Events
+     * @param obj Any data
+     */
+    private void postEvent(Events e, Object obj)
+    {
+        EventCenter.getInstance().postEvent(e, obj);
+    }
+    
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
      * Handles delimiters to use for CRC in filename.
      * @return Delimiters or empty string if ScanWithoutDelimFlag checked
      */
@@ -241,17 +289,25 @@ public abstract class FileProcessorBase
         return Settings.getInstance().getScanWithoutDelimFlag() ? "" : Settings.getInstance().getCrcDelimiterText();
     }
     
-    private void postEvent(Events e, Object obj)
-    {
-        EventCenter.getInstance().postEvent(e, obj);
-    }
-    
+    /**
+     * @return Root file (location origin)
+     */
     public File getRoot()
     {
         return root;
     }
-    // Methods to override
+    
+    // ~~~~~ Required override methods ~~~~~~ //
+    /**
+     * Method gets called for each file (non directory) processed
+     * @param file File processed
+     * @param dir Directory of file
+     */
     public abstract void didProcessFile(SynchiveFile file, SynchiveDirectory dir);
     
+    /**
+     * Method gets called for each directory processed
+     * @param dir Directory to be processed
+     */
     public abstract void willProcessDirectory(SynchiveDirectory dir);
 }

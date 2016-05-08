@@ -8,9 +8,22 @@ import fileManagement.SynchiveFile;
 import synchive.EventCenter;
 import synchive.EventCenter.Events;
 
+/**
+ * Store the entire source location into memory for processing. 
+ * 
+ * @author Tony Hsu
+ * @structure Contains a list of FileIDs.
+ */
 public class SourceFileProcessor extends FileProcessorBase
 {
-    private ArrayList<SynchiveFile> fileList; // flat mapping of files for source
+    /**
+     * List of files for source
+     */
+    private ArrayList<SynchiveFile> fileList;
+    
+    /**
+     * @param directory
+     */
     public SourceFileProcessor(File directory)
     {
         super(directory);
@@ -20,22 +33,7 @@ public class SourceFileProcessor extends FileProcessorBase
         EventCenter.getInstance().postEvent(Events.Status, "Finished Processing Source");
     }
     
-    public ArrayList<SynchiveFile> getFiles()
-    {
-        return fileList;
-    }
-    
-    @Override
-    public void didProcessFile(SynchiveFile file, SynchiveDirectory dir)
-    {
-        fileList.add(file);
-    }
-
-    @Override
-    public void willProcessDirectory(SynchiveDirectory dir)
-    {
-    }
-    
+    // Dumps the list of files
     public String toString()
     {
         SynchiveFile[] list = fileList.toArray(new SynchiveFile[0]);
@@ -48,5 +46,27 @@ public class SourceFileProcessor extends FileProcessorBase
         
         str += "]";
         return str;
+    }
+    
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
+     * @return List of each file
+     */
+    public ArrayList<SynchiveFile> getFiles()
+    {
+        return fileList;
+    }
+    
+    // ~~~~~ Required override methods ~~~~~~ //  
+    @Override
+    public void didProcessFile(SynchiveFile file, SynchiveDirectory dir)
+    {
+        fileList.add(file);
+    }
+
+    @Override
+    public void willProcessDirectory(SynchiveDirectory dir)
+    {
+        // unused
     }
 }
