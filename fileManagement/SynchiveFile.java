@@ -214,7 +214,7 @@ public class SynchiveFile extends File
     // Returns uniqueID of file
     public String toString()
     {
-        return uniqueID;
+        return getUniqueID();
     }
 
     // ~~~~~ Getters & Setters ~~~~~ //

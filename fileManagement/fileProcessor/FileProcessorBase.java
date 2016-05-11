@@ -149,9 +149,6 @@ public abstract class FileProcessorBase
                         {
                             // either scan without delimiters or with delimiters based on flag
                             temp.determineCopyingAllowed(getCRCDelimiters());
-                            
-                            String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
-                            didProcessFile(temp, new SynchiveDirectory(dirID)); // abstract method
                         }
                         catch (ChecksumException e) // catch file checksum mismatch
                         {
@@ -159,6 +156,12 @@ public abstract class FileProcessorBase
                                 "Checksum mismatch for: \"" + temp.getName() + "\"\n  " +
                                     "- Calculated: [" + temp.getCRC().toUpperCase() + "] Found: " + e.getMessage());
                         }
+                    }
+                    
+                    if(temp.copyAllowed())
+                    {
+                        String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
+                        didProcessFile(temp, new SynchiveDirectory(dirID)); // abstract method
                     }
                 }
             }
