@@ -1,0 +1,20 @@
+Change Log
+
+
+
+
+
+V1.0
+First Stable Release
+
+
+
+
+
+
+
+
+BUGS
+- Name.mkv -> Name[CRC].mkv BUG
+- Error continues to flash when restarted
+- Timer continues
