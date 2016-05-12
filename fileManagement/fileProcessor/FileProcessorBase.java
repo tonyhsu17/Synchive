@@ -114,8 +114,9 @@ public abstract class FileProcessorBase
     {
         for(File fileEntry : file.listFiles()) // go through each file in directory
         {
-            if(fileEntry.isDirectory() 
-                && !fileEntry.getName().equals(Utilities.LEFTOVER_FOLDER)) // add child folders to read as well
+            if(fileEntry.isDirectory() && 
+                !fileEntry.getName().equals(Utilities.LEFTOVER_FOLDER) &&
+                !Settings.getInstance().getSkipFoldersName().contains(fileEntry.getName())) // add child folders to read as well
             {
                 directoriesToProcess.push(new SynchiveFile(fileEntry, file.getDepth() + 1));
             }
