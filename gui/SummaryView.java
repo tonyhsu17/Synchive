@@ -15,17 +15,56 @@ import javax.swing.event.DocumentListener;
 
 import support.FileDrop;
 
+/**
+ * View displaying source & destination location as well as program status.
+ * 
+ * @author Tony Hsu
+ * @structure Handles user input and notifies controller of event
+ */
 public class SummaryView
 {
+    /**
+     * Delegate methods for SummaryView
+     */
     public interface SummaryViewDelegate {
+        /**
+         * Event notifier if text changed for source text field
+         * @param label JTextField of text changed
+         * @param text New text
+         */
         public void sourceTextChanged(JTextField label, String text);
+        /**
+         * Event notifier if text changed for destination text field
+         * @param label JTextField of text changed
+         * @param text New text
+         */
         public void destinationTextChanged(JTextField label, String text);
     }
     
+    /**
+     * Common methods for controller to implement to handle events
+     */
     private SummaryViewDelegate delegate;
+    /**
+     * SummaryView's frame
+     */
     private JFrame synchiveFrame;
-    private JTextField sourceTextField, destinationTextField;
-    private JLabel totalRunningTimeLabel, statusLabel;
+    /**
+     * Source location's textField
+     */
+    private JTextField sourceTextField;
+    /**
+     * Destination location's textField
+     */
+    private JTextField destinationTextField;
+    /**
+     * Running Time Label
+     */
+    private JLabel totalRunningTimeLabel;
+    /**
+     * Current Status of Program
+     */
+    private JLabel statusLabel;
     
     /**
      * Create the application.
@@ -37,7 +76,7 @@ public class SummaryView
     }
     
     /**
-     * Initialize the contents of the frame.
+     * Initialize the contents of the view.
      */
     private void initialize()
     {
@@ -78,7 +117,6 @@ public class SummaryView
             {
             }
         });
-        
         new FileDrop(sourceTextField, new FileDrop.Listener()
         {
             @Override
@@ -132,7 +170,6 @@ public class SummaryView
             {
             }
         });
-        
         new FileDrop(destinationTextField, new FileDrop.Listener()
         {
             @Override
@@ -176,16 +213,28 @@ public class SummaryView
         synchiveFrame.getContentPane().add(destinationMoreButton);
     }
     
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
+     * @return Frame window of view
+     */
     public JFrame getFrame()
     {
         return synchiveFrame;
     }
     
+    /**
+     * Set the visibility of the window
+     * @param flag True for hiding, false for showing
+     */
     public void setVisible(boolean flag) 
     {
         synchiveFrame.setVisible(flag);
     }
     
+    /**
+     * Set the running progress status
+     * @param str Status to display. "Status: (Type)"
+     */
     public void setStatus(String str) 
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -198,6 +247,10 @@ public class SummaryView
         });
     }
     
+    /**
+     * Set the running time
+     * @param str Time to display. "Running Time - (Time)"
+     */
     public void setRunningTime(String str)
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -210,6 +263,11 @@ public class SummaryView
         });
     }
     
+    /**
+     * Set the source and destination location
+     * @param sourceText Source path
+     * @param destinationText Destination path
+     */
     public void loadSettings(String sourceText, String destinationText)
     {
         sourceTextField.setText(sourceText);
