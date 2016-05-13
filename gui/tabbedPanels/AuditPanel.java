@@ -9,17 +9,31 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * JPanel to handle audit logging
+ * TODO modularize - make base class for Audit & Error Panel
+ * @author Tony Hsu
+ */
 @SuppressWarnings("serial")
 public class AuditPanel extends JPanel
 {
+    /**
+     * Initializes a JPanel with a JTextArea
+     */
     public AuditPanel()
     {
         super();
         initialize();
     }
     
+    /**
+     * JTextArea for audit logs
+     */
     private JTextArea auditTextArea;
     
+    /**
+     * Initialize the contents of the view.
+     */
     private void initialize()
     {
         setLayout(null);
@@ -38,9 +52,11 @@ public class AuditPanel extends JPanel
         scrollPane_1.setViewportView(auditTextArea);
         auditTextArea.setWrapStyleWord(true);
         auditTextArea.setLineWrap(true);
-       
     }
     
+    /**
+     * Clears the logs
+     */
     public void clear()
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -53,6 +69,10 @@ public class AuditPanel extends JPanel
         });
     }
     
+    /**
+     * Append text to the textArea in the panel
+     * @param str Text to be added
+     */
     public void print(String str)
     {
         SwingUtilities.invokeLater(new Runnable()
