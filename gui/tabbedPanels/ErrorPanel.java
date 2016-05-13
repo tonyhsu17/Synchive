@@ -63,10 +63,7 @@ public class ErrorPanel extends JPanel
             @Override
             public void run()
             {
-                String text = errorTextArea.getText();
-                text += str + "\n";
-                
-                errorTextArea.setText(text);
+                errorTextArea.append(str + "\n");
             }
         });
     }
