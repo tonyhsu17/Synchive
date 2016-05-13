@@ -60,10 +60,7 @@ public class AuditPanel extends JPanel
             @Override
             public void run()
             {
-                String text = auditTextArea.getText();
-                text += str + "\n";
-                
-                auditTextArea.setText(text);
+                auditTextArea.append(str + "\n");
             }
         });
     }
