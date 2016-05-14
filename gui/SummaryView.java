@@ -67,7 +67,8 @@ public class SummaryView
     private JLabel statusLabel;
     
     /**
-     * Create the application.
+     * Initialize the view.
+     * @param delegate Controller to handle events
      */
     public SummaryView(SummaryViewDelegate delegate)
     {
