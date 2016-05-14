@@ -21,24 +21,89 @@ import support.FileDrop;
 import support.Utilities;
 import synchive.Settings;
 
+/**
+ * JPanel to handle CRC Options
+ * @author Tony Hsu
+ */
 @SuppressWarnings("serial")
 public class CRCOptionsPanel extends JPanel
 {
+    /**
+     * Delegate methods for CRCOptionsPanel
+     */
     public interface CRCOptionsPanelDelegate {
+        /**
+         * Event notifier if text changed for CRC Delimiters
+         * @param field JTextField of text changed
+         * @param str New text
+         */
         public void crcDelimiterTextChanged(JTextField field, String str);
+        /**
+         * Event notifier if button pressed for checking without delimiters in filename
+         * @param button JRadioButton of button pressed
+         * @param state State of the button
+         */
         public void checkWithoutDelimStateChange(JRadioButton button, int state);
         
-        public void addCrcToFileNameStateChanged(JRadioButton button, int state);
+        /**
+         * Event notifier if button pressed for adding CRC to filename
+         * @param button JRadioButton of button pressed
+         * @param state State of the button
+         */
+        public void addCRCToFileNameStateChanged(JRadioButton button, int state);
+        /**
+         * Event notifier if text changed for adding CRC to extension type
+         * @param field JTextField of text changed
+         * @param str New text
+         */
         public void crcForExtensionTypeTextChanged(JTextField field, String str);
+        /**
+         * Event notifier if text changed for leading delimiter when adding CRC to filename
+         * @param field JTextField of text changed
+         * @param str New text
+         */
         public void crcLeadingDelimiterTextChanged(JTextField field, String str);
+        /**
+         * Event notifier if text changed for trailing delimiter when adding CRC to filename
+         * @param field JTextField of text changed
+         * @param str New text
+         */
         public void crcTrailingDelimiterTextChanged(JTextField field, String str);
     }
     
+    /**
+     * Common methods for controller to implement to handle events
+     */
     private CRCOptionsPanelDelegate delegate;
-    private JTextField crcDelimiterTextField, extensionTypeTextField, 
-        crcDelimiterLeadingTextField, crcDelimiterTrailingTextField;
-    private JRadioButton checkWithoutDelimiterButton, addCrcFilenameButton;
+    /**
+     * Check through CRC Delimiter's textField
+     */
+    private JTextField crcDelimiterTextField;
+    /**
+     * Add CRC to Extension Type's textField
+     */
+    private JTextField extensionTypeTextField;
+    /**
+     * Leading delimiter for adding CRC to filename's textField
+     */
+    private JTextField crcDelimiterLeadingTextField;
+    /**
+     * Trailing delimiter for adding CRC to filename's textField
+     */
+    private JTextField crcDelimiterTrailingTextField;
+    /**
+     * Include checking with delimiters for CRC's radioButton
+     */
+    private JRadioButton checkWithoutDelimiterButton;
+    /**
+     * Include CRC in filename's radioButton
+     */
+    private JRadioButton addCrcFilenameButton;
     
+    /**
+     * Initialize the view.
+     * @param delegate Controller to handle events
+     */
     public CRCOptionsPanel(CRCOptionsPanelDelegate delegate)
     {
         super();
@@ -46,6 +111,9 @@ public class CRCOptionsPanel extends JPanel
         this.delegate = delegate;
     }
     
+    /**
+     * Initialize the contents of the view.
+     */
     private void initialize()
     {
         setLayout(null);
@@ -111,7 +179,7 @@ public class CRCOptionsPanel extends JPanel
         add(addCrcFilenameButton);
         addCrcFilenameButton.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent arg0) {
-                delegate.addCrcToFileNameStateChanged(addCrcFilenameButton, arg0.getStateChange());
+                delegate.addCRCToFileNameStateChanged(addCrcFilenameButton, arg0.getStateChange());
             }
         });
         
@@ -229,6 +297,16 @@ public class CRCOptionsPanel extends JPanel
         });
     }
     
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
+     * Set the different options in the view
+     * @param crcDelim CRC delimiter to check from
+     * @param scanWithoutDelim Flag to check CRC without delimiters
+     * @param addCRCFilename Flag to add CRC to filename
+     * @param extensionText Extension Types to add CRC to filename
+     * @param crcLeadingText Add leading delimiter for CRC in filename
+     * @param crcTrailingText Add trailing delimiter for CRC in filename
+     */
     public void loadSettings(String crcDelim, boolean scanWithoutDelim, boolean addCRCFilename, 
         String extensionText, String crcLeadingText, String crcTrailingText)
     {

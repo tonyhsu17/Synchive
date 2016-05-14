@@ -152,7 +152,7 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     }
 
     @Override
-    public void addCrcToFileNameStateChanged(JRadioButton button, int state)
+    public void addCRCToFileNameStateChanged(JRadioButton button, int state)
     {
         Settings.getInstance().setCrcInFilenameFlag(state == ItemEvent.SELECTED ? true : false); 
     }
