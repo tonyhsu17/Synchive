@@ -88,32 +88,51 @@ public class TabbedContainerPaneView extends JTabbedPane
         });
     }
     
+    /**
+     * Clears the text of the logging panels.
+     */
     public void clearLogs()
     {
         ((AuditPanel)auditPanel).clear();
         ((ErrorPanel)errorLogsPanel).clear();
     }
     
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
+     * @return Text of error panel
+     */
     public String getErrorLogs()
     {
         return ((ErrorPanel)errorLogsPanel).getLog();
     }
     
+    /**
+     * @return Flag Panel within the tabbed Container
+     */
     public JPanel getFlagPanel()
     {
         return flagPanel;
     }
     
+    /**
+     * @return CRC Option Panel within the tabbed Container
+     */
     public JPanel getCrcOptionPanel()
     {
         return crcOptionPanel;
     }
     
+    /**
+     * @return Audit Panel within the tabbed Container
+     */
     public JPanel getAuditPanel()
     {
         return auditPanel;
     }
     
+    /**
+     * @return Error Logs Panel within the tabbed Container
+     */
     public JPanel getErrorLogsPanel()
     {
         return errorLogsPanel;
