@@ -11,25 +11,57 @@ import javax.swing.event.ChangeListener;
 import gui.tabbedPanels.CRCOptionsPanel.CRCOptionsPanelDelegate;
 import gui.tabbedPanels.FlagPanel.FlagPanelDelegate;
 
+/**
+ * JTabbedPane to handle all the different views
+ * @author Tony Hsu
+ */
 @SuppressWarnings("serial")
 public class TabbedContainerPaneView extends JTabbedPane
 {    
+    /**
+     * Delegate methods for TabbedContainerPaneView
+     */
     public interface TabbedContainerPaneViewDelegate {
+        /**
+         * Event notifier when tab focus changed
+         * @param index Tab index of focus
+         */
         public void tabChangedIndex(int index);
     }
     
-    private JPanel flagPanel, crcOptionPanel, auditPanel, errorLogsPanel;
+    /**
+     * First tabbed Panel (Settings)
+     */
+    private JPanel flagPanel;
+    /**
+     * Second tabbed Panel (CRC Options)
+     */
+    private JPanel crcOptionPanel;
+    /**
+     * Third tabbed Panel (Audit Log)
+     */
+    private JPanel auditPanel;
+    /**
+     * Fourth tabbed Panel (Error Log)
+     */
+    private JPanel errorLogsPanel;
     
-    public TabbedContainerPaneView(Rectangle bounds, Dimension prefSize, Object delegate) 
+    /**
+     * Initializes the view.
+     * @param bounds Size of the tabbedPane bounds
+     * @param prefSize Preferred size of the tabbedPane
+     * @param delegate Controller to handle events
+     */
+    public TabbedContainerPaneView(Rectangle bounds, Dimension prefSize, TabbedContainerPaneViewDelegate delegate) 
     {
         super(JTabbedPane.TOP);
         initialize(bounds, prefSize, delegate);
     }
     
     /**
-     * Initialize the contents of the frame.
+     * Initialize the contents of the view.
      */
-    private void initialize(Rectangle rect, Dimension prefSize, Object delegate)
+    private void initialize(Rectangle rect, Dimension prefSize, TabbedContainerPaneViewDelegate delegate)
     {
         setBounds(rect);
         setPreferredSize(prefSize);
@@ -51,7 +83,7 @@ public class TabbedContainerPaneView extends JTabbedPane
             @Override
             public void stateChanged(ChangeEvent e)
             {
-                ((TabbedContainerPaneViewDelegate)delegate).tabChangedIndex(getSelectedIndex());
+                delegate.tabChangedIndex(getSelectedIndex());
             }
         });
     }
