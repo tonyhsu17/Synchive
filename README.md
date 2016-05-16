@@ -31,6 +31,7 @@ In no particular order:
 - Multiple profiles
 - Create Des directory if needed
 - Add UI resizing 
+- refactor EventCenter to take in object & generateID from there
 
 
 
