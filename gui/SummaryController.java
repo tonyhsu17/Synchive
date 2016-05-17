@@ -20,14 +20,32 @@ import synchive.EventCenter.RunningStatusEvents;
 import synchive.Settings;
 import synchive.SynchiveDiff;
 
+/**
+ * Controller class to manage between comparing files and UI elements (status, directory location). 
+ * Also contains controller for tabs. 
+ * 
+ * @author Tony Hsu
+ * @structure Handles changes and updates to/from the view
+ */
 public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
 {
+    /**
+     * View containing: source, destination locations and progress status 
+     */
     private SummaryView summaryView;
+    /**
+     * Controller for handling tabs and views
+     */
     private TabbedController tabController;
     
+    /**
+     * Keeps track of running time
+     */
     private StopWatch watch;
-    private SynchiveDiff diff;
 
+    /**
+     * Initializes the GUI
+     */
     public SummaryController()
     {
         summaryView = new SummaryView(this);
@@ -57,6 +75,10 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
         });
     }
 
+    /**
+     * Shows the GUI. 
+     * TODO refactor?
+     */
     public void run()
     {
         EventQueue.invokeLater(new Runnable()
@@ -77,6 +99,10 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
         });
     }
     
+    /**
+     * Start the location synchronization
+     * TODO: refactor for cleaner threading aka SynchiveDiff implements Runnable
+     */
     public void runSynchiveDiffer()
     {
 //        SynchiveDiff diff = new SynchiveDiff(new File("E:\\TestA"), new File("E:\\TestB"));
@@ -91,7 +117,7 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
                 
                 try
                 {
-                    diff = new SynchiveDiff(
+                    SynchiveDiff diff = new SynchiveDiff(
                         new File(Settings.getInstance().getSourcePath()), new File(Settings.getInstance().getDestinationPath()));
                     diff.syncLocations();
                 }
@@ -105,20 +131,30 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
         executionThread.start();
     }
     
-    public void completionHandler() throws RuntimeException, IOException
+    /**
+     * Handles what to do after completion. Will write to errors to "output.txt" for close and shutdown option.
+     * @throws IOException Unable to write to file
+     */
+    public void completionHandler() throws IOException
     {
+        BufferedWriter output = new BufferedWriter(new FileWriter("output.txt"));
         switch(Settings.getInstance().getCompletionFlag())
         {
             case doNothing:
+                output.close();
                 break;
             case close:
+                output.write(tabController.getView().getErrorLogs());
+                output.newLine();
+                output.write("Completed in: " + watch.toString());
+                output.close();
                 System.exit(0);
                 break;
             case standBy:
+                output.close();
                 PowerOptions.standby();
                 break;
             case shutdown:
-                BufferedWriter output = new BufferedWriter(new FileWriter("output.txt"));
                 output.write(tabController.getView().getErrorLogs());
                 output.newLine();
                 output.write("Completed in: " + watch.toString());
@@ -128,6 +164,7 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
         }
     }
     
+    // ~~~~~ Override methods ~~~~~~ //
     @Override
     public void sourceTextChanged(JTextField label, String text)
     {

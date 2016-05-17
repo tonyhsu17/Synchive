@@ -9,17 +9,31 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * JPanel to handle error logging
+ * TODO modularize - make base class for Audit & Error Panel
+ * @author Tony Hsu
+ */
 @SuppressWarnings("serial")
 public class ErrorPanel extends JPanel
 {
+    /**
+     * Initializes a JPanel with a JTextArea
+     */
     public ErrorPanel()
     {
         super();
         initialize();
     }
     
+    /**
+     * JTextArea for error logs
+     */
     private JTextArea errorTextArea;
-    
+
+    /**
+     * Initialize the contents of the view.
+     */
     private void initialize()
     {
         setLayout(null);
@@ -39,6 +53,9 @@ public class ErrorPanel extends JPanel
         scrollPane.setViewportView(errorTextArea);
     }
     
+    /**
+     * Clears the logs
+     */
     public void clear()
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -51,11 +68,10 @@ public class ErrorPanel extends JPanel
         });
     }
     
-    public String getLog()
-    {
-        return errorTextArea.getText();
-    }
-    
+    /**
+     * Append text to the textArea in the panel
+     * @param str Text to be added
+     */
     public void print(String str)
     {
         SwingUtilities.invokeLater(new Runnable()
@@ -66,5 +82,14 @@ public class ErrorPanel extends JPanel
                 errorTextArea.append(str + "\n");
             }
         });
+    }
+    
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
+     * @return The entire log in the textArea
+     */
+    public String getLog()
+    {
+        return errorTextArea.getText();
     }
 }

@@ -23,7 +23,7 @@ items in the backup directory. This file will be used as an alternative to readi
 In no particular order:
 - Add java docs and comments for everything
 - Add command line ability (-nogui ...) (TODO TEST)
-
+- Allow pausing or stopping
 - Add folder selection for locations ("..." button)
 - Include verbosity level for status reports
 - Add tooltips
@@ -31,6 +31,7 @@ In no particular order:
 - Multiple profiles
 - Create Des directory if needed
 - Add UI resizing 
+- refactor EventCenter to take in object & generateID from there
 
 
 

@@ -26,26 +26,110 @@ import synchive.Settings;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+/**
+ * JPanel to handle different settings 
+ * @author Tony Hsu
+ */
 @SuppressWarnings("serial")
 public class FlagPanel extends JPanel
 {
+    /**
+     * Options when completed
+     */
     public static enum CompletionOptions { doNothing, close, standBy, shutdown }
     
+    /**
+     * Delegate methods for FlagPanelDelegate
+     */
     public interface FlagPanelDelegate {
+        /**
+         * Event notifier if button pressed for enabling audit logging
+         * @param button JRadioButton of button pressed
+         * @param state State of the button
+         */
         public void auditTrailStateChange(JRadioButton button, int state);
+        /**
+         * Event notifier if button pressed for checking CRC
+         * @param button JRadioButton of button pressed
+         * @param state State of the button
+         */
         public void crcCheckStateChange(JRadioButton button, int state);
+        /**
+         * Event notifier if button pressed for completion option
+         * @param button JRadioButton of button pressed
+         * @param option CompletionOption type 
+         */
         public void afterCompletionOptionChanged(JRadioButton button, CompletionOptions option);
+        /**
+         * Event notifier if button pressed for operation trigger (ie. Run)
+         * @param button JRadioButton of button pressed
+         */
         public void runNuttySync(JButton button);
+        /**
+         * Event notifier if text changed for skip processing folder
+         * @param textField JTextFeild of text changed
+         * @param str New text
+         */
         public void skipFolderTextChanged(JTextField textField, String str);
+        /**
+         * Event notifier if text changed for skip processing extension type
+         * @param textField JTextFeild of text changed
+         * @param str New text
+         */
         public void skipExtensionTextChanged(JTextField textField, String str);
     }
     
-    private JButton runButton;
-    private JRadioButton previousOptionButton, auditTrailButton, crcCheckButton, 
-        doNothingButton, closeButton, standbyButton, shutdownButton;
+    /**
+     * Common methods for controller to implement to handle events
+     */
     private FlagPanelDelegate delegate;
-    private JTextField skipFolderTextField, skipExtensionTextField;
+    
+    /**
+     * Start comparison button
+     */
+    private JButton runButton;
+    /**
+     * State of selected After Completion option used to stay selected
+     */
+    private JRadioButton previousOptionButton;
+    /**
+     * Enable audit logging radioButton
+     */
+    private JRadioButton auditTrailButton;
+    /**
+     * Enable CRC checking radioButton
+     */
+    private JRadioButton crcCheckButton;
+    /**
+     * Do nothing after completion radioButton
+     */
+    private JRadioButton doNothingButton;
+    /**
+     * Close Synchive after completion radioButton
+     */
+    private JRadioButton closeButton;
+    /**
+     * Sleep after completion radioButton
+     */
+    private JRadioButton standbyButton;
+    /**
+     * Shut down after completion radioButton
+     */
+    private JRadioButton shutdownButton;
+    
+    /**
+     * Skip processing folder textField
+     */
+    private JTextField skipFolderTextField;
+    /**
+     * Skip processing extension type textField
+     */
+    private JTextField skipExtensionTextField;
 
+    /**
+     * Initialize the view
+     * @param del Controller to handle events
+     */
     public FlagPanel(FlagPanelDelegate del)
     {
         super();
@@ -53,6 +137,9 @@ public class FlagPanel extends JPanel
         initialize();
     }
     
+    /**
+     * Initialize the contents of the view.
+     */
     private void initialize()
     {
         setLayout(null);
@@ -142,7 +229,6 @@ public class FlagPanel extends JPanel
                         delegate.skipFolderTextChanged(skipFolderTextField, str);
                     }
                 });
-                
             } // end filesDropped
         }); // end FileDrop.Listener
         
@@ -251,6 +337,11 @@ public class FlagPanel extends JPanel
         });
     }
     
+    /**
+     * Handles only one selection for completion option
+     * @param item MouseEvent that triggered
+     * @param option CompletionOption type
+     */
     private void afterCompletionDidChange(MouseEvent item, CompletionOptions option)
     {
         JRadioButton selectedButton = (JRadioButton)item.getSource();
@@ -266,6 +357,15 @@ public class FlagPanel extends JPanel
         }
     }
     
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
+     * Set the different options in the view
+     * @param auditTrailFlag
+     * @param crcCheckFlag
+     * @param skipFolderText
+     * @param skipExenText
+     * @param completion
+     */
     public void loadSettings(boolean auditTrailFlag, boolean crcCheckFlag, String skipFolderText, 
         String skipExenText, CompletionOptions completion)
     {

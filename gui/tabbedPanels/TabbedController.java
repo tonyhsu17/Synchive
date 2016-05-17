@@ -19,21 +19,45 @@ import synchive.EventCenter;
 import synchive.Settings;
 import synchive.EventCenter.Events;
 
+/**
+ * Controller class to manage the tabbedViews
+ * @author Tony Hsu
+ */
 public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDelegate, TabbedContainerPaneViewDelegate
 {
+    /**
+     * View containing all the tabs
+     */
     private TabbedContainerPaneView tabView;
+    /**
+     * Summary View Controller 
+     * (need to null this reference if deinit since SummaryController creates TabbedController object)
+     */
     private SummaryController summaryVC;
+    /**
+     * UniqueID of this class used in EventCenter
+     */
     private int id; 
-    private BlinkTab errorColorState;
-    private final static int ERROR_TAB_INDEX = 3;
+    /**
+     * Visual indicator of and error occurred
+     */
+    private BlinkTab errorTabBlinker;
+    /**
+     * Error tab index
+     */
+    private final int ERROR_TAB_INDEX = 3;
     
+    /**
+     * Initializes the inner components of the GUI (tabs)
+     * @param sumVC
+     */
     public TabbedController(SummaryController sumVC) 
     {
         Settings s = Settings.getInstance();
         summaryVC = sumVC;
         id = this.hashCode();
         tabView = new TabbedContainerPaneView(new Rectangle(7, 58, 498, 195), new Dimension(5, 150), this);
-        errorColorState = new BlinkTab(tabView, 3, Color.red);
+        errorTabBlinker = new BlinkTab(tabView, ERROR_TAB_INDEX, Color.RED);
         
         ((FlagPanel)tabView.getFlagPanel()).loadSettings(
             s.getAuditTrailFlag(), 
@@ -50,29 +74,21 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
             s.getCrcDelimLeadingText(), 
             s.getCrcDelimTrailingText());
         
-        if(Settings.getInstance().getAuditTrailFlag())
-            subscribeToAdditionalNotifications();
-        //always subscribe to errors
+        subscribeToReqiuiredNotifications();
+        subscribeToAuditNotifications();
+    }
+    
+    /**
+     * Subscribes to necessary notifications for functionality.
+     */
+    private void subscribeToReqiuiredNotifications()
+    {
+      //always subscribe to errors
         EventCenter.getInstance().subscribeEvent(Events.ErrorOccurred, id, (text) -> {
             ((ErrorPanel)tabView.getErrorLogsPanel()).print((String)text);
-            //blink tab indicating something outputted
-            errorColorState.startBlinking();
+            errorTabBlinker.startBlinking(); //blink tab indicating something outputted
         });
-    }
-    
-    public TabbedContainerPaneView getView()
-    {
-        return tabView;
-    }
-    
-    private void subscribeToAdditionalNotifications()
-    {
-        EventCenter.getInstance().subscribeEvent(Events.ProcessingFile, id, (text) -> {
-            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
-        });
-        EventCenter.getInstance().subscribeEvent(Events.Status, id, (text) -> {
-            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
-        });
+        // set the state of the "Run" button
         EventCenter.getInstance().subscribeEvent(Events.RunningStatus, id, (arr) -> {
             if(((Object[])arr)[0] == EventCenter.RunningStatusEvents.Completed ||
                 ((Object[])arr)[0] == EventCenter.RunningStatusEvents.Error) 
@@ -83,44 +99,52 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
             {
                 ((FlagPanel)tabView.getFlagPanel()).getRunButton().setEnabled(false);
             }
+        }); 
+    }
+    
+    /**
+     * Subscribes to audit logging if option enabled.
+     */
+    private void subscribeToAuditNotifications()
+    {
+        if(!Settings.getInstance().getAuditTrailFlag()) 
+        {
+            return;
+        }
+        EventCenter.getInstance().subscribeEvent(Events.ProcessingFile, id, (text) -> {
+            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
+        });
+        EventCenter.getInstance().subscribeEvent(Events.Status, id, (text) -> {
+            ((AuditPanel)tabView.getAuditPanel()).print((String)text);
         });
     }
     
+    /**
+     * Clears the audit and error logs. Also stops error flashing.
+     */
     public void clearLogs()
     {
         tabView.clearLogs();
+        errorTabBlinker.stopBlinking();
     }
     
+    // ~~~~~ Getters & Setters ~~~~~~ //
+    /**
+     * @return View of the controller
+     */
+    public TabbedContainerPaneView getView()
+    {
+        return tabView;
+    }
+    
+    // ~~~~~ Override methods ~~~~~~ //
+    /* FlagPanelDelegate */
     @Override
     public void runNuttySync(JButton button)
     {
         summaryVC.runSynchiveDiffer();
     }
-
-    @Override
-    public void crcDelimiterTextChanged(JTextField field, String str)
-    {
-        Settings.getInstance().setCrcDelimiterText(str);
-    }
-
-    @Override
-    public void crcLeadingDelimiterTextChanged(JTextField field, String str)
-    {
-        Settings.getInstance().setCrcDelimLeadingText(str);
-    }
-
-    @Override
-    public void crcTrailingDelimiterTextChanged(JTextField field, String str)
-    {
-        Settings.getInstance().setCrcDelimTrailingText(str);
-    }
     
-    @Override
-    public void checkWithoutDelimStateChange(JRadioButton button, int state)
-    {
-        Settings.getInstance().setScanWithoutDelimFlag(state == ItemEvent.SELECTED ? true : false); 
-    }
-
     @Override
     public void auditTrailStateChange(JRadioButton button, int state)
     {
@@ -151,8 +175,33 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
         Settings.getInstance().setSkipExtensionTypesText(str);
     }
 
+    /* CRCOptionsPanelDelegate */
     @Override
-    public void addCrcToFileNameStateChanged(JRadioButton button, int state)
+    public void crcDelimiterTextChanged(JTextField field, String str)
+    {
+        Settings.getInstance().setCrcDelimiterText(str);
+    }
+
+    @Override
+    public void crcLeadingDelimiterTextChanged(JTextField field, String str)
+    {
+        Settings.getInstance().setCrcDelimLeadingText(str);
+    }
+
+    @Override
+    public void crcTrailingDelimiterTextChanged(JTextField field, String str)
+    {
+        Settings.getInstance().setCrcDelimTrailingText(str);
+    }
+    
+    @Override
+    public void checkWithoutDelimStateChange(JRadioButton button, int state)
+    {
+        Settings.getInstance().setScanWithoutDelimFlag(state == ItemEvent.SELECTED ? true : false); 
+    }
+
+    @Override
+    public void addCRCToFileNameStateChanged(JRadioButton button, int state)
     {
         Settings.getInstance().setCrcInFilenameFlag(state == ItemEvent.SELECTED ? true : false); 
     }
@@ -162,13 +211,14 @@ public class TabbedController implements FlagPanelDelegate, CRCOptionsPanelDeleg
     {
         Settings.getInstance().setAddCrcToExtensionTypeText(str);
     }
-
+    
+    /* TabbedContainerPaneViewDelegate */
     @Override
     public void tabChangedIndex(int index)
     {
         if(index == ERROR_TAB_INDEX) 
         {
-            errorColorState.stopBlinking();
+            errorTabBlinker.stopBlinking();
         }
     }
     
