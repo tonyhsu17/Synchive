@@ -9,35 +9,53 @@ import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
 
-/** Static Methods Class */
-public class Utilities
+/**
+ * Static Methods Class containing useful helper methods.
+ * @author Tony Hsu
+ */
+public final class Utilities
 {
+    /**
+     * Folder directory name of files not in source
+     */
     public static final String LEFTOVER_FOLDER = "~leftovers";
+    /**
+     * Generated ID filename of the contents of the folder
+     */
     public static final String ID_FILE_NAME = "~listOfFilesInCRC.txt";
+    /**
+     * Filename of audit logs
+     */
     public static final String AUDIT_FILE_NAME = "~auditTrail.txt";
-    public static final int SOURCE = 5;
-    public static final int DESTINATION = 10;
-    public static final int NUM_CHAR_IN_CRC32 = 8;
-
+    /**
+     * Count of CRC32 value represented in hexadecimal
+     */
+    public static final int CRC32_LENGTH = 8;
     
     /**
-     * @param filePath
-     * @param level
-     * @param rootPath
-     * @return
+     * Parse and return the extension type
+     * 
+     * @param filename Filename to parse
+     * @return Extension of filename including '.'
      */
-    public static final String getDirectoryUniqueID(String filePath, int level, String rootPath)
+    public static final String getExtensionType(String filename)
     {
-        return "~" + level + ": " + filePath.substring(rootPath.length());
+        String[] splitStr = filename.split("[.]");
+        if(splitStr.length == 1) // no extension found
+        {
+            return "";
+        }
+        return "." + splitStr[splitStr.length-1];
     }
     
     /**
      * Returns file name including CRC value. 
+     * 
      * @param filename Filename with extension
      * @param extension Extension of filename (including '.')
      * @param CRC CRC value to put into filename
      * @param encasement Delimiters to surround CRC in
-     * @return
+     * @return Filename with CRC
      */
     public static final String getFilenameWithCRC(String filename, String extension, String CRC, String[] encasement)
     {
@@ -87,22 +105,8 @@ public class Utilities
     }
     
     /**
-     * Parse and return the extension type
-     * @param filename Filename to parse
-     * @return Extension of filename including '.'
-     */
-    public static final String getExtensionType(String filename)
-    {
-        String[] splitStr = filename.split("[.]");
-        if(splitStr.length == 1) // no extension found
-        {
-            return "";
-        }
-        return "." + splitStr[splitStr.length-1];
-    }
-    
-    /**
      * Returns a set of all possible extension types in a file or directory. Including sub-directories.
+     * 
      * @param file File or directory to search through
      * @return A set of all extensions in the file or directory
      */
@@ -124,9 +128,11 @@ public class Utilities
     }
     
     /**
-     * @param string
-     * @param pattern
-     * @return
+     * Checks if string ends with patterns.
+     * 
+     * @param string String to compare to
+     * @param pattern List of patterns to compare with
+     * @return True if string ends with a pattern
      */
     public static final boolean stringEndsWith(String string, String[] pattern)
     {
@@ -141,11 +147,12 @@ public class Utilities
     }
 
     /**
-     * @param file
-     * @return
-     * @throws IOException
+     * Calculates the CRC32 value of a file.
+     * 
+     * @param file File to compute the CRC value
+     * @return CRC value formatted in 8 length hexadecimal
      */
-    public static final String calculateCRC32(File file) throws IOException
+    public static final String calculateCRC32(File file) throws ChecksumException
     {
         String hex = "";
         try
@@ -161,14 +168,26 @@ public class Utilities
         }
         catch (IOException e)
         {
-            System.out.println("Unable to determine crc32 value for file: " + file.getName());
-            return "";
+            throw new ChecksumException("Unable to determine CRC32 value for file: " + file.getName());
         }
-        for(int i = hex.length(); i < NUM_CHAR_IN_CRC32; i++)
+        for(int i = hex.length(); i < CRC32_LENGTH; i++)
         {
             hex = "0" + hex;
         }
         return hex;
     }
-
+    
+    /**
+     * Exception Class for if CRC32 errors. Includes mismatch found unable to calculate.
+     * 
+     * @author Tony Hsu
+     */
+    @SuppressWarnings("serial")
+    public static class ChecksumException extends Exception
+    {
+        public ChecksumException(String message)
+        {
+            super(message);
+        }
+    }
 }

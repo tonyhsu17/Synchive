@@ -152,7 +152,7 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
                 break;
             case standBy:
                 output.close();
-                PowerOptions.standby();
+                PowerOptions.sleep();
                 break;
             case shutdown:
                 output.write(tabController.getView().getErrorLogs());

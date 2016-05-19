@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import support.Utilities;
+import support.Utilities.ChecksumException;
 
 
 /**
@@ -176,7 +177,7 @@ public class SynchiveFile extends File
 
                 // String pattern matching using delimiters and set formatting for CRC32 in hex
                 Formatter regx = new Formatter(new StringBuilder(
-                        sanitizedLeading + "[a-fA-F0-9]{" + Utilities.NUM_CHAR_IN_CRC32 + "}+" + sanitizedTrailing));
+                        sanitizedLeading + "[a-fA-F0-9]{" + Utilities.CRC32_LENGTH + "}+" + sanitizedTrailing));
                 Matcher m = Pattern.compile(regx.toString()).matcher(getName());
 
                 // go through matcher and to list all possible CRC values
@@ -268,18 +269,5 @@ public class SynchiveFile extends File
             possibleCRCInFilename = findCRCInFilename(delimiters);
         }
         return possibleCRCInFilename.length > 0;
-    }
-
-    /**
-     * Exception Class for if CRC32 mismatch found.
-     * 
-     * @author Tony Hsu
-     */
-    public static class ChecksumException extends Exception
-    {
-        public ChecksumException(String message)
-        {
-            super(message);
-        }
     }
 }

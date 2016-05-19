@@ -10,8 +10,8 @@ import java.util.Stack;
 
 import fileManagement.SynchiveDirectory;
 import fileManagement.SynchiveFile;
-import fileManagement.SynchiveFile.ChecksumException;
 import support.Utilities;
+import support.Utilities.ChecksumException;
 import synchive.EventCenter;
 import synchive.Settings;
 import synchive.EventCenter.Events;
@@ -80,7 +80,7 @@ public abstract class FileProcessorBase
             // if idFile not found, process each file within directory
             if(idFiles.length == 0)
             {
-                String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
+                String dirID = SynchiveDirectory.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
                 willProcessDirectory(new SynchiveDirectory(dirID)); // abstract method
                 readFilesWithinDirectory(file);
             }
@@ -131,14 +131,16 @@ public abstract class FileProcessorBase
                  temp.determineProcessingAllowed(Settings.getInstance().getSkipExtensionTypesText()))
                 {
                     postEvent(Events.ProcessingFile, "Reading file... " + temp.getName());
+                    
                     try
                     {
                         String val = Utilities.calculateCRC32(fileEntry); // get crc value
                         temp.setCRC(val);
                     }
-                    catch (IOException e1)
+                    catch (ChecksumException e1) // catch file checksum mismatch
                     {
-                        postEvent(Events.ErrorOccurred, "Unable to calculate CRC value for: " + temp.getName());
+                        temp.setCRC("");
+                        postEvent(Events.ErrorOccurred, e1.getMessage());
                     } 
                     
                     temp = addCRCToFilename(temp); //add CRC to filename if conditions met
@@ -161,7 +163,7 @@ public abstract class FileProcessorBase
                     
                     if(temp.copyAllowed())
                     {
-                        String dirID = Utilities.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
+                        String dirID = SynchiveDirectory.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
                         didProcessFile(temp, new SynchiveDirectory(dirID)); // abstract method
                     }
                 }
@@ -202,7 +204,7 @@ public abstract class FileProcessorBase
             int newLevel = Integer.parseInt(String.valueOf(splitDir[0].charAt(1))) + baseDepth;
             
             String path = locationDir + splitDir[1];
-            String dirID = Utilities.getDirectoryUniqueID(path, newLevel, getRoot().getPath());
+            String dirID = SynchiveDirectory.getDirectoryUniqueID(path, newLevel, getRoot().getPath());
             SynchiveDirectory dir = new SynchiveDirectory(dirID);
             
             willProcessDirectory(dir); // abstract method

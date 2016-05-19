@@ -15,6 +15,19 @@ import java.util.Hashtable;
 public class SynchiveDirectory
 {
     /**
+     * Get the UniqueID of a directory.
+     * 
+     * @param filePath Path of file
+     * @param level Depth level relative to rootPath
+     * @param rootPath Directory starting from path
+     * @return
+     */
+    public static final String getDirectoryUniqueID(String filePath, int level, String rootPath)
+    {
+        return "~" + level + ": " + filePath.substring(rootPath.length());
+    }
+    
+    /**
      * Used to determine file needs to be copied.
      * If FILE_EXIST then no need to copy file over, otherwise if
      * FILE_NOT_EXIST, then the file will need to be copied over.

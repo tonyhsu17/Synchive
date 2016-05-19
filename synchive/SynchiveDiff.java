@@ -15,20 +15,20 @@ import fileManagement.SynchiveFile;
 import fileManagement.fileProcessor.DestinationFileProcessor;
 import fileManagement.fileProcessor.SourceFileProcessor;
 import support.Utilities;
+import support.Utilities.ChecksumException;
 import synchive.EventCenter.Events;
 import synchive.EventCenter.RunningStatusEvents;
 
-
-/**
- * @Category: Processing Class: Main grunt of the NuttySync
- * @Process: Reads in uid for source and if desCRC does not exist generate file as well as reading uid for des.
- *           After reading in every file, scan through source and for each file in src, mark if found in des, otherwise
- *           copy into des. Afterwards, if file in des has not been marked, "delete" aka move to a separate location.
- */
 /*
 @Process: Items are stored initially stored as FILE_NOT_EXIST. Once
 *           doesFileExist() is called, if the file is found, then the FileFlag
 *           is modified to FILE_EXIST. */
+/**
+ * Compares a source and destination location and syncs up destination to be exactly the same as source.
+ * @author Tony Hsu
+ * @Process: Scan through sourceList and for each file in source, mark if found in des, otherwise
+ *           copy into des. Afterwards, if file in des has not been marked, "delete" aka move to a separate location.
+ */
 public class SynchiveDiff
 {
     private String LEFTOVER_FOLDER = Utilities.LEFTOVER_FOLDER;
@@ -53,7 +53,6 @@ public class SynchiveDiff
         {
             rd = new SourceFileProcessor(srcLoc);
             sourceCRCFiles = rd.getFiles();
-            
             postEvent(Events.Status, "Comparing Differences...");
             for(int i = 0; i < sourceCRCFiles.size(); i++)
             {
@@ -61,7 +60,7 @@ public class SynchiveDiff
                 SynchiveFile temp = sourceCRCFiles.get(i); // file to parse through
                 if(temp.copyAllowed())
                 {
-                    String dirUID = Utilities.getDirectoryUniqueID(
+                    String dirUID = SynchiveDirectory.getDirectoryUniqueID(
                         temp.getParentFile().getPath(), temp.getDepth(), srcLoc.getPath());
                     SynchiveDirectory dir = destinationList.get(dirUID);
                     boolean isRoot = temp.getParent().equals(srcLoc.getPath()) ? true : false; // if file is in root dir
@@ -90,8 +89,8 @@ public class SynchiveDiff
                             createDirectory(fd);
                         
                         SynchiveDirectory newDir =
-                            isRoot ? new SynchiveDirectory(Utilities.getDirectoryUniqueID(desLoc.getPath(), 0, desLoc.getPath()))
-                                : new SynchiveDirectory(Utilities.getDirectoryUniqueID(fd.getPath(), temp.getDepth(), desLoc.getPath()));
+                            isRoot ? new SynchiveDirectory(SynchiveDirectory.getDirectoryUniqueID(desLoc.getPath(), 0, desLoc.getPath()))
+                                : new SynchiveDirectory(SynchiveDirectory.getDirectoryUniqueID(fd.getPath(), temp.getDepth(), desLoc.getPath()));
 
                         newDir.setRelativeDirectoryPath(relativeDir);
                         newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
@@ -147,9 +146,16 @@ public class SynchiveDiff
         }
         // CRC32 Check
         // if failed... delete file and try again?
-        if(file.getCRC().compareToIgnoreCase(Utilities.calculateCRC32(new File(destinationPath))) != 0)
+        try
         {
-            postEvent(Events.ErrorOccurred, "Copy CRC MISMATCH for file: " + file.getName());
+            if(file.getCRC().compareToIgnoreCase(Utilities.calculateCRC32(new File(destinationPath))) != 0)
+            {
+                postEvent(Events.ErrorOccurred, "Copy CRC MISMATCH for file: " + file.getName());
+            }
+        }
+        catch (ChecksumException e)
+        {
+            postEvent(Events.ErrorOccurred, e.getMessage());
         }
     }
 
