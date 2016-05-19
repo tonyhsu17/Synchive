@@ -14,13 +14,17 @@ import gui.tabbedPanels.FlagPanel.CompletionOptions;
 import synchive.EventCenter.Events;
 
 
-/** Centralized location for settings and allowing settings to be saved and loaded.
+/** 
+ * Singleton class for a centralized location to store settings.
+ * 
  * @author Tony Hsu
- * @component Model
  */
 public class Settings
 {
-    private static Settings self = new Settings(); // Lazy init for singleton
+    /**
+     * Singleton Initialization
+     */
+    private static Settings self = new Settings();
 
     // flags panel
     private String sourcePath;
@@ -76,8 +80,7 @@ public class Settings
     }
 
     /** 
-     * Get an instance of Settings.
-     * @return Settings singleton
+     * @return Singleton of Settings
      */
     public static Settings getInstance()
     {
@@ -95,8 +98,8 @@ public class Settings
             sc = new Scanner(settingsFile);
             while(sc.hasNextLine())
             {
-                String line = sc.nextLine();
-                String[] splitLine = line.split("=", 2);
+                String line = sc.nextLine(); // Grab each setting line
+                String[] splitLine = line.split("=", 2); // parse setting to [key, value]
                 String value = "";
                 for(int i = 1; i < splitLine.length; i++)
                 {
@@ -165,7 +168,7 @@ public class Settings
         {
             // Should not come here since file is confirmed first
         }
-        postEvent(Events.Status, "Settings Loaded");
+//        postEvent(Events.Status, "Settings Loaded"); // call never posted to anything from timing
     }
 
     /** 
@@ -250,6 +253,7 @@ public class Settings
     
     /**
      * Add prefixes to a given list of words (comma separated).
+     * 
      * @param str Words separated by comma
      * @param prefix Prefix to append to each word
      * @param toLowercase Should lowercase string?
@@ -268,6 +272,7 @@ public class Settings
     
     /**
      * Add prefixes to a given list of words (comma separated).
+     * 
      * @param str Words separated by comma
      * @param prefix Prefix to append to each word
      * @param toLowercase Should lowercase string?
@@ -292,6 +297,12 @@ public class Settings
         return (String[])values.toArray(new String[0]);
     }
     
+    /**
+     * Short handed method to post event
+     * 
+     * @param e Events
+     * @param obj Any data
+     */
     private void postEvent(Events e, String str)
     {
         EventCenter.getInstance().postEvent(e, str);
