@@ -12,7 +12,7 @@ import java.util.Hashtable;
  * 
  * TODO generate UID instead of passing it in
  * @author Tony Hsu
- * @process Hashtable containing events to subscribers and their function to call.
+ * @structure Hashtable containing events to subscribers and their function to call.
  */
 public class EventCenter
 {

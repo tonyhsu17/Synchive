@@ -21,7 +21,7 @@ import synchive.EventCenter.RunningStatusEvents;
  * Abstract class for handling files. Extend to process the information.
  * 
  * @author Tony Hsu
- * @structure 
+ * @structure Does not store any information processed, requires extending class to store information.
  */
 public abstract class FileProcessorBase
 {
