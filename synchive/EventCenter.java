@@ -80,7 +80,8 @@ public class EventCenter
     private Hashtable<Events, Hashtable<Object, EventFunction>> eventList; 
     
     /**
-     * Private initializer to prevent multiple instances.
+     * Private constructor to prevent instantiating multiple instances.
+     *  Use getInstance() to get singleton.
      */
     private EventCenter()
     {
