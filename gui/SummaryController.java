@@ -115,17 +115,9 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
                 EventCenter.getInstance().postEvent(Events.RunningStatus, 
                     new Object[] {EventCenter.RunningStatusEvents.Running, "Running"});
                 
-                try
-                {
-                    SynchiveDiff diff = new SynchiveDiff(
-                        new File(Settings.getInstance().getSourcePath()), new File(Settings.getInstance().getDestinationPath()));
-                    diff.syncLocations();
-                }
-                catch (IOException | Error e)
-                {
-                    EventCenter.getInstance().postEvent(Events.RunningStatus, 
-                        new Object[] {RunningStatusEvents.Error, "Error"});
-                }
+                SynchiveDiff diff = new SynchiveDiff(
+                    new File(Settings.getInstance().getSourcePath()), new File(Settings.getInstance().getDestinationPath()));
+                diff.syncLocations();
             }
         };
         executionThread.start();
