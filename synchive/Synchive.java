@@ -8,13 +8,18 @@ import synchive.EventCenter.RunningStatusEvents;
 
 
 /**
- * Created by Tony Hsu.
- * Overview: Used as a backup tool, NuttySync will sync one directory (source or master) and sub folders to
- * another directory (destination or backup). Any files not in destination but
- * in source will be moved to a dump folder. In order to achieve faster
- * performance in subsequent runs, a file will be generated that lists all items
- * in the directory. This file will be used as an alternative to reading in each
- * item in destination.
+ * <p>Used as a backup tool, Synchive will sync directory (source) to a backup location (destination). 
+ * Any files in destination not found in source will be moved to a dump folder.
+ * In order to achieve faster performance, an idFile will be generated in the destination location.
+ * The idFile will be parsed and read-in instead of reading each file. </p>
+ * 
+ * <p>As the idFile is interchangeable as source or destination, 
+ * one may use the destination as the source for another back up. </p>
+ * 
+ * <p>To achieve quick file reading for source, using (yet to be made: directory monitoring system) 
+ * will monitor the source location and keep an up-to-date idFile for the source.</p>
+ * 
+ * @author Tony Hsu
  */
 public class Synchive
 {
@@ -52,7 +57,7 @@ public class Synchive
             }
         }
         
-        if(!loadSettings)
+        if(!loadSettings) // don't load settings
         {
             Settings.getInstance().resetToDefaults();
         }
@@ -88,5 +93,4 @@ public class Synchive
         }
     }
     // String str = "ō"; //force file into UTF-8 encoding to change runtime
-    // environment encoding
 }
