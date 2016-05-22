@@ -112,7 +112,7 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
         
         Settings.getInstance().saveSettings();
         tabController.clearLogs(); // clear previous logs
-        watch.start(); // starts running time
+        watch.restart(); // starts running time
         
         SynchiveDiff diff;
         try
