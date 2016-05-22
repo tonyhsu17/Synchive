@@ -178,9 +178,7 @@ public final class Utilities
     }
     
     /**
-     * Exception Class for if CRC32 errors. Includes mismatch found unable to calculate.
-     * 
-     * @author Tony Hsu
+     * Exception Class for if CRC32 errors. Exception includes "mismatch found" or "unable to calculate crc32".
      */
     @SuppressWarnings("serial")
     public static class ChecksumException extends Exception
