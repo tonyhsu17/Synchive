@@ -1,6 +1,7 @@
 package synchive;
 
 import java.io.File;
+import java.io.IOException;
 
 import gui.SummaryController;
 import synchive.EventCenter.Events;
@@ -82,7 +83,7 @@ public class Synchive
                             new File(locations[0]), new File(locations[1]));
                         diff.syncLocations();
                     }
-                    catch (Error e)
+                    catch (Error | IOException e)
                     {
                         EventCenter.getInstance().postEvent(Events.RunningStatus, 
                             new Object[] {RunningStatusEvents.Error, "Error"});

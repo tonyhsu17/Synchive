@@ -42,8 +42,9 @@ public abstract class FileProcessorBase
      * Initializes a directory to be parsed and processed.
      * 
      * @param directory Directory to process
+     * @throws Throws folder not a directory
      */
-    public FileProcessorBase(File directory)
+    public FileProcessorBase(File directory) throws Error
     {
         if(!directory.isDirectory()) // break if not a folder
         {

@@ -16,7 +16,6 @@ import support.StopWatch;
 import support.StopWatch.StopWatchDelegate;
 import synchive.EventCenter;
 import synchive.EventCenter.Events;
-import synchive.EventCenter.RunningStatusEvents;
 import synchive.Settings;
 import synchive.SynchiveDiff;
 
@@ -101,26 +100,34 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
     
     /**
      * Start the location synchronization
-     * TODO: refactor for cleaner threading aka SynchiveDiff implements Runnable
      */
     public void runSynchiveDiffer()
     {
 //        SynchiveDiff diff = new SynchiveDiff(new File("E:\\TestA"), new File("E:\\TestB"));
-        Thread executionThread = new Thread()
+        File src = new File(Settings.getInstance().getSourcePath());
+        File des = new File(Settings.getInstance().getDestinationPath());
+        
+        EventCenter.getInstance().postEvent(Events.RunningStatus, 
+            new Object[] {EventCenter.RunningStatusEvents.Running, "Running"});
+        
+        Settings.getInstance().saveSettings();
+        tabController.clearLogs(); // clear previous logs
+        watch.start(); // starts running time
+        
+        SynchiveDiff diff;
+        try
         {
-            public void run() {
-                Settings.getInstance().saveSettings();
-                tabController.clearLogs();
-                watch.start();
-                EventCenter.getInstance().postEvent(Events.RunningStatus, 
-                    new Object[] {EventCenter.RunningStatusEvents.Running, "Running"});
-                
-                SynchiveDiff diff = new SynchiveDiff(
-                    new File(Settings.getInstance().getSourcePath()), new File(Settings.getInstance().getDestinationPath()));
-                diff.syncLocations();
-            }
-        };
-        executionThread.start();
+            diff = new SynchiveDiff(src, des);
+            
+            Thread executionThread = new Thread(diff);
+            executionThread.start(); // run the diff in a separate thread
+        }
+        catch (IOException e)
+        {
+            EventCenter.getInstance().postEvent(Events.ErrorOccurred, "Unable to make destination folder.");
+        }
+        
+        
     }
     
     /**

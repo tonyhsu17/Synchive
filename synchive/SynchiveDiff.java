@@ -25,7 +25,7 @@ import synchive.EventCenter.RunningStatusEvents;
  * 
  * @author Tony Hsu
  */
-public class SynchiveDiff
+public class SynchiveDiff implements Runnable
 {
     /**
      * Folder name of extra files in destination
@@ -57,14 +57,17 @@ public class SynchiveDiff
      * 
      * @param curDir Source location
      * @param backupDir Destination location
+     * @throws IOException 
      */
-    public SynchiveDiff(File curDir, File backupDir) 
+    public SynchiveDiff(File curDir, File backupDir) throws Error, IOException 
     {
         this.srcLoc = curDir;
         this.desLoc = backupDir;
 
-        desReader = new DestinationFileProcessor(backupDir);
-        
+        if(!backupDir.exists())
+        {
+            createDirectory(backupDir);
+        }
     }
     
     /**
@@ -72,6 +75,7 @@ public class SynchiveDiff
      */
     private void readInLocations()
     {
+        desReader = new DestinationFileProcessor(desLoc);
         destinationList = desReader.getFiles();
         SourceFileProcessor rd = new SourceFileProcessor(srcLoc);
         sourceList = rd.getFiles();
@@ -85,9 +89,9 @@ public class SynchiveDiff
      */
     public void syncLocations()
     {
-        readInLocations(); // populate file list
         try
         {
+            readInLocations(); // populate file list
             postEvent(Events.Status, "Comparing Differences...");
             for(int i = 0; i < sourceList.size(); i++)
             {
@@ -338,5 +342,11 @@ public class SynchiveDiff
     private void postEvent(Events e, Object obj)
     {
         EventCenter.getInstance().postEvent(e, obj);
+    }
+
+    @Override
+    public void run()
+    {
+        syncLocations();
     }
 }
