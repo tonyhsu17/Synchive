@@ -5,7 +5,7 @@ In order to achieve faster performance in subsequent runs, a file will be genera
 items in the backup directory. This file will be used as an alternative to reading each item in backup. 
 
 ## Features
-- Check CRC before copying
+- Check CRC32 before copying
 - Print Status Report
 - Drag n Drop support to folder location
 - Persistent Settings
@@ -19,19 +19,7 @@ items in the backup directory. This file will be used as an alternative to readi
 - Read from ID file for source
 - Add Change log
 
-## Additional Features To Implement
-In no particular order:
-- Add java docs and comments for everything
-- Add command line ability (-nogui ...) (TODO TEST)
-- Allow pausing or stopping
-- Add folder selection for locations ("..." button)
-- Include verbosity level for status reports
-- Add tooltips
-- Add test cases 
-- Multiple profiles
-- Create Des directory if needed
-- Add UI resizing 
-- refactor EventCenter to take in object & generateID from there
+
 
 
 

@@ -76,7 +76,6 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
 
     /**
      * Shows the GUI. 
-     * TODO refactor?
      */
     public void run()
     {

@@ -23,14 +23,13 @@ import synchive.EventCenter.RunningStatusEvents;
  * @author Tony Hsu
  */
 public class Synchive
-{
+{   
     /**
      * Launch the application.
      */
     public static void main(String[] args)
     {
         boolean showGUI = true;
-        boolean loadSettings = true;
         String[] locations = {"", ""};
         
         // parse arguments
@@ -45,7 +44,7 @@ public class Synchive
                         showGUI = false;
                         break;
                     case "-default": // load default settings
-                        loadSettings = false;
+                        Settings.getInstance().resetToDefaults();
                         break;
                     default:
                         if(!str.trim().startsWith("-") && index < locations.length)
@@ -58,39 +57,17 @@ public class Synchive
             }
         }
         
-        if(!loadSettings) // don't load settings
-        {
-            Settings.getInstance().resetToDefaults();
-        }
+        SummaryController controller = new SummaryController();
         
         if(showGUI)
         {
-            SummaryController controller = new SummaryController();
             controller.run();
         }
         else
         {
-            Thread executionThread = new Thread()
-            {
-                public void run() {
-                    Settings.getInstance().saveSettings();
-                    EventCenter.getInstance().postEvent(Events.RunningStatus, 
-                        new Object[] {EventCenter.RunningStatusEvents.Running, "Running"});
-                    
-                    try
-                    {
-                        SynchiveDiff diff = new SynchiveDiff(
-                            new File(locations[0]), new File(locations[1]));
-                        diff.syncLocations();
-                    }
-                    catch (Error | IOException e)
-                    {
-                        EventCenter.getInstance().postEvent(Events.RunningStatus, 
-                            new Object[] {RunningStatusEvents.Error, "Error"});
-                    }
-                }
-            };
-            executionThread.start();
+            Settings.getInstance().setSourcePath(locations[0]);
+            Settings.getInstance().setDestinationPath(locations[1]);
+            controller.runSynchiveDiffer();
         }
     }
     // String str = "ō"; //force file into UTF-8 encoding to change runtime

@@ -1,19 +1,25 @@
 Change Log
 
+v1.0
+
+- Ability to verify CRC32 from filename before copying
+- Persistent Settings
+- Skip specific folders
+- Skip extension type
+- Drag n Drop support for (source path, destination path, skip folder, skip extension type, add CRC32 to extension type)
+- Rename file to include CRC
+- Create Destination directory if needed
+- Print Status Report
+- Added java doc and comments
+- UI indication if something goes wrong
+- Current runtime indication
+- Disabled "Run" until completion
+- Completion Options
+- Read from idFile 
+- Add command line ability (-nogui ...) (not fully tested)
 
 
 
 
-V1.0
-First Stable Release
 
 
-
-
-
-
-
-
-BUGS
-- Name.mkv -> Name[CRC].mkv BUG
-- Timer continues

@@ -48,3 +48,7 @@ Temporary Items
 *.class
 *.prefs
 ~synchiveSettings.txt
+/bin/
+
+*.classpath
+*.project

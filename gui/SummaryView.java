@@ -14,6 +14,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import support.FileDrop;
+import synchive.Globals;
 
 /**
  * View displaying source & destination location as well as program status.
@@ -82,7 +83,7 @@ public class SummaryView
     private void initialize()
     {
         synchiveFrame = new JFrame();
-        synchiveFrame.setTitle("Synchive");
+        synchiveFrame.setTitle("Synchive " + Globals.VERSION);
         synchiveFrame.setBounds(100, 100, 526, 322);
         synchiveFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
