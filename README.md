@@ -11,17 +11,16 @@ items in the backup directory. This file will be used as an alternative to readi
 - Persistent Settings
 - Rename file to include CRC (drag n drop supported for extension type)
 - Skip specific folders (drag n drop supported)
-- Skip extension type (drag n drop support)
+- Skip extension type (drag n drop supported)
 - UI indication if something goes wrong
 - Include current progress
-- Disabled "Run" until completion
 - Completion Options
-- Read from ID file for source
-- Add Change log
+- Read from ID file for source and destination
 
 
-
-
+## Images
+<a href="http://imgur.com/OvYHB7q"><img src="http://i.imgur.com/OvYHB7q.jpg" title="Flag Panel" /></a>
+<a href="http://imgur.com/v1S17Hu"><img src="http://i.imgur.com/v1S17Hu.jpg" title="CRC Options" /></a>
 
 
 
