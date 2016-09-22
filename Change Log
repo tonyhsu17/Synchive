@@ -1,7 +1,10 @@
 Change Log
 
+v1.2
+- source idFile updated to include file renaming changes if source idFile exist
+
 v1.1
-- CRC now added to filename from fileID
+- CRC now added to filename from idFile
 - Fixed spacing issue with adding CRC to filename ('.' and single words)
 - Fixed bad file parsing check
 - Fixed version consistency

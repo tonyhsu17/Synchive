@@ -1,6 +1,7 @@
 package fileManagement.fileProcessor;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import fileManagement.SynchiveDirectory;
@@ -30,6 +31,17 @@ public class SourceFileProcessor extends FileProcessorBase
         fileList = new ArrayList<SynchiveFile>(); // source uses flat mapping
         EventCenter.getInstance().postEvent(Events.Status, "Processing Source ...");
         readinIDs();
+        if(doesRootIDFileExist() && hasDoneFileRenaming())
+        {
+            try
+            {
+                writeToFile(false);
+            }
+            catch (IOException e)
+            {
+                EventCenter.getInstance().postEvent(Events.ErrorOccurred, "Failed to write to idFile.");
+            }
+        }
         EventCenter.getInstance().postEvent(Events.Status, "Finished Processing Source");
     }
     

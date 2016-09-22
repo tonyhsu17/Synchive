@@ -148,7 +148,7 @@ public class SynchiveDiff implements Runnable
             }
             
             // after completing all files
-            postEvent(Events.ProcessingFile, "Rewritting CRC file...");
+//            postEvent(Events.ProcessingFile, "Rewritting CRC file...");
             desReader.writeToFile(true); // writes idFile for destination
             cleanupDestination(); // cleanup
             postEvent(Events.Status, "Operation Completed");

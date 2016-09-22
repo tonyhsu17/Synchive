@@ -1,18 +1,27 @@
 package fileManagement.fileProcessor;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Stack;
 
 import fileManagement.SynchiveDirectory;
 import fileManagement.SynchiveFile;
+import fileManagement.SynchiveDirectory.FileFlag;
 import support.Utilities;
 import support.Utilities.ChecksumException;
 import synchive.EventCenter;
+import synchive.Globals;
 import synchive.Settings;
 import synchive.EventCenter.Events;
 import synchive.EventCenter.RunningStatusEvents;
@@ -39,6 +48,21 @@ public abstract class FileProcessorBase
     private Stack<SynchiveFile> directoriesToProcess;
     
     /**
+     * Structured mapping of "DirectoryID" -> "SynchiveDirectory"
+     */
+    private Hashtable<String, SynchiveDirectory> directoryList;
+    
+    /**
+     * Flag to determine if reading from idFile or not
+     */
+    private boolean doesRootIDFileExist;
+    
+    /**
+     * Flag to determine if file renaming has occurred
+     */
+    private boolean hasDoneRenaming;
+    
+    /**
      * Initializes a directory to be parsed and processed.
      * 
      * @param directory Directory to process
@@ -55,14 +79,17 @@ public abstract class FileProcessorBase
             throw new Error(errorDescription);
         }
         
+        doesRootIDFileExist = false;
+        hasDoneRenaming = false;
         this.root = directory;
         
         directoriesToProcess = new Stack<SynchiveFile>(); // used to recurse through all folders
         directoriesToProcess.add(new SynchiveFile(directory)); // adds root dir
+        directoryList = new Hashtable<String, SynchiveDirectory>(); // parser uses structural mapping
     }
     
     /**
-     * Parses and processes a directory including idFiles. Providing useful information to abstract methods.
+     * Parses and processes a directory including idFiles. Stores parsed info and providing useful information to abstract methods.
      */
     public void readinIDs()
     {
@@ -82,17 +109,22 @@ public abstract class FileProcessorBase
             if(idFiles.length == 0)
             {
                 String dirID = SynchiveDirectory.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
-                willProcessDirectory(new SynchiveDirectory(dirID)); // abstract method
+                processingDirectory(new SynchiveDirectory(dirID)); // internally store info & abstract method
                 readFilesWithinDirectory(file);
             }
             else
             {
                 try
                 {
-                    // if current file is a subIDFile
-                    if(!file.getPath().equals(getRoot())) 
+                    // check if idFile is in root or not
+                    if(file.getPath().equals(getRoot().getPath())) 
                     {
-                        //TODO Delete subIDFile sometime later?
+                        doesRootIDFileExist = true;
+                    }
+                    else
+                    {
+                        // if current file is a subIDFile
+                        //TODO Delete subIDFile sometime later? or update it?
                     }
                     
                     postEvent(Events.Status, "Reading in fileIDs for \"" + idFiles[0].getParentFile().getName() + "\"");
@@ -165,7 +197,7 @@ public abstract class FileProcessorBase
                     if(temp.copyAllowed())
                     {
                         String dirID = SynchiveDirectory.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
-                        didProcessFile(temp, new SynchiveDirectory(dirID)); // abstract method
+                        fileProcessed(temp, new SynchiveDirectory(dirID)); // internally store info & abstract method
                     }
                 }
             }
@@ -209,7 +241,7 @@ public abstract class FileProcessorBase
             String dirID = SynchiveDirectory.getDirectoryUniqueID(path, newLevel, getRoot().getPath());
             SynchiveDirectory dir = new SynchiveDirectory(dirID);
             
-            willProcessDirectory(dir); // abstract method
+            processingDirectory(dir); // internally store info & abstract method
             
             str = sc.readLine();
             while(str != null && !str.startsWith(DIR_LINE_PREFIX)) // store files in folder
@@ -234,7 +266,7 @@ public abstract class FileProcessorBase
                 SynchiveFile temp = addCRCToFilename(info); // will return normal name if option not checked
                 
                 
-                didProcessFile(temp, dir); // abstract method
+                fileProcessed(temp, dir); // internally store info & abstract method
                 str = sc.readLine();
             }
         }
@@ -266,6 +298,7 @@ public abstract class FileProcessorBase
                     {
                         if(temp.renameTo(newFile))
                         {
+                            hasDoneRenaming = true;
                             return new SynchiveFile(newFile, temp.getDepth(), temp.getCRC());
                         }
                         else
@@ -283,6 +316,68 @@ public abstract class FileProcessorBase
             }
         }
         return temp;
+    }
+    
+    /**
+     * Write-out the structural mapping for storage.
+     * @param checkExist If true, skip files with FILE_NOT_EXIST flag. If false, include every file.
+     * @throws IOException Exceptions thrown from BufferWriter
+     */
+    public void writeToFile(boolean checkExist) throws IOException
+    {
+        CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
+        BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(getRoot().getPath() + "\\" + Utilities.ID_FILE_NAME)), encoder));
+        output.write("Synchive " + Globals.VERSION + " - root=" + getRoot().getPath());
+        output.newLine();
+        
+        Enumeration<String> keys = directoryList.keys();
+        while(keys.hasMoreElements())
+        {
+            String key = keys.nextElement();
+            SynchiveDirectory dir = directoryList.get(key);
+            output.write(dir.getUniqueID());
+            output.newLine();
+            
+            Hashtable<String, FileFlag> file = dir.getLookupTable();
+            Enumeration<String> fileEnum = file.keys();
+            while(fileEnum.hasMoreElements())
+            {
+                String fileID = fileEnum.nextElement();
+                if(checkExist && file.get(fileID) != FileFlag.FILE_EXIST)
+                {
+                    continue;
+                }
+                output.write(fileID);
+                output.newLine();
+            }
+        }
+        output.close();
+        postEvent(Events.Status, "Finished writting to IDFile");
+    }
+    
+    /**
+     * Method gets called for each file (non directory) processed.
+     * Stores information and calls abstract method.
+     * @param file File processed
+     * @param dir Directory of file
+     */
+    private void fileProcessed(SynchiveFile file, SynchiveDirectory dir)
+    {
+        // Stores the file within it's directory 
+        directoryList.get(dir.getUniqueID()).addFile(file.getUniqueID(), FileFlag.FILE_NOT_EXIST);
+        didProcessFile(file, dir);
+    }
+    
+    /**
+     * Method gets called for each directory processed
+     * Stores information and calls abstract method.
+     * @param dir Directory to be processed
+     */
+    private void processingDirectory(SynchiveDirectory dir)
+    {
+        // Stores the directory into hashtable
+        directoryList.put(dir.getUniqueID(), new SynchiveDirectory(dir.getUniqueID()));
+        willProcessDirectory(dir);
     }
     
     /**
@@ -313,6 +408,29 @@ public abstract class FileProcessorBase
         return root;
     }
     
+    /**
+     * @return True if idFile of root exist
+     */
+    public boolean doesRootIDFileExist()
+    {
+        return doesRootIDFileExist;
+    }
+    
+    /**
+     * @return True if any file has been renamed
+     */
+    public boolean hasDoneFileRenaming()
+    {
+        return hasDoneRenaming;
+    }
+    
+    /**
+     * @return Structural mapping of each folder
+     */
+    public Hashtable<String, SynchiveDirectory> getStructuredMapping()
+    {
+        return directoryList;
+    }
     // ~~~~~ Required override methods ~~~~~~ //
     /**
      * Method gets called for each file (non directory) processed
