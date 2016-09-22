@@ -194,6 +194,7 @@ public abstract class FileProcessorBase
         String locationDir = file.getParentFile().getPath(); // directory of root        
         
         str = sc.readLine();
+        //TODO: skip directory && extension types
         while(str != null && str.startsWith(DIR_LINE_PREFIX)) // not finished and is a folder
         {
             String[] splitDir = str.split(" ", 2); // [level, path]
@@ -214,16 +215,24 @@ public abstract class FileProcessorBase
             while(str != null && !str.startsWith(DIR_LINE_PREFIX)) // store files in folder
             {
                 String[] splitStr = str.split(" ", 2); // [crc, name]
-                if(splitDir.length != 2)
+                if(splitStr.length != 2)
                 {
                     sc.close();
                     throw new IOException("Bad format found");
                 }
+                
+               
+                
                 // reconstruct file path (root path + directory path + fileName)
                 String fileLoc = locationDir + splitDir[1] + "\\" + 
                     splitStr[1].substring(1, splitStr[1].length() - 1);
-                SynchiveFile temp = new SynchiveFile(
+                
+                // add crc to filename is flag checked 
+                // TODO improve efficiency by checking if file generated with Synchive Monitor)
+                SynchiveFile info = new SynchiveFile(
                     new File(fileLoc), newLevel, splitStr[0]);
+                SynchiveFile temp = addCRCToFilename(info); // will return normal name if option not checked
+                
                 
                 didProcessFile(temp, dir); // abstract method
                 str = sc.readLine();

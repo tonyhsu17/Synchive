@@ -5,6 +5,6 @@ public class Globals
     /**
      * Program version
      */
-    public static final String VERSION = "v1.0";
+    public static final String VERSION = "v1.1";
     
 }

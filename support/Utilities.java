@@ -76,25 +76,26 @@ public final class Utilities
         }
         if(addExtraSpacing) // if no tags detected, determine if using spaces, underscores, or dots
         {
-            String[] dotsSplit = fullName.split(".");
+            String[] dotsSplit = fullName.split("\\."); // '.' is a expression char
             String[] underscoresSplit = fullName.split("_");
             String[] spacesSplit = fullName.split(" ");
-            
+           
             // check which one is used most, default is no space
             // examples: Hello.World, Hello World, Hello_World, HelloWorld
             // Length must be greater than one to exist
-            if (dotsSplit.length > 1 && 
+            if(dotsSplit.length > 1 && 
                 dotsSplit.length > Math.max(underscoresSplit.length, spacesSplit.length))
             {
                 additionalSpacing = ".";
             }
-            else if (underscoresSplit.length > 1 && 
+            else if(underscoresSplit.length > 1 && 
                 underscoresSplit.length > Math.max(dotsSplit.length, spacesSplit.length))
             {
                 additionalSpacing = "_";
             }
-            else if (spacesSplit.length > 1 && 
-                spacesSplit.length > Math.max(dotsSplit.length, underscoresSplit.length))
+            else if((spacesSplit.length > 1 &&
+                spacesSplit.length > Math.max(dotsSplit.length, underscoresSplit.length)) ||
+                (spacesSplit.length == 1 && spacesSplit[0].equals(fullName)))
             {
                 additionalSpacing = " ";
             }

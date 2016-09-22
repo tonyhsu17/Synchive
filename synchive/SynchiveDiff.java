@@ -198,6 +198,7 @@ public class SynchiveDiff implements Runnable
         {
             postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
         }
+
         // CRC32 Check
         // if failed... delete file and try again?
         // is this even necessary?

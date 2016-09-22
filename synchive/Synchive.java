@@ -1,12 +1,6 @@
 package synchive;
 
-import java.io.File;
-import java.io.IOException;
-
 import gui.SummaryController;
-import synchive.EventCenter.Events;
-import synchive.EventCenter.RunningStatusEvents;
-
 
 /**
  * <p>Used as a backup tool, Synchive will sync directory (source) to a backup location (destination). 

@@ -16,6 +16,7 @@ import fileManagement.SynchiveDirectory.FileFlag;
 import support.Utilities;
 import synchive.EventCenter;
 import synchive.EventCenter.Events;
+import synchive.Globals;
 
 /**
  * Store the entire destination location into memory for processing. 
@@ -62,7 +63,7 @@ public class DestinationFileProcessor extends FileProcessorBase
     {
         CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
         BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(getRoot().getPath() + "\\" + Utilities.ID_FILE_NAME)), encoder));
-        output.write("Synchive v0.1 - root=" + getRoot().getPath());
+        output.write("Synchive " + Globals.VERSION + " - root=" + getRoot().getPath());
         output.newLine();
         
         Enumeration<String> keys = directoryList.keys();
