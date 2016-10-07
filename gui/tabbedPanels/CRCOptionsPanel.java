@@ -222,12 +222,12 @@ public class CRCOptionsPanel extends JPanel
                     @Override
                     public void run()
                     {
-                        String extensions = extensionTypeTextField.getText();
+                        String extensions = Utilities.addSeparator(extensionTypeTextField.getText(), ",", true);
                         Set<String> extenSet = Utilities.getExtensionsForFiles(files);
+                        
                         for(String str : extenSet)
                         {
-                         // don't add a comma in the beginning if there is text
-                            extensions += (Utilities.stringEndsWith(str, new String[] {"", ",", " "}) ? "" : ", ") + str + ", ";
+                            extensions += str + ", ";
                         }
                         extensionTypeTextField.setText(extensions);
                         delegate.crcForExtensionTypeTextChanged(extensionTypeTextField, extensions);

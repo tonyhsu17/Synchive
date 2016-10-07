@@ -38,10 +38,10 @@ public final class Utilities
      * @param filename Filename to parse
      * @return Extension of filename including '.'
      */
-    public static final String getExtensionType(String filename)
+    public static String getExtensionType(String filename)
     {
         String[] splitStr = filename.split("[.]");
-        if(splitStr.length == 1) // no extension found
+        if(splitStr.length == 1 || splitStr.length == 0) // no extension found
         {
             return "";
         }
@@ -57,7 +57,7 @@ public final class Utilities
      * @param encasement Delimiters to surround CRC in
      * @return Filename with CRC
      */
-    public static final String getFilenameWithCRC(String filename, String extension, String CRC, String[] encasement)
+    public static String getFilenameWithCRC(String filename, String extension, String CRC, String[] encasement)
     {
         // passing in extension instead of calling Utilities.getExtensionType to save an additional call
         final String[] delimiters = {")", "}", "]", "-", "_", "+", "="}; // used to check if extra spacing is required or not.
@@ -111,7 +111,7 @@ public final class Utilities
      * @param file File or directory to search through
      * @return A set of all extensions in the file or directory
      */
-    public static final Set<String> getExtensionsForFiles(File[] file)
+    public static Set<String> getExtensionsForFiles(File[] file)
     {
         Set<String> types = new HashSet<String>();
         for(File f : file)
@@ -129,22 +129,24 @@ public final class Utilities
     }
     
     /**
-     * Checks if string ends with patterns.
+     * Adds separator to string if there is no separator at the end.
      * 
-     * @param string String to compare to
-     * @param pattern List of patterns to compare with
-     * @return True if string ends with a pattern
+     * @param string String to add separator to
+     * @param separator Separator to add
+     * @param includeSpace Add extra space to the end if true
+     * @return String with separator if condition met
      */
-    public static final boolean stringEndsWith(String string, String[] pattern)
+    public static String addSeparator(String string, String separator, boolean includeSpace)
     {
-        for(String str : pattern)
+        String trimmed = string.trim();
+        if(trimmed.isEmpty() || trimmed.endsWith(separator.trim()))
         {
-            if((str.equals("") && str.isEmpty()) || string.endsWith(str))
-            {
-                return true;
-            }
+            return string;
         }
-        return false;
+        else
+        {
+            return trimmed + separator + (includeSpace ? " " : "");
+        }
     }
 
     /**
@@ -153,7 +155,7 @@ public final class Utilities
      * @param file File to compute the CRC value
      * @return CRC value formatted in 8 length hexadecimal
      */
-    public static final String calculateCRC32(File file) throws ChecksumException
+    public static String calculateCRC32(File file) throws ChecksumException
     {
         String hex = "";
         try

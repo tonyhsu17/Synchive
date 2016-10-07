@@ -216,13 +216,13 @@ public class FlagPanel extends JPanel
                     @Override
                     public void run()
                     {
-                        String str = skipFolderTextField.getText();
+                        String str = Utilities.addSeparator(skipFolderTextField.getText(), ",", true);
+                        
                         for(File file : files)
                         {
                             if(file.isDirectory())
                             {
-                             // don't add a comma in the beginning if there is text
-                                str += (Utilities.stringEndsWith(str, new String[] {"", ",", " "}) ? "" : ", ") + file.getName() + ", ";
+                                str += file.getName() + ", ";
                             }
                         }
                         skipFolderTextField.setText(str);
@@ -271,12 +271,12 @@ public class FlagPanel extends JPanel
                     @Override
                     public void run()
                     {
-                        String extensions = skipExtensionTextField.getText();
+                        String extensions = Utilities.addSeparator(skipExtensionTextField.getText(), ",", true);
                         Set<String> extenSet = Utilities.getExtensionsForFiles(files);
+                        
                         for(String str : extenSet)
                         {
-                            // don't add a comma in the beginning if there is text
-                            extensions += (Utilities.stringEndsWith(str, new String[] {"", ",", " "}) ? "" : ", ") + str + ", ";
+                            extensions += str + ", ";
                         }
                         skipExtensionTextField.setText(extensions);
                         delegate.skipExtensionTextChanged(skipExtensionTextField, extensions);
