@@ -5,13 +5,25 @@ package tests;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Arrays;
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import support.Utilities;
+import support.Utilities.ChecksumException;
 
 /**
  * @author Ikersaro
@@ -19,6 +31,8 @@ import support.Utilities;
  */
 public class UtilitiesJUnit
 {
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
     /**
      * @throws java.lang.Exception
@@ -26,6 +40,7 @@ public class UtilitiesJUnit
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
+//        folder = new TemporaryFolder();
     }
 
     /**
@@ -34,6 +49,7 @@ public class UtilitiesJUnit
     @AfterClass
     public static void tearDownAfterClass() throws Exception
     {
+//        folder.delete();
     }
 
     /**
@@ -53,7 +69,7 @@ public class UtilitiesJUnit
     }
 
     @Test
-    public void test()
+    public void test() throws IOException
     {
         testGetExtensionType();
         testGetFilenameWithCRC();
@@ -85,7 +101,10 @@ public class UtilitiesJUnit
     
     public void testGetFilenameWithCRC()
     {
-        String fileWithCRC = Utilities.getFilenameWithCRC("asd.exe", ".exe", "ffffff", new String[] {"[","]"});
+        String fileWithCRC = Utilities.getFilenameWithCRC(null, ".exe", "ffffff", new String[] {"[","]"});
+        assertEquals(null, fileWithCRC);
+        
+        fileWithCRC = Utilities.getFilenameWithCRC("asd.exe", ".exe", "ffffff", new String[] {"[","]"});
         assertEquals("asd [FFFFFF].exe", fileWithCRC);
         
         fileWithCRC = Utilities.getFilenameWithCRC("a s d.exe", ".exe", "ffffff", new String[] {"[","]"});
@@ -105,15 +124,42 @@ public class UtilitiesJUnit
         
         fileWithCRC = Utilities.getFilenameWithCRC("a-e-I - 01 [m].mkv", ".mkv", "aaaa", new String[] {"[","]"});
         assertEquals("a-e-I - 01 [m][AAAA].mkv", fileWithCRC);
+        
+        fileWithCRC = Utilities.getFilenameWithCRC("asd.exe", null, "ffffff", new String[] {"[","]"});
+        assertEquals("asd [FFFFFF].exe", fileWithCRC);
     }
     
-    public void testGetExtensionsForFiles()
+    public void testGetExtensionsForFiles() throws IOException
     {
+        assertEquals(null, Utilities.getExtensionsForFiles(null));
+        
+        folder.newFile("asd.txt");
+        folder.newFile("asd.exe");
+        folder.newFile("asd.wav");
+        folder.newFile("asd.mp3");
+        folder.newFile("hello.world.py");
+        folder.newFile("no_extension");
+        folder.newFile(".hidden");
+        File subFolder = folder.newFolder();
+        File.createTempFile("prefix", ".folder", subFolder);
+        
+        // sort arrays for consistent assert
+        Set<String> actual = Utilities.getExtensionsForFiles(new File[] {folder.getRoot()});
+        String[] actualArr = actual.toArray(new String[actual.size()]);
+        Arrays.sort(actualArr);
+        
+        String[] expectedArr = {".txt", ".exe", ".wav", ".mp3", ".py", ".hidden", ".folder"};
+        Arrays.sort(expectedArr);
+        
+        assertEquals(Arrays.toString(expectedArr), Arrays.toString(actualArr));
     }
     
     public void testAddSeparator()
     {
-        String string = Utilities.addSeparator("asd, ", ",", true);
+        String string = Utilities.addSeparator(null, ",", true);
+        assertEquals(null, string);
+        
+        string = Utilities.addSeparator("asd, ", ",", true);
         assertEquals("asd, ", string);
         
         string = Utilities.addSeparator("asd, ", ", ", false);
@@ -138,7 +184,27 @@ public class UtilitiesJUnit
         assertEquals("", string);
     }
     
-    public void testCalculateCRC32()
+    public void testCalculateCRC32() throws IOException
     {
+        try
+        {
+            assertEquals(null, Utilities.calculateCRC32(null));
+            
+            File temp = folder.newFile();
+            FileWriter writer = new FileWriter(temp);
+            writer.write("abc");
+            writer.close();
+            
+            assertEquals("00000000", Utilities.calculateCRC32(folder.newFile()));
+            assertEquals("352441c2", Utilities.calculateCRC32(temp));
+            
+            Utilities.calculateCRC32(new File("asd"));
+            assert(false);
+        }
+        catch (ChecksumException e)
+        {
+            assert(true);
+        }
     }
+    
 }

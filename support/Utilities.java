@@ -40,6 +40,11 @@ public final class Utilities
      */
     public static String getExtensionType(String filename)
     {
+        if(filename == null) 
+        {
+            return null;
+        }
+        
         String[] splitStr = filename.split("[.]");
         if(splitStr.length == 1 || splitStr.length == 0) // no extension found
         {
@@ -52,13 +57,22 @@ public final class Utilities
      * Returns file name including CRC value. 
      * 
      * @param filename Filename with extension
-     * @param extension Extension of filename (including '.')
+     * @param extension Extension of filename (including '.'), if null, will automatically determine extension
      * @param CRC CRC value to put into filename
      * @param encasement Delimiters to surround CRC in
      * @return Filename with CRC
      */
     public static String getFilenameWithCRC(String filename, String extension, String CRC, String[] encasement)
     {
+        if(filename == null || CRC == null || encasement == null) 
+        {
+            return null;
+        }
+        else if(extension == null)
+        {
+            extension = Utilities.getExtensionType(filename);
+        }
+        
         // passing in extension instead of calling Utilities.getExtensionType to save an additional call
         final String[] delimiters = {")", "}", "]", "-", "_", "+", "="}; // used to check if extra spacing is required or not.
         boolean addExtraSpacing = true;
@@ -113,6 +127,11 @@ public final class Utilities
      */
     public static Set<String> getExtensionsForFiles(File[] file)
     {
+        if(file == null) 
+        {
+            return null;
+        }
+        
         Set<String> types = new HashSet<String>();
         for(File f : file)
         {
@@ -122,7 +141,11 @@ public final class Utilities
             }
             else
             {
-                types.add(Utilities.getExtensionType(f.getName()));
+                String temp = Utilities.getExtensionType(f.getName());
+                if(temp.length() > 0) 
+                {
+                    types.add(temp);
+                }
             }
         }
         return types;
@@ -138,6 +161,11 @@ public final class Utilities
      */
     public static String addSeparator(String string, String separator, boolean includeSpace)
     {
+        if(string == null || separator == null) 
+        {
+            return null;
+        }
+        
         String trimmed = string.trim();
         if(trimmed.isEmpty() || trimmed.endsWith(separator.trim()))
         {
@@ -153,10 +181,14 @@ public final class Utilities
      * Calculates the CRC32 value of a file.
      * 
      * @param file File to compute the CRC value
-     * @return CRC value formatted in 8 length hexadecimal
+     * @return CRC value formatted in 8 length hexadecimal in lowercase
      */
     public static String calculateCRC32(File file) throws ChecksumException
     {
+        if(file == null)
+        {
+            return null;
+        }
         String hex = "";
         try
         {
@@ -169,9 +201,9 @@ public final class Utilities
             hex = Long.toHexString(cis.getChecksum().getValue());
             cis.close();
         }
-        catch (IOException e)
+        catch (IOException | NullPointerException e)
         {
-            throw new ChecksumException("Unable to determine CRC32 value for file: " + file.getName());
+            throw new ChecksumException("Unable to determine CRC32 value for file: " + file.getName());  
         }
         for(int i = hex.length(); i < CRC32_LENGTH; i++)
         {
