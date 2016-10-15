@@ -1,7 +1,9 @@
 package fileManagement;
 
-import java.util.Enumeration;
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Map.Entry;
+import java.util.Set;
 
  
 /**
@@ -115,19 +117,25 @@ public class SynchiveDirectory
         return false;
     }
     
-    // Dumps a list of files with flag value
+    // Dumps a sorted list of files with flag value
     public String toString()
     {
-        Enumeration<String> list = files.keys();
-        String str = "[\n";
-        while(list.hasMoreElements())
+        Set<Entry<String, FileFlag>> asd = files.entrySet();
+        String[] list = new String[asd.size()];
+        int index = 0;
+        
+        for(Entry<String, FileFlag> entry : asd)
         {
-            String name = list.nextElement();
-            FileFlag flag = files.get(name);
-            str += "name: " + list.nextElement() + " flag: " + flag + ",\n";
+            list[index++] = "\n  name: " + entry.getKey() + " flag: " + entry.getValue();
         }
-        str += "]";
-        return str;
+        
+        Arrays.sort(list);
+        
+        if(list.length > 0)
+        {
+            list[list.length - 1] += "\n  ";
+        }
+        return Arrays.toString(list);
     }
 
     // ~~~~~ Getters & Setters ~~~~~ //

@@ -216,7 +216,6 @@ public abstract class FileProcessorBase
             new InputStreamReader(
                              new FileInputStream(file), "UTF8"));
         String str = sc.readLine(); // strip out header
-        
         if(str == null) // in-case of empty file
         {
             sc.close();
@@ -252,8 +251,6 @@ public abstract class FileProcessorBase
                     sc.close();
                     throw new IOException("Bad format found");
                 }
-                
-               
                 
                 // reconstruct file path (root path + directory path + fileName)
                 String fileLoc = locationDir + splitDir[1] + "\\" + 

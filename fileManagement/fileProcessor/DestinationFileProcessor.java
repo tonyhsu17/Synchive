@@ -2,6 +2,7 @@ package fileManagement.fileProcessor;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -39,20 +40,26 @@ public class DestinationFileProcessor extends FileProcessorBase
         EventCenter.getInstance().postEvent(Events.Status, "Finished Processing Destination");
     }
     
-    // Dumps the lookup table of DirectoryID including what's in each directory
+    // Dumps the lookup table sorted of DirectoryID including what's in each directory 
     public String toString()
     {
         Hashtable<String, SynchiveDirectory> directories = getFiles();
         Enumeration<String> keys = directories.keys();
-        String str = "{\n";
+        
+        String[] result = new String[directories.size()];
+        int index = 0;
         while(keys.hasMoreElements())
         {
             String key = keys.nextElement();
             SynchiveDirectory dir = directories.get(key);
-            str += "\t{" + key + ": " + dir.toString() + "\n";
+            result[index++] = "\n" + key + "\n  " + dir.toString();
         }
-        str += "}";
-        return str;
+        Arrays.sort(result);
+        if(result.length > 0)
+        {
+            result[result.length - 1] += "\n";
+        }
+        return Arrays.toString(result);
     }
     
     // ~~~~~ Getters & Setters ~~~~~~ //

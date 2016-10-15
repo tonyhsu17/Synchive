@@ -5,12 +5,9 @@ package tests;
 
 import static org.junit.Assert.*;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -26,8 +23,9 @@ import support.Utilities;
 import support.Utilities.ChecksumException;
 
 /**
- * @author Ikersaro
- *
+ * JUnit Test Runner
+ * 
+ * @author Tony Hsu
  */
 public class UtilitiesJUnit
 {
@@ -40,7 +38,7 @@ public class UtilitiesJUnit
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-//        folder = new TemporaryFolder();
+        
     }
 
     /**
@@ -49,7 +47,7 @@ public class UtilitiesJUnit
     @AfterClass
     public static void tearDownAfterClass() throws Exception
     {
-//        folder.delete();
+
     }
 
     /**
