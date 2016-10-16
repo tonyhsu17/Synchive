@@ -77,13 +77,8 @@ public class DestFileProcJUnitTest
     {
         
     }
-
-    @Test
-    public void test() throws IOException
-    {
-        testDecodedFile();
-    }
     
+    @Test
     public void testDecodedFile() throws IOException
     {
         assert(true);

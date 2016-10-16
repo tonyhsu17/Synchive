@@ -64,15 +64,6 @@ public class UtilitiesJUnitTest
     }
 
     @Test
-    public void test() throws IOException
-    {
-        testGetExtensionType();
-        testGetFilenameWithCRC();
-        testGetExtensionsForFiles();
-        testAddSeparator();
-        testCalculateCRC32();
-    }
-
     public void testGetExtensionType()
     {
         String extension = Utilities.getExtensionType("asd.exe"); 
@@ -94,6 +85,7 @@ public class UtilitiesJUnitTest
         assertEquals("", extension);
     }
     
+    @Test
     public void testGetFilenameWithCRC()
     {
         String fileWithCRC = Utilities.getFilenameWithCRC(null, ".exe", "ffffff", new String[] {"[","]"});
@@ -124,6 +116,7 @@ public class UtilitiesJUnitTest
         assertEquals("asd [FFFFFF].exe", fileWithCRC);
     }
     
+    @Test
     public void testGetExtensionsForFiles() throws IOException
     {
         assertEquals(null, Utilities.getExtensionsForFiles(null));
@@ -149,6 +142,7 @@ public class UtilitiesJUnitTest
         assertEquals(Arrays.toString(expectedArr), Arrays.toString(actualArr));
     }
     
+    @Test
     public void testAddSeparator()
     {
         String string = Utilities.addSeparator(null, ",", true);
@@ -179,6 +173,7 @@ public class UtilitiesJUnitTest
         assertEquals("", string);
     }
     
+    @Test
     public void testCalculateCRC32() throws IOException
     {
         try
