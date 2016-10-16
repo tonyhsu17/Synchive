@@ -1,6 +1,4 @@
-[
-~0: 
-  [
+[~0:[
   name: 00000000 "file1" flag: FILE_NOT_EXIST, 
   name: 5AD84AD3 "file2" flag: FILE_NOT_EXIST
   ], 

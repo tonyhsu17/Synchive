@@ -1,4 +1,4 @@
-package tests;
+
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class SrcFileProcJUnit
+public class SrcFileProcJUnitTest
 {
     /**
      * @throws java.lang.Exception

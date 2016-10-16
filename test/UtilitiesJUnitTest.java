@@ -1,7 +1,4 @@
-/**
- * 
- */
-package tests;
+
 
 import static org.junit.Assert.*;
 
@@ -27,7 +24,7 @@ import support.Utilities.ChecksumException;
  * 
  * @author Tony Hsu
  */
-public class UtilitiesJUnit
+public class UtilitiesJUnitTest
 {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -67,15 +64,6 @@ public class UtilitiesJUnit
     }
 
     @Test
-    public void test() throws IOException
-    {
-        testGetExtensionType();
-        testGetFilenameWithCRC();
-        testGetExtensionsForFiles();
-        testAddSeparator();
-        testCalculateCRC32();
-    }
-
     public void testGetExtensionType()
     {
         String extension = Utilities.getExtensionType("asd.exe"); 
@@ -97,6 +85,7 @@ public class UtilitiesJUnit
         assertEquals("", extension);
     }
     
+    @Test
     public void testGetFilenameWithCRC()
     {
         String fileWithCRC = Utilities.getFilenameWithCRC(null, ".exe", "ffffff", new String[] {"[","]"});
@@ -127,6 +116,7 @@ public class UtilitiesJUnit
         assertEquals("asd [FFFFFF].exe", fileWithCRC);
     }
     
+    @Test
     public void testGetExtensionsForFiles() throws IOException
     {
         assertEquals(null, Utilities.getExtensionsForFiles(null));
@@ -152,6 +142,7 @@ public class UtilitiesJUnit
         assertEquals(Arrays.toString(expectedArr), Arrays.toString(actualArr));
     }
     
+    @Test
     public void testAddSeparator()
     {
         String string = Utilities.addSeparator(null, ",", true);
@@ -182,6 +173,7 @@ public class UtilitiesJUnit
         assertEquals("", string);
     }
     
+    @Test
     public void testCalculateCRC32() throws IOException
     {
         try
