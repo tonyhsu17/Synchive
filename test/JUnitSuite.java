@@ -1,4 +1,4 @@
-package tests;
+
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -11,10 +11,10 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 
 @Suite.SuiteClasses({ 
-   UtilitiesJUnit.class,
-   DestFileProcJUnit.class,
-   SrcFileProcJUnit.class,
+   UtilitiesJUnitTest.class,
+   DestFileProcJUnitTest.class,
+   SrcFileProcJUnitTest.class,
 })
 
-public class JUnitTestSuite {
+public class JUnitSuite {
 }

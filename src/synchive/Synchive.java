@@ -64,5 +64,4 @@ public class Synchive
             controller.runSynchiveDiffer();
         }
     }
-    // String str = "ō"; //force file into UTF-8 encoding to change runtime
 }

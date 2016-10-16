@@ -1,7 +1,4 @@
-/**
- * 
- */
-package tests;
+
 
 import static org.junit.Assert.*;
 
@@ -27,7 +24,7 @@ import support.Utilities.ChecksumException;
  * 
  * @author Tony Hsu
  */
-public class UtilitiesJUnit
+public class UtilitiesJUnitTest
 {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
