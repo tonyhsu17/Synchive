@@ -85,21 +85,16 @@ public class DestFileProcJUnitTest
         setUpIDFile();
         System.out.println("Does id file exist: " + idFile.exists());
         destFP = new DestinationFileProcessor(folder.getRoot());
-        System.out.println("Comparing Size");
         Hashtable<String, SynchiveDirectory> table = destFP.getFiles();
+        System.out.println(destFP.toString());
         assertEquals(2, table.size());
-        System.out.println("comparing key");
         String key = "~0: ";
         assertEquals(true, table.containsKey(key));
-        System.out.println("comparing dir size");
         SynchiveDirectory dir = table.get(key);
         assertEquals(2, dir.getLookupTable().size());
-        System.out.println("comparing file exist");
         assertEquals(true, dir.doesFileExist("00000000 \"file1\""));
-        System.out.println("comparing file exist");
         assertEquals(true, dir.doesFileExist("5AD84AD3 \"file2\""));
         
-        System.out.println("comparing inner key");
         key = "~1: \\Test";
         assertEquals(true, table.containsKey(key));
         
