@@ -55,10 +55,9 @@ public class DestFileProcJUnitTest
     @Before
     public void setUp() throws Exception
     {
-        setUpDirectory();
     }
     
-    private void setUpDirectory() throws IOException
+    public void setUpIDFile() throws IOException
     {
          idFile = folder.newFile(Utilities.ID_FILE_NAME);
          FileWriter writer = new FileWriter(idFile);
@@ -83,6 +82,7 @@ public class DestFileProcJUnitTest
     @Test
     public void testDecodedFile() throws IOException
     {
+        setUpIDFile();
         destFP = new DestinationFileProcessor(folder.getRoot());
         
         Hashtable<String, SynchiveDirectory> table = destFP.getFiles();

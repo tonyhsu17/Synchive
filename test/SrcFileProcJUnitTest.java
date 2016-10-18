@@ -53,11 +53,9 @@ public class SrcFileProcJUnitTest
     @Before
     public void setUp() throws Exception
     {
-        setUpDirectory();
-        scrFP = new SourceFileProcessor(folder.getRoot());
     }
 
-    private void setUpDirectory() throws IOException
+    public void setUpIDFile() throws IOException
     {
         idFile = folder.newFile(Utilities.ID_FILE_NAME);
         FileWriter writer = new FileWriter(idFile);
@@ -79,8 +77,10 @@ public class SrcFileProcJUnitTest
     }
     
     @Test
-    public void testDecodedFile()
+    public void testDecodedFile() throws IOException
     {
+        setUpIDFile();
+        scrFP = new SourceFileProcessor(folder.getRoot());
         HashSet<String> names = new HashSet<String>();
         names.add("00000000 \"file1\"");
         names.add("5AD84AD3 \"file2\"");
