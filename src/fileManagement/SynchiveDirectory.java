@@ -5,6 +5,8 @@ import java.util.Hashtable;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import support.Utilities;
+
  
 /**
  * Class to store a list of files with a flag to determine 
@@ -65,7 +67,7 @@ public class SynchiveDirectory
         String[] splitStr = uniqueID.split(" ", 2); // [level, path]
         if(splitStr.length == 1) // if root directory
         {
-            directoryPath = "\\";
+            directoryPath = Utilities.separatorsToSystem("\\");
         }
         else if(splitStr.length == 2) // if directory in root
         {
