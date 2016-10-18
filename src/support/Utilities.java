@@ -216,7 +216,6 @@ public final class Utilities
     
     public static String getPath(File f)
     {
-        System.out.println("DirOS:" + f.getPath());
         return FilenameUtils.getFullPath(f.getAbsolutePath()) + FilenameUtils.getName(f.getName());
     }
     
