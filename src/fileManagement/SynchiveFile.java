@@ -212,6 +212,7 @@ public class SynchiveFile extends File
         return false;
     }
     
+    // Uses apache.org.commons getName for name consistency on Windows and Unix
     public String getName()
     {
         return FilenameUtils.getName(super.getName());
@@ -231,7 +232,6 @@ public class SynchiveFile extends File
     {
         if(uniqueID == null)
         {
-            System.out.println("NAME:" + getName());
             uniqueID = crc + " \"" + getName() + "\"";
             return uniqueID;
         }

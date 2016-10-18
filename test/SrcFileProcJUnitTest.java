@@ -17,6 +17,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import org.apache.commons.io.*;
+
 import fileManagement.SynchiveDirectory;
 import fileManagement.SynchiveFile;
 import fileManagement.fileProcessor.SourceFileProcessor;
@@ -28,32 +30,6 @@ public class SrcFileProcJUnitTest
     public TemporaryFolder folder = new TemporaryFolder();
     private SourceFileProcessor scrFP;
     private File idFile;
-    
-    /**
-     * @throws java.lang.Exception
-     */
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception
-    {
-        
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception
-    {
-
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-    }
 
     public void setUpIDFile() throws IOException
     {
@@ -68,12 +44,9 @@ public class SrcFileProcJUnitTest
         writer.close();
     }
     
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
+    public String getName(File f)
     {
+        return FilenameUtils.getName(f.getName());
     }
     
     @Test
@@ -104,28 +77,28 @@ public class SrcFileProcJUnitTest
             idFile = null;
         }
         HashSet<String> fileNames = new HashSet<String>();
-        fileNames.add(folder.newFile().getName());
-        fileNames.add(folder.newFile().getName());
-        fileNames.add(folder.newFile().getName());
+        fileNames.add(getName(folder.newFile()));
+        fileNames.add(getName(folder.newFile()));
+        fileNames.add(getName(folder.newFile()));
         
         File subFolder = folder.newFolder();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         
         subFolder = folder.newFolder();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         
         subFolder = new File(subFolder.getPath() + "/anotherSubFolder/");
         subFolder.mkdir();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         
         scrFP = new SourceFileProcessor(folder.getRoot());
         ArrayList<SynchiveFile> table = scrFP.getFiles();

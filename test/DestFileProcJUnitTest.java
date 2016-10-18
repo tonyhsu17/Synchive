@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 
@@ -18,9 +16,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import org.apache.commons.io.*;
+
 import fileManagement.SynchiveDirectory;
-import fileManagement.SynchiveDirectory.FileFlag;
-import fileManagement.SynchiveFile;
 import fileManagement.fileProcessor.DestinationFileProcessor;
 import support.Utilities;
 
@@ -30,32 +28,6 @@ public class DestFileProcJUnitTest
     public TemporaryFolder folder = new TemporaryFolder();
     private DestinationFileProcessor destFP;
     private File idFile;
-    
-    /**
-     * @throws java.lang.Exception
-     */
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception
-    {
-        
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception
-    {
-
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-    }
     
     public void setUpIDFile() throws IOException
     {
@@ -70,23 +42,18 @@ public class DestFileProcJUnitTest
          writer.close(); 
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
+    public String getName(File f)
     {
-        
+        return FilenameUtils.getName(f.getName());
     }
     
     @Test
     public void testDecodedFile() throws IOException
     {
         setUpIDFile();
-        System.out.println("Does id file exist: " + idFile.exists());
         destFP = new DestinationFileProcessor(folder.getRoot());
         Hashtable<String, SynchiveDirectory> table = destFP.getFiles();
-        System.out.println(destFP.toString());
+        
         assertEquals(2, table.size());
         String key = "~0: ";
         assertEquals(true, table.containsKey(key));
@@ -114,35 +81,35 @@ public class DestFileProcJUnitTest
         Hashtable<String, HashSet<String>> directory = new Hashtable<String, HashSet<String>>();
         
         HashSet<String> fileNames = new HashSet<String>();
-        fileNames.add(folder.newFile().getName());
-        fileNames.add(folder.newFile().getName());
-        fileNames.add(folder.newFile().getName());
+        fileNames.add(getName(folder.newFile()));
+        fileNames.add(getName(folder.newFile()));
+        fileNames.add(getName(folder.newFile()));
         directory.put("~0: ", fileNames);
         
         File subFolder = folder.newFolder();
         fileNames = new HashSet<String>();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        directory.put("~1: \\" + subFolder.getName(), fileNames);
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        directory.put("~1: \\" + getName(subFolder), fileNames);
         
         subFolder = folder.newFolder("testInner");
         fileNames = new HashSet<String>();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        directory.put("~1: \\" + subFolder.getName(), fileNames);
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        directory.put("~1: \\" + getName(subFolder), fileNames);
         
         subFolder = new File(subFolder.getPath() + "/anotherSubFolder/");
         fileNames = new HashSet<String>();
         subFolder.mkdir();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        directory.put("~2: \\testInner\\" + subFolder.getName(), fileNames);
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        directory.put("~2: \\testInner\\" + getName(subFolder), fileNames);
         
         
         destFP = new DestinationFileProcessor(folder.getRoot());
