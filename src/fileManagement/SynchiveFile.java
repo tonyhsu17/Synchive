@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import support.Utilities;
 import support.Utilities.ChecksumException;
-
+import org.apache.commons.io.*;
 
 /**
  * Class to provide each file with additional properties: crc32 value, depth level, is copy allowed.
@@ -210,6 +210,12 @@ public class SynchiveFile extends File
             }
         }
         return false;
+    }
+    
+    // Uses apache.org.commons getName for name consistency on Windows and Unix
+    public String getName()
+    {
+        return FilenameUtils.getName(super.getName());
     }
     
     // Returns uniqueID of file

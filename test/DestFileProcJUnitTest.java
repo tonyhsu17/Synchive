@@ -1,28 +1,20 @@
 
 
 import static org.junit.Assert.*;
+import static support.Utilities.*;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import fileManagement.SynchiveDirectory;
-import fileManagement.SynchiveDirectory.FileFlag;
-import fileManagement.SynchiveFile;
 import fileManagement.fileProcessor.DestinationFileProcessor;
-import support.Utilities;
 
 public class DestFileProcJUnitTest
 {
@@ -31,70 +23,34 @@ public class DestFileProcJUnitTest
     private DestinationFileProcessor destFP;
     private File idFile;
     
-    /**
-     * @throws java.lang.Exception
-     */
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception
+    public void setUpIDFile() throws IOException
     {
-        
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception
-    {
-
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception
-    {
-        setUpDirectory();
-        destFP = new DestinationFileProcessor(folder.getRoot());
-    }
-    
-    private void setUpDirectory() throws IOException
-    {
-        idFile = folder.newFile(Utilities.ID_FILE_NAME);
-        FileWriter writer = new FileWriter(idFile);
-        writer.write("Synchive v1.1 - root=D:\\TestA\n");
-        writer.write("~0: \n");
-        writer.write("00000000 \"file1\"\n");
-        writer.write("5AD84AD3 \"file2\"\n");
-        writer.write("~1: \\Test\n");
-        writer.write("70c4251b \"HIHI\"");
-        writer.close();
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
-    {
-        
+         idFile = folder.newFile(ID_FILE_NAME);
+         FileWriter writer = new FileWriter(idFile);
+         writer.write("Synchive v1.1 - root=D:\\TestA\n");
+         writer.write("~0: \n");
+         writer.write("00000000 \"file1\"\n");
+         writer.write("5AD84AD3 \"file2\"\n");
+         writer.write("~1: \\Test\n");
+         writer.write("70c4251b \"HIHI\"");
+         writer.close(); 
     }
     
     @Test
     public void testDecodedFile() throws IOException
     {
+        setUpIDFile();
+        destFP = new DestinationFileProcessor(folder.getRoot());
         Hashtable<String, SynchiveDirectory> table = destFP.getFiles();
-        assertEquals(2, table.size());
         
+        assertEquals(2, table.size());
         String key = "~0: ";
         assertEquals(true, table.containsKey(key));
-        
         SynchiveDirectory dir = table.get(key);
         assertEquals(2, dir.getLookupTable().size());
         assertEquals(true, dir.doesFileExist("00000000 \"file1\""));
         assertEquals(true, dir.doesFileExist("5AD84AD3 \"file2\""));
-
+        
         key = "~1: \\Test";
         assertEquals(true, table.containsKey(key));
         
@@ -105,7 +61,7 @@ public class DestFileProcJUnitTest
     
     @Test
     public void testReadFiles() throws Exception
-    {
+    {        
         if(idFile != null)
         {
             idFile.delete();
@@ -114,41 +70,40 @@ public class DestFileProcJUnitTest
         Hashtable<String, HashSet<String>> directory = new Hashtable<String, HashSet<String>>();
         
         HashSet<String> fileNames = new HashSet<String>();
-        fileNames.add(folder.newFile().getName());
-        fileNames.add(folder.newFile().getName());
-        fileNames.add(folder.newFile().getName());
+        fileNames.add(getName(folder.newFile()));
+        fileNames.add(getName(folder.newFile()));
+        fileNames.add(getName(folder.newFile()));
         directory.put("~0: ", fileNames);
         
         File subFolder = folder.newFolder();
         fileNames = new HashSet<String>();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        directory.put("~1: \\" + subFolder.getName(), fileNames);
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        directory.put("~1: " + separatorsToSystem("\\" + getName(subFolder)), fileNames);
         
         subFolder = folder.newFolder("testInner");
         fileNames = new HashSet<String>();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        directory.put("~1: \\" + subFolder.getName(), fileNames);
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        directory.put("~1: " + separatorsToSystem("\\" + getName(subFolder)), fileNames);
         
         subFolder = new File(subFolder.getPath() + "/anotherSubFolder/");
         fileNames = new HashSet<String>();
         subFolder.mkdir();
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        fileNames.add(File.createTempFile("prefix", ".temp", subFolder).getName());
-        directory.put("~2: \\testInner\\" + subFolder.getName(), fileNames);
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
+        directory.put("~2: " + separatorsToSystem("\\testInner\\" + getName(subFolder)), fileNames);
         
         
         destFP = new DestinationFileProcessor(folder.getRoot());
         Hashtable<String, SynchiveDirectory> table = destFP.getFiles();
         assertEquals(directory.size(), table.size());
-        
         for(String folderName : directory.keySet())
         {
             assertEquals(true, table.containsKey(folderName));

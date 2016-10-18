@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
 
+import org.apache.commons.io.FilenameUtils;
+
 
 /**
  * Static Methods Class containing useful helper methods.
@@ -210,6 +212,21 @@ public final class Utilities
             hex = "0" + hex;
         }
         return hex;
+    }
+    
+    public static String getPath(File f)
+    {
+        return FilenameUtils.getFullPath(f.getAbsolutePath()) + FilenameUtils.getName(f.getName());
+    }
+    
+    public static String getName(File f)
+    {
+        return FilenameUtils.getName(f.getName());
+    }
+    
+    public static String separatorsToSystem(String str)
+    {
+        return FilenameUtils.separatorsToSystem(str);
     }
     
     /**

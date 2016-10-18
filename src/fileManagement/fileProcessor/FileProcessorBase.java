@@ -108,7 +108,8 @@ public abstract class FileProcessorBase
             // if idFile not found, process each file within directory
             if(idFiles.length == 0)
             {
-                String dirID = SynchiveDirectory.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
+               String dirID = SynchiveDirectory.getDirectoryUniqueID(Utilities.getPath(file),
+                    file.getDepth(), Utilities.getPath(root));
                 processingDirectory(new SynchiveDirectory(dirID)); // internally store info & abstract method
                 readFilesWithinDirectory(file);
             }
@@ -117,7 +118,7 @@ public abstract class FileProcessorBase
                 try
                 {
                     // check if idFile is in root or not
-                    if(file.getPath().equals(getRoot().getPath())) 
+                    if(file.getPath().equals(Utilities.getPath(root))) 
                     {
                         doesRootIDFileExist = true;
                     }
@@ -127,7 +128,7 @@ public abstract class FileProcessorBase
                         //TODO Delete subIDFile sometime later? or update it?
                     }
                     
-                    postEvent(Events.Status, "Reading in fileIDs for \"" + idFiles[0].getParentFile().getName() + "\"");
+                    postEvent(Events.Status, "Reading in fileIDs for \"" + Utilities.getName(idFiles[0].getParentFile()) + "\"");
                     readFromIDFile(idFiles[0], file.getDepth());
                 }
                 catch (IOException e)
@@ -148,8 +149,8 @@ public abstract class FileProcessorBase
         for(File fileEntry : file.listFiles()) // go through each file in directory
         {
             if(fileEntry.isDirectory() && 
-                !fileEntry.getName().equals(Utilities.LEFTOVER_FOLDER) &&
-                !Settings.getInstance().getSkipFoldersName().contains(fileEntry.getName())) // add child folders to read as well
+                !Utilities.getName(fileEntry).equals(Utilities.LEFTOVER_FOLDER) &&
+                !Settings.getInstance().getSkipFoldersName().contains(Utilities.getName(fileEntry))) // add child folders to read as well
             {
                 directoriesToProcess.push(new SynchiveFile(fileEntry, file.getDepth() + 1));
             }
@@ -163,7 +164,7 @@ public abstract class FileProcessorBase
                  !temp.getName().equals(Utilities.AUDIT_FILE_NAME) &&
                  temp.determineProcessingAllowed(Settings.getInstance().getSkipExtensionTypesText()))
                 {
-                    postEvent(Events.ProcessingFile, "Reading file... " + temp.getName());
+                    postEvent(Events.ProcessingFile, "Reading file... " + Utilities.getName(temp));
                     
                     try
                     {
@@ -189,14 +190,14 @@ public abstract class FileProcessorBase
                         catch (ChecksumException e) // catch file checksum mismatch
                         {
                             postEvent(Events.ErrorOccurred, 
-                                "Checksum mismatch for: \"" + temp.getName() + "\"\n  " +
+                                "Checksum mismatch for: \"" + Utilities.getName(temp) + "\"\n  " +
                                     "- Calculated: [" + temp.getCRC().toUpperCase() + "] Found: " + e.getMessage());
                         }
                     }
                     
                     if(temp.copyAllowed())
                     {
-                        String dirID = SynchiveDirectory.getDirectoryUniqueID(file.getPath(), file.getDepth(), root.getPath());
+                        String dirID = SynchiveDirectory.getDirectoryUniqueID(Utilities.getPath(file), file.getDepth(), Utilities.getPath(root));
                         fileProcessed(temp, new SynchiveDirectory(dirID)); // internally store info & abstract method
                     }
                 }
@@ -222,7 +223,7 @@ public abstract class FileProcessorBase
             throw new IOException("Empty File");
         }
         
-        String locationDir = file.getParentFile().getPath(); // directory of root        
+        String locationDir = Utilities.getPath(file.getParentFile()); // directory of root        
         
         str = sc.readLine();
         //TODO: skip directory && extension types
@@ -237,7 +238,7 @@ public abstract class FileProcessorBase
             int newLevel = Integer.parseInt(String.valueOf(splitDir[0].charAt(1))) + baseDepth;
             
             String path = locationDir + splitDir[1];
-            String dirID = SynchiveDirectory.getDirectoryUniqueID(path, newLevel, getRoot().getPath());
+            String dirID = SynchiveDirectory.getDirectoryUniqueID(path, newLevel, Utilities.getPath(root));
             SynchiveDirectory dir = new SynchiveDirectory(dirID);
             
             processingDirectory(dir); // internally store info & abstract method
