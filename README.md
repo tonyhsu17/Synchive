@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/tonyhsu17/Synchive.png?branch=master)](https://travis-ci.org/tonyhsu17/Synchive)
 
-# Synchive v1.0
+# Synchive
 Used as a backup tool to keep your backup directory the same as your working directory.
 Any files not in your working directory but the backup directory will be moved to another folder.
 In order to achieve faster performance in subsequent runs, a file will be generated that lists all

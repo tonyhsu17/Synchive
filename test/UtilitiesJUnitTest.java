@@ -189,7 +189,7 @@ public class UtilitiesJUnitTest
             assertEquals("352441c2", Utilities.calculateCRC32(temp));
             
             Utilities.calculateCRC32(new File("asd"));
-            assert(false);
+            fail("should not reach here");
         }
         catch (ChecksumException e)
         {

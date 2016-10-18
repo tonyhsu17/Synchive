@@ -424,7 +424,7 @@ public abstract class FileProcessorBase
     /**
      * @return Structural mapping of each folder
      */
-    public Hashtable<String, SynchiveDirectory> getStructuredMapping()
+    protected Hashtable<String, SynchiveDirectory> getStructuredMapping()
     {
         return directoryList;
     }

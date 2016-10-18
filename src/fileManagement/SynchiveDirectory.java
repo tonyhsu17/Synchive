@@ -102,7 +102,7 @@ public class SynchiveDirectory
     /**
      * Change file exist to true for fileName if found
      * 
-     * @param fileName Name of file to change
+     * @param fileName Uid of file to change
      * @return file found in list
      */
     public boolean doesFileExist(String fileName)
