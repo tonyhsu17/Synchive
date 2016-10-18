@@ -88,7 +88,7 @@ public class DestFileProcJUnitTest
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
-        directory.put("~1: \\" + getName(subFolder), fileNames);
+        directory.put("~1: /" + getName(subFolder), fileNames);
         
         subFolder = folder.newFolder("testInner");
         fileNames = new HashSet<String>();
@@ -96,7 +96,7 @@ public class DestFileProcJUnitTest
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
-        directory.put("~1: \\" + getName(subFolder), fileNames);
+        directory.put("~1: /" + getName(subFolder), fileNames);
         
         subFolder = new File(subFolder.getPath() + "/anotherSubFolder/");
         fileNames = new HashSet<String>();
@@ -105,7 +105,7 @@ public class DestFileProcJUnitTest
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
         fileNames.add(getName(File.createTempFile("prefix", ".temp", subFolder)));
-        directory.put("~2: \\testInner\\" + getName(subFolder), fileNames);
+        directory.put("~2: /testInner\\" + getName(subFolder), fileNames);
         
         
         destFP = new DestinationFileProcessor(folder.getRoot());
