@@ -114,12 +114,14 @@ public class DestFileProcJUnitTest
         System.out.println(destFP.toString());
         for(String folderName : directory.keySet())
         {
+            System.out.println("Dir: " + folderName);
             assertEquals(true, table.containsKey(folderName));
             
             SynchiveDirectory testDir = table.get(folderName);
             assertEquals(directory.get(folderName).size(), testDir.getLookupTable().size());
             for(String fileName : directory.get(folderName))
             {
+                System.out.println("File: " + fileName);
                 assertEquals(true, testDir.doesFileExist("00000000 \"" + fileName + "\""));
             }
             
