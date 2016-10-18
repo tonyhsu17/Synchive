@@ -30,6 +30,7 @@ public class DestFileProcJUnitTest
     public TemporaryFolder folder = new TemporaryFolder();
     private DestinationFileProcessor destFP;
     private File idFile;
+    private boolean shouldTest;
     
     /**
      * @throws java.lang.Exception
@@ -55,21 +56,31 @@ public class DestFileProcJUnitTest
     @Before
     public void setUp() throws Exception
     {
+        shouldTest = true;
         setUpDirectory();
         destFP = new DestinationFileProcessor(folder.getRoot());
     }
     
-    private void setUpDirectory() throws IOException
+    private void setUpDirectory()
     {
-        idFile = folder.newFile(Utilities.ID_FILE_NAME);
-        FileWriter writer = new FileWriter(idFile);
-        writer.write("Synchive v1.1 - root=D:\\TestA\n");
-        writer.write("~0: \n");
-        writer.write("00000000 \"file1\"\n");
-        writer.write("5AD84AD3 \"file2\"\n");
-        writer.write("~1: \\Test\n");
-        writer.write("70c4251b \"HIHI\"");
-        writer.close();
+        try
+        {
+            idFile = folder.newFile(Utilities.ID_FILE_NAME);
+            FileWriter writer = new FileWriter(idFile);
+            writer.write("Synchive v1.1 - root=D:\\TestA\n");
+            writer.write("~0: \n");
+            writer.write("00000000 \"file1\"\n");
+            writer.write("5AD84AD3 \"file2\"\n");
+            writer.write("~1: \\Test\n");
+            writer.write("70c4251b \"HIHI\"");
+            writer.close(); 
+        }
+        catch(IOException e)
+        {
+            System.out.println("No write permission, skipping tests");
+            shouldTest = false;
+        }
+        
     }
 
     /**
@@ -84,6 +95,10 @@ public class DestFileProcJUnitTest
     @Test
     public void testDecodedFile() throws IOException
     {
+        if(!shouldTest)
+        {
+            return;
+        }
         Hashtable<String, SynchiveDirectory> table = destFP.getFiles();
         assertEquals(2, table.size());
         
@@ -106,6 +121,11 @@ public class DestFileProcJUnitTest
     @Test
     public void testReadFiles() throws Exception
     {
+        if(!shouldTest)
+        {
+            return;
+        }
+        
         if(idFile != null)
         {
             idFile.delete();
