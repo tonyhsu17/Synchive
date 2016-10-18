@@ -226,6 +226,7 @@ public class SynchiveFile extends File
     {
         if(uniqueID == null)
         {
+            System.out.println("NAME:" + getName());
             uniqueID = crc + " \"" + getName() + "\"";
             return uniqueID;
         }
