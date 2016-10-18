@@ -8,10 +8,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Hashtable;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -115,7 +111,7 @@ public class DestFileProcJUnitTest
         destFP = new DestinationFileProcessor(folder.getRoot());
         Hashtable<String, SynchiveDirectory> table = destFP.getFiles();
         assertEquals(directory.size(), table.size());
-        
+        System.out.println(destFP.toString());
         for(String folderName : directory.keySet())
         {
             assertEquals(true, table.containsKey(folderName));
