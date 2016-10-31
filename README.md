@@ -2,9 +2,10 @@
 
 # Synchive
 Used as a backup tool to keep your backup directory the same as your working directory.
-Any files not in your working directory but the backup directory will be moved to another folder.
+Any files not in your working directory but the backup directory will be moved to another directory.
 In order to achieve faster performance in subsequent runs, a file will be generated that lists all
 items in the backup directory. This file will be used as an alternative to reading each item in backup. 
+Use [SynchiveMonitor](https://github.com/tonyhsu17/SynchiveMonitor) to persistently keep source directory id file updated in order to skip reading each file in source when backing up.  
 
 ## Features
 - Check CRC32 before copying
