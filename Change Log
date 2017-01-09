@@ -1,7 +1,13 @@
 Change Log
 
+v1.3
+- Fixed creating empty output.txt files
+- Using ApacheIO for consistency between OS machines
+- Folder structure reorganized
+- TravisCI integration
+
 v1.2
-- source idFile updated to include file renaming changes if source idFile exist
+- Source idFile updated to include file renaming changes if source idFile exist
 
 v1.1
 - CRC now added to filename from idFile
