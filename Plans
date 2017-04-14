@@ -1,7 +1,5 @@
 TODO list
 Bugs:
-Fix "\\" to use File.pathSeparator
-Got output "Copy CRC MISMATCH for file: ~listOfFilesInCRC.txt"
 
 
 In no particular order:
