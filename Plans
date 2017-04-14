@@ -1,17 +1,16 @@
 TODO list
+Bugs:
+
+
 In no particular order:
 - Add java docs and comments for everything
 - Add command line ability (-nogui ...) (TODO TEST)
-- Allow pausing or stopping
+- Allow pausing or stopping (add partial diffing)
 - Add folder selection for locations ("..." button)
 - Include verbosity level for status reports
 - Add tooltips
 - Add test cases 
 - Multiple profiles
-
-- Add UI resizing 
+- Add UI resizing (Switch to javafx?)
 - refactor EventCenter to take in object & generateID from there
 
-
-Known Bugs
-- Name.mkv -> Name[CRC].mkv BUG

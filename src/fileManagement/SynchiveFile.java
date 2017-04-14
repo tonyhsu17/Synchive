@@ -171,8 +171,8 @@ public class SynchiveFile extends File
                     char left = leading.charAt(i);
                     char right = trailing.charAt(i);
 
-                    sanitizedLeading += charContains(left, SPECIAL_CHARACTERS) ? ("\\" + left) : left;
-                    sanitizedTrailing += charContains(right, SPECIAL_CHARACTERS) ? ("\\" + right) : right;
+                    sanitizedLeading += charContains(left, SPECIAL_CHARACTERS) ? (File.separator + left) : left;
+                    sanitizedTrailing += charContains(right, SPECIAL_CHARACTERS) ? (File.separator + right) : right;
                 }
 
                 // String pattern matching using delimiters and set formatting for CRC32 in hex

@@ -135,13 +135,13 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
      */
     public void completionHandler() throws IOException
     {
-        BufferedWriter output = new BufferedWriter(new FileWriter("output.txt"));
+        BufferedWriter output; 
         switch(Settings.getInstance().getCompletionFlag())
         {
             case doNothing:
-                output.close();
                 break;
             case close:
+                output = new BufferedWriter(new FileWriter("output.txt"));
                 output.write(tabController.getView().getErrorLogs());
                 output.newLine();
                 output.write("Completed in: " + watch.toString());
@@ -149,10 +149,10 @@ public class SummaryController implements SummaryViewDelegate, StopWatchDelegate
                 System.exit(0);
                 break;
             case standBy:
-                output.close();
                 PowerOptions.sleep();
                 break;
             case shutdown:
+                output = new BufferedWriter(new FileWriter("output.txt"));
                 output.write(tabController.getView().getErrorLogs());
                 output.newLine();
                 output.write("Completed in: " + watch.toString());

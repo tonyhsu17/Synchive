@@ -254,7 +254,7 @@ public abstract class FileProcessorBase
                 }
                 
                 // reconstruct file path (root path + directory path + fileName)
-                String fileLoc = locationDir + splitDir[1] + "\\" + 
+                String fileLoc = locationDir + splitDir[1] + File.separator + 
                     splitStr[1].substring(1, splitStr[1].length() - 1);
                 
                 // add crc to filename is flag checked 
@@ -278,40 +278,34 @@ public abstract class FileProcessorBase
      */
     private SynchiveFile addCRCToFilename(SynchiveFile temp)
     {
-        if(Settings.getInstance().getCrcInFilenameFlag() && !temp.getHasCRCInFilename(getCRCDelimiters()))
+        if(Settings.getInstance().getCrcInFilenameFlag() && !temp.getHasCRCInFilename(getCRCDelimiters()) &&
+            Settings.getInstance().isExtensionInAddCrcToExtension(Utilities.getExtensionType(temp.getName())))
         {
-            String[] addCRCToExtentions = Settings.getInstance().getAddCRCToExtensionTypes();
-            for(String extension : addCRCToExtentions)
-            {
-                if(temp.getName().endsWith(extension))
-                {
-                    postEvent(Events.ProcessingFile, "Adding CRC to filename... " + temp.getName());
-                    String[] delimiter = {Settings.getInstance().getCrcDelimLeadingText(), 
-                        Settings.getInstance().getCrcDelimTrailingText()};
-                    String path = temp.getParent() + "\\" + 
-                        Utilities.getFilenameWithCRC(temp.getName(), extension, temp.getCRC(), delimiter);
-                    File newFile = new File(path);
-                    
-                    try
-                    {
-                        if(temp.renameTo(newFile))
-                        {
-                            hasDoneRenaming = true;
-                            return new SynchiveFile(newFile, temp.getDepth(), temp.getCRC());
-                        }
-                        else
-                        {
-                            postEvent(Events.ErrorOccurred, "Unable to add CRC to filename... " + temp.getName());
-                            return temp;
-                        }
-                    }
-                    catch(SecurityException e)
-                    {
-                        postEvent(Events.ErrorOccurred, "Unable to add CRC to filename... " + temp.getName());
-                        return temp;
-                    }
-                }
-            }
+             postEvent(Events.ProcessingFile, "Adding CRC to filename... " + temp.getName());
+             String[] delimiter = {Settings.getInstance().getCrcDelimLeadingText(), 
+                 Settings.getInstance().getCrcDelimTrailingText()};
+             String path = temp.getParent() + File.separator + 
+                 Utilities.getFilenameWithCRC(temp.getName(), Utilities.getExtensionType(temp.getName()), temp.getCRC(), delimiter);
+             File newFile = new File(path);
+             
+             try
+             {
+                 if(temp.renameTo(newFile))
+                 {
+                     hasDoneRenaming = true;
+                     return new SynchiveFile(newFile, temp.getDepth(), temp.getCRC());
+                 }
+                 else
+                 {
+                     postEvent(Events.ErrorOccurred, "Unable to add CRC to filename... " + temp.getName());
+                     return temp;
+                 }
+             }
+             catch(SecurityException e)
+             {
+                 postEvent(Events.ErrorOccurred, "Unable to add CRC to filename... " + temp.getName());
+                 return temp;
+             }
         }
         return temp;
     }
@@ -324,7 +318,7 @@ public abstract class FileProcessorBase
     public void writeToFile(boolean checkExist) throws IOException
     {
         CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
-        BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(getRoot().getPath() + "\\" + Utilities.ID_FILE_NAME)), encoder));
+        BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(getRoot().getPath() + File.separator + Utilities.ID_FILE_NAME)), encoder));
         output.write("Synchive " + Globals.VERSION + " - root=" + getRoot().getPath());
         output.newLine();
         

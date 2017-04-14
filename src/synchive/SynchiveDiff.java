@@ -113,16 +113,23 @@ public class SynchiveDiff implements Runnable
                 {
                     if(!dir.doesFileExist(temp.getUniqueID())) // if file does not exist
                     {
-                        dir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
-                        copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
-                        postEvent(Events.ProcessingFile, isRoot ? "Added \"" + temp.getName() + "\" to \"root\"" : 
-                            "Added \"" + temp.getName() + "\" to \"" + dir.getRelativeDirectoryPath() + "\"");
+                        try
+                        {
+                            copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
+                            postEvent(Events.ProcessingFile, isRoot ? "Added \"" + temp.getName() + "\" to \"root\"" : 
+                                "Added \"" + temp.getName() + "\" to \"" + dir.getRelativeDirectoryPath() + "\"");
+                            dir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
+                        }
+                        catch(IOException e)
+                        {
+                        }
                     }
                 }
                 else
                 {
                     // else make new directory and add to destinationList
-                    String relativeDir = isRoot ? "\\" : temp.getParentFile().getName();
+                    
+                    String relativeDir = isRoot ? File.separator : temp.getParentFile().getName();
                     String relativeDirFromRoot = temp.getParent().substring(srcLoc.getPath().length());
                     String destinationDir = desLoc.getPath() + relativeDirFromRoot;
                     File fd = new File(destinationDir);
@@ -137,10 +144,16 @@ public class SynchiveDiff implements Runnable
                             : new SynchiveDirectory(SynchiveDirectory.getDirectoryUniqueID(fd.getPath(), temp.getDepth(), desLoc.getPath()));
 
                     newDir.setRelativeDirectoryPath(relativeDir);
-                    newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
-                    destinationList.put(newDir.getUniqueID(), newDir); // add newDir to folderHashTable
-                    copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
                     
+                    try
+                    {
+                        copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
+                        newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
+                        destinationList.put(newDir.getUniqueID(), newDir); // add newDir to folderHashTable
+                    }
+                    catch(IOException e)
+                    {
+                    }
                     postEvent(Events.ProcessingFile, isRoot ? 
                         "Added \"" + temp.getName() + "\" to \"root\"" :
                         "Added \"" + temp.getName() + "\" to \"" + newDir.getRelativeDirectoryPath() + "\"");
@@ -189,25 +202,21 @@ public class SynchiveDiff implements Runnable
     private void copyFile(SynchiveFile file, StandardCopyOption op) throws IOException
     {
         String relativePath = file.getParent().substring(srcLoc.getPath().length());
-        String destinationPath = desLoc.getPath() + relativePath + "\\" + file.getName();
+        String destinationPath = desLoc.getPath() + relativePath + File.separator + file.getName();
         try
         {
             Files.copy(Paths.get(file.getPath()), Paths.get(destinationPath), op);
+            String desCRC = Utilities.calculateCRC32(new File(destinationPath));
+            if(file.getCRC().compareToIgnoreCase(desCRC) != 0)
+            {
+                postEvent(Events.ErrorOccurred, "Copy CRC MISMATCH for file: " + file.getName() + 
+                    " srcCRC: " + file.getCRC() + " desCRC: " + desCRC);
+            }
         }
         catch (IOException | UnsupportedOperationException | SecurityException e)
         {
             postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
-        }
-
-        // CRC32 Check
-        // if failed... delete file and try again?
-        // is this even necessary?
-        try
-        {
-            if(file.getCRC().compareToIgnoreCase(Utilities.calculateCRC32(new File(destinationPath))) != 0)
-            {
-                postEvent(Events.ErrorOccurred, "Copy CRC MISMATCH for file: " + file.getName());
-            }
+            throw new IOException();
         }
         catch (ChecksumException e)
         {
@@ -225,7 +234,7 @@ public class SynchiveDiff implements Runnable
     private void moveFile(File file, StandardCopyOption op) throws IOException
     {
         String relativePath = file.getParent().substring(desLoc.getPath().length());
-        String destinationPath = desLoc.getPath() + "\\" + LEFTOVER_FOLDER + relativePath + "\\" + file.getName();
+        String destinationPath = desLoc.getPath() + File.separator + LEFTOVER_FOLDER + relativePath + File.separator + file.getName();
 
         try
         {
@@ -237,6 +246,7 @@ public class SynchiveDiff implements Runnable
         catch (IOException e)
         {
             postEvent(Events.ErrorOccurred, "Unable to move file: " + file.getName() + " to \"" + LEFTOVER_FOLDER + "\"");
+            throw new IOException();
         }
     }
 
@@ -286,7 +296,7 @@ public class SynchiveDiff implements Runnable
                         if(val == SynchiveDirectory.FileFlag.FILE_NOT_EXIST)
                         {
                             // make leftover folder for not found ones
-                            File leftoversFolder = new File(desLoc.getPath() + "\\" + LEFTOVER_FOLDER);
+                            File leftoversFolder = new File(desLoc.getPath() + File.separator + LEFTOVER_FOLDER);
                             if(!Files.exists(leftoversFolder.toPath()))
                                 createDirectory(leftoversFolder);
 
@@ -317,7 +327,7 @@ public class SynchiveDiff implements Runnable
      */
     private String getLeftoverPath(File file)
     {
-        String retVal = desLoc.getPath() + "\\" + LEFTOVER_FOLDER + file.getPath().substring(desLoc.getPath().length());
+        String retVal = desLoc.getPath() + File.separator + LEFTOVER_FOLDER + file.getPath().substring(desLoc.getPath().length());
         return retVal;
     }
 
@@ -331,7 +341,7 @@ public class SynchiveDiff implements Runnable
     {
         String[] splitDir = fileDir.getUniqueID().split(": ");
         String[] splitFile = fileName.split("\"");
-        String retVal = desLoc.getPath() + (splitDir.length == 2 ? splitDir[1] : "") + "\\" + splitFile[1];
+        String retVal = desLoc.getPath() + (splitDir.length == 2 ? splitDir[1] : "") + File.separator + splitFile[1];
         return retVal;
     }
     
