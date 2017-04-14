@@ -430,6 +430,22 @@ public class Settings
     {
         this.addCrcToExtensionTypeText = addCrcToExtensionTypeText;
     }
+    
+    /**
+     * @param extension Include the '.'
+     * @return
+     */
+    public boolean isExtensionInAddCrcToExtension(String extension)
+    {
+        for(String str : getAddCRCToExtensionTypes())
+        {
+            if(extension.toLowerCase().equals(str))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public String getCrcDelimLeadingText()
     {

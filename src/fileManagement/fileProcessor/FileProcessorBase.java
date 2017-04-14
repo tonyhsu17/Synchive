@@ -278,40 +278,34 @@ public abstract class FileProcessorBase
      */
     private SynchiveFile addCRCToFilename(SynchiveFile temp)
     {
-        if(Settings.getInstance().getCrcInFilenameFlag() && !temp.getHasCRCInFilename(getCRCDelimiters()))
+        if(Settings.getInstance().getCrcInFilenameFlag() && !temp.getHasCRCInFilename(getCRCDelimiters()) &&
+            Settings.getInstance().isExtensionInAddCrcToExtension(Utilities.getExtensionType(temp.getName())))
         {
-            String[] addCRCToExtentions = Settings.getInstance().getAddCRCToExtensionTypes();
-            for(String extension : addCRCToExtentions)
-            {
-                if(temp.getName().endsWith(extension))
-                {
-                    postEvent(Events.ProcessingFile, "Adding CRC to filename... " + temp.getName());
-                    String[] delimiter = {Settings.getInstance().getCrcDelimLeadingText(), 
-                        Settings.getInstance().getCrcDelimTrailingText()};
-                    String path = temp.getParent() + "\\" + 
-                        Utilities.getFilenameWithCRC(temp.getName(), extension, temp.getCRC(), delimiter);
-                    File newFile = new File(path);
-                    
-                    try
-                    {
-                        if(temp.renameTo(newFile))
-                        {
-                            hasDoneRenaming = true;
-                            return new SynchiveFile(newFile, temp.getDepth(), temp.getCRC());
-                        }
-                        else
-                        {
-                            postEvent(Events.ErrorOccurred, "Unable to add CRC to filename... " + temp.getName());
-                            return temp;
-                        }
-                    }
-                    catch(SecurityException e)
-                    {
-                        postEvent(Events.ErrorOccurred, "Unable to add CRC to filename... " + temp.getName());
-                        return temp;
-                    }
-                }
-            }
+             postEvent(Events.ProcessingFile, "Adding CRC to filename... " + temp.getName());
+             String[] delimiter = {Settings.getInstance().getCrcDelimLeadingText(), 
+                 Settings.getInstance().getCrcDelimTrailingText()};
+             String path = temp.getParent() + "\\" + 
+                 Utilities.getFilenameWithCRC(temp.getName(), Utilities.getExtensionType(temp.getName()), temp.getCRC(), delimiter);
+             File newFile = new File(path);
+             
+             try
+             {
+                 if(temp.renameTo(newFile))
+                 {
+                     hasDoneRenaming = true;
+                     return new SynchiveFile(newFile, temp.getDepth(), temp.getCRC());
+                 }
+                 else
+                 {
+                     postEvent(Events.ErrorOccurred, "Unable to add CRC to filename... " + temp.getName());
+                     return temp;
+                 }
+             }
+             catch(SecurityException e)
+             {
+                 postEvent(Events.ErrorOccurred, "Unable to add CRC to filename... " + temp.getName());
+                 return temp;
+             }
         }
         return temp;
     }

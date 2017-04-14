@@ -113,10 +113,16 @@ public class SynchiveDiff implements Runnable
                 {
                     if(!dir.doesFileExist(temp.getUniqueID())) // if file does not exist
                     {
-                        dir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
-                        copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
-                        postEvent(Events.ProcessingFile, isRoot ? "Added \"" + temp.getName() + "\" to \"root\"" : 
-                            "Added \"" + temp.getName() + "\" to \"" + dir.getRelativeDirectoryPath() + "\"");
+                        try
+                        {
+                            copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // Copy file over
+                            postEvent(Events.ProcessingFile, isRoot ? "Added \"" + temp.getName() + "\" to \"root\"" : 
+                                "Added \"" + temp.getName() + "\" to \"" + dir.getRelativeDirectoryPath() + "\"");
+                            dir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add to hashTable
+                        }
+                        catch(IOException e)
+                        {
+                        }
                     }
                 }
                 else
@@ -137,10 +143,16 @@ public class SynchiveDiff implements Runnable
                             : new SynchiveDirectory(SynchiveDirectory.getDirectoryUniqueID(fd.getPath(), temp.getDepth(), desLoc.getPath()));
 
                     newDir.setRelativeDirectoryPath(relativeDir);
-                    newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
-                    destinationList.put(newDir.getUniqueID(), newDir); // add newDir to folderHashTable
-                    copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
                     
+                    try
+                    {
+                        copyFile(temp, StandardCopyOption.REPLACE_EXISTING); // copy file over
+                        newDir.addFile(temp.getUniqueID(), SynchiveDirectory.FileFlag.FILE_EXIST); // add file to new folder
+                        destinationList.put(newDir.getUniqueID(), newDir); // add newDir to folderHashTable
+                    }
+                    catch(IOException e)
+                    {
+                    }
                     postEvent(Events.ProcessingFile, isRoot ? 
                         "Added \"" + temp.getName() + "\" to \"root\"" :
                         "Added \"" + temp.getName() + "\" to \"" + newDir.getRelativeDirectoryPath() + "\"");
@@ -193,21 +205,17 @@ public class SynchiveDiff implements Runnable
         try
         {
             Files.copy(Paths.get(file.getPath()), Paths.get(destinationPath), op);
+            String desCRC = Utilities.calculateCRC32(new File(destinationPath));
+            if(file.getCRC().compareToIgnoreCase(desCRC) != 0)
+            {
+                postEvent(Events.ErrorOccurred, "Copy CRC MISMATCH for file: " + file.getName() + 
+                    " srcCRC: " + file.getCRC() + " desCRC: " + desCRC);
+            }
         }
         catch (IOException | UnsupportedOperationException | SecurityException e)
         {
             postEvent(Events.ErrorOccurred, "Unable to copy file " + file.getName());
-        }
-
-        // CRC32 Check
-        // if failed... delete file and try again?
-        // is this even necessary?
-        try
-        {
-            if(file.getCRC().compareToIgnoreCase(Utilities.calculateCRC32(new File(destinationPath))) != 0)
-            {
-                postEvent(Events.ErrorOccurred, "Copy CRC MISMATCH for file: " + file.getName());
-            }
+            throw new IOException();
         }
         catch (ChecksumException e)
         {
@@ -237,6 +245,7 @@ public class SynchiveDiff implements Runnable
         catch (IOException e)
         {
             postEvent(Events.ErrorOccurred, "Unable to move file: " + file.getName() + " to \"" + LEFTOVER_FOLDER + "\"");
+            throw new IOException();
         }
     }
 
